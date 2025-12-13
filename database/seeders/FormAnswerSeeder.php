@@ -14,7 +14,7 @@ class FormAnswerSeeder extends Seeder
      */
     public function run(): void
     {
-        // 1. Ambil semua Submisi yang BELUM punya jawaban
+        // Ambil semua Submisi yang BELUM punya jawaban
         // (Submisi ini dibuat di FormSubmissionSeeder sebelumnya)
         $submissions = FormSubmission::with('form.questions') // Eager load pertanyaan
             ->doesntHave('answers')
