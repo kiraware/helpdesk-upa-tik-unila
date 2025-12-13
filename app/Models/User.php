@@ -2,8 +2,10 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -18,9 +20,15 @@ class User extends Authenticatable
      * @var list<string>
      */
     protected $fillable = [
+        'username_sso',
         'name',
         'email',
         'password',
+        'identity_number',
+        'phone',
+        'avatar_path',
+        'role',
+        'division_id',
     ];
 
     /**
@@ -43,6 +51,33 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => UserRole::class,
         ];
+    }
+
+    // --- RELASI ---
+
+    /**
+     * Relasi: User (Staff) milik satu Divisi
+     */
+    public function division(): BelongsTo
+    {
+        return $this->belongsTo(Division::class);
+    }
+
+    /**
+     * Relasi: Tiket yang DIBUAT oleh user ini
+     */
+    public function tickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'user_id');
+    }
+
+    /**
+     * Relasi: Tiket yang DITUGASKAN ke user ini (khusus Staff/Admin)
+     */
+    public function assignedTickets(): HasMany
+    {
+        return $this->hasMany(Ticket::class, 'assigned_to');
     }
 }
