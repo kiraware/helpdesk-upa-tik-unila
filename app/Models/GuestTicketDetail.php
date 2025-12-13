@@ -1,0 +1,35 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\IdentityType;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+
+class GuestTicketDetail extends Model
+{
+    /** @use HasFactory<\Database\Factories\GuestTicketDetailFactory> */
+    use HasFactory;
+
+    protected $table = 'guest_ticket_details';
+
+    protected $fillable = [
+        'ticket_id',
+        'full_name',
+        'email',
+        'identity_number',
+        'entity_type',
+        'photo_identity_path',
+        'photo_selfie_path',
+    ];
+
+    protected $casts = [
+        'entity_type' => IdentityType::class,
+    ];
+
+    public function ticket(): BelongsTo
+    {
+        return $this->belongsTo(Ticket::class);
+    }
+}
