@@ -2,6 +2,10 @@
 
 namespace Database\Factories;
 
+use App\Enums\TicketPriority;
+use App\Enums\TicketStatus;
+use App\Models\Service;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +27,9 @@ class TicketFactory extends Factory
             'user_id' => $user->id,
             'service_id' => $service->id,
             'assigned_to' => null,
-            'priority' => fake()->randomElement(TicketPriority::cases()),
+            'priority' => fake()->randomElement(
+                array_column(TicketPriority::cases(), 'value')
+            ),
             'status' => TicketStatus::WAITING,
             'user_notes' => fake()->paragraph(),
             'created_at' => fake()->dateTimeBetween('-1 month', 'now'),

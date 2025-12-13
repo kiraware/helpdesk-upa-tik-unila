@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\GuestTicketDetail;
 use App\Models\Ticket;
 use Illuminate\Database\Seeder;
 
