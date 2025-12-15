@@ -1,7 +1,7 @@
 <header
     class="relative h-16 flex items-center justify-between px-6 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark shadow-sm z-10">
 
-    {{-- SOFT BOTTOM SEPARATOR --}}
+    {{-- PEMISAH BAWAH HALUS --}}
     <div
         class="pointer-events-none absolute inset-x-0 bottom-0 h-px
                bg-linear-to-r
@@ -11,7 +11,7 @@
                blur-[0.5px]">
     </div>
 
-    {{-- LEFT --}}
+    {{-- KIRI --}}
     <div class="flex items-center gap-3">
         <button @click="sidebarOpen = !sidebarOpen"
             class="md:hidden text-muted-light dark:text-slate-400
@@ -20,11 +20,11 @@
         </button>
 
         <h1 class="hidden md:block text-xl font-semibold text-text-light dark:text-text-dark">
-            {{ $title ?? 'Dashboard' }}
+            {{ $title ?? 'Dasbor' }}
         </h1>
     </div>
 
-    {{-- RIGHT --}}
+    {{-- KANAN --}}
     <div class="flex items-center space-x-4 relative" x-data="{ open: false }">
         <button
             class="p-1 rounded-full text-muted-light dark:text-slate-400
@@ -52,7 +52,7 @@
                        shadow-sm" />
         </button>
 
-        {{-- DROPDOWN --}}
+        {{-- MENU DROPDOWN --}}
         <div x-show="open" x-transition x-cloak @click.outside="open = false"
             class="absolute right-0 top-14 w-48
                    rounded-xl overflow-hidden shadow-xl
@@ -64,7 +64,7 @@
                 class="block px-4 py-2.5 text-sm
                       text-text-light dark:text-slate-100
                       hover:bg-gray-100/70 dark:hover:bg-slate-700/60">
-                Profile
+                Profil
             </a>
 
             <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
@@ -75,7 +75,7 @@
                     class="w-full text-left px-4 py-2.5 text-sm
                            text-red-600 dark:text-red-400
                            hover:bg-red-50/70 dark:hover:bg-red-900/30">
-                    Logout
+                    Keluar
                 </button>
             </form>
         </div>
