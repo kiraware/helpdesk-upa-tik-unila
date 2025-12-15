@@ -7,7 +7,6 @@
         transform transition-transform duration-300
         lg:static lg:translate-x-0
     ">
-
     {{-- Logo / Merek --}}
     <div class="h-16 flex items-center px-6 border-b border-slate-700/50">
         <span class="text-xl font-bold text-white tracking-wide">
@@ -93,3 +92,4 @@
 
     </nav>
 </aside>
+
