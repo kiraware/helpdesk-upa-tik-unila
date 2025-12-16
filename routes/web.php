@@ -12,7 +12,8 @@ Route::middleware([
     'auth',
     'role:'.UserRole::ADMIN->value.','.UserRole::SUPERUSER->value,
 ])->group(function () {
-    Route::resource('services', ServiceController::class);
+    Route::resource('services', ServiceController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
 });
 
 Route::get('/test-login', function () {

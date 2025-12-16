@@ -8,47 +8,48 @@ use Illuminate\Validation\Rule;
 
 class ServiceController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $services = Service::latest()->paginate(10);
+        $services = Service::query()
+            ->when($request->q, function ($query, $q) {
+                $query->where('name', 'like', "%{$q}%");
+            })
+            ->when($request->status !== null && $request->status !== '', function ($query) use ($request) {
+                $query->where('is_active', $request->status);
+            })
+            ->latest()
+            ->paginate(10)
+            ->withQueryString();
 
         return view('services.index', compact('services'));
     }
 
-    public function create()
-    {
-        return view('services.create');
-    }
-
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => 'required|string|max:255|unique:services',
-            'is_active' => 'boolean',
+            'is_active' => 'required|boolean',
         ]);
 
-        Service::create($request->all());
+        Service::create([
+            'name' => $validated['name'],
+            'is_active' => $validated['is_active'],
+        ]);
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil ditambahkan.');
     }
 
-    public function edit(Service $service)
-    {
-        return view('services.edit', compact('service'));
-    }
-
     public function update(Request $request, Service $service)
     {
-        $request->validate([
+        $validated = $request->validate([
             'name' => ['required', 'string', 'max:255', Rule::unique('services')->ignore($service->id)],
-            'is_active' => 'boolean',
+            'is_active' => 'required|boolean',
         ]);
 
-        // Checkbox HTML tidak mengirim value jika unchecked, jadi kita set manual
-        $data = $request->all();
-        $data['is_active'] = $request->has('is_active');
-
-        $service->update($data);
+        $service->update([
+            'name' => $validated['name'],
+            'is_active' => $validated['is_active'],
+        ]);
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil diperbarui.');
     }

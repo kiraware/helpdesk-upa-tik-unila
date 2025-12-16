@@ -20,7 +20,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
 </head>
 
-<body class="bg-gray-100">
+<body
+    class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark antialiased transition-colors duration-200">
 
     <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
 
@@ -33,7 +34,7 @@
         </div>
 
         {{-- Main Content --}}
-        <div class="flex flex-col flex-1">
+        <div class="flex flex-col flex-1 w-full overflow-hidden">
             {{-- ⬇️ TERUSKAN TITLE KE NAVBAR --}}
             <x-navbar :title="$title" />
 
