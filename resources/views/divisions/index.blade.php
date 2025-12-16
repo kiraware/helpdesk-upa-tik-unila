@@ -86,7 +86,6 @@
                                     {{-- Edit --}}
                                     <button type="button" onclick="openEditDivisionModal(this)"
                                         data-id="{{ $division->id }}" data-name="{{ $division->name }}"
-                                        data-active="{{ $division->is_active ? 1 : 0 }}"
                                         class="p-1.5 text-amber-500 hover:bg-amber-50
                                             dark:hover:bg-amber-900/20 rounded-md transition-colors"
                                         title="Ubah">
@@ -106,7 +105,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4"
+                            <td colspan="3"
                                 class="px-6 py-10 text-center text-sm text-muted-light dark:text-muted-dark">
                                 Belum ada data divisi.
                             </td>
