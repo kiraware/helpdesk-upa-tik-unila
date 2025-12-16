@@ -253,7 +253,7 @@
                                    peer-checked:after:translate-x-full
                                    peer-checked:after:border-white
                                    after:content-['']
-                                   after:absolute after:top-[2px] after:left-[2px]
+                                   after:absolute after:top-0.5 after:left-0.5
                                    after:bg-white after:border-gray-300 after:border
                                    after:rounded-full after:h-5 after:w-5
                                    after:transition-all
@@ -363,7 +363,7 @@
                                    dark:peer-focus:ring-blue-800
                                    rounded-full peer dark:bg-gray-600
                                    peer-checked:after:translate-x-full
-                                   after:absolute after:top-[2px] after:left-[2px]
+                                   after:absolute after:top-0.5 after:left-0.5
                                    after:bg-white after:border after:rounded-full
                                    after:h-5 after:w-5 after:transition-all
                                    peer-checked:bg-secondary">
@@ -433,7 +433,7 @@
                 <span class="font-semibold text-gray-900 dark:text-white" id="deleteServiceName"></span>?
                 <br><br>
                 <span class="text-red-600 dark:text-red-400 font-medium">
-                    Tindakan ini tidak dapat dibatalkan.
+                    Tindakan ini tidak dapat dibatalkan dan semua data terkait akan hilang permanen.
                 </span>
             </p>
         </div>
