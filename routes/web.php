@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\ServiceController;
 use Illuminate\Support\Facades\Route;
 
@@ -13,6 +14,8 @@ Route::middleware([
     'role:'.UserRole::ADMIN->value.','.UserRole::SUPERUSER->value,
 ])->group(function () {
     Route::resource('services', ServiceController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('divisions', DivisionController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 });
 
