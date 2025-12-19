@@ -370,10 +370,12 @@
                 <div class="flex items-center gap-3">
 
                     {{-- Comment Count --}}
-                    <div class="flex items-center text-muted-light dark:text-muted-dark text-sm">
-                        <span class="material-icons-round text-sm mr-1">chat_bubble_outline</span>
-                        {{ $ticket->comments_count ?? $ticket->comments()->count() }}
-                    </div>
+                    @if ($ticket->comments_count > 0)
+                        <div class="flex items-center text-muted-light dark:text-muted-dark text-sm">
+                            <span class="material-icons-round text-sm mr-1">chat_bubble_outline</span>
+                            {{ $ticket->comments_count }}
+                        </div>
+                    @endif
 
                     {{-- Assign --}}
                     @if (is_null($ticket->assigned_to))

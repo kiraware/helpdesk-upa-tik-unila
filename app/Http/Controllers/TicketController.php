@@ -12,10 +12,19 @@ class TicketController extends Controller
     public function index(Request $request)
     {
         $tickets = Ticket::query()
-            ->with(['user', 'service', 'assignee'])
+            ->with([
+                'user',
+                'service',
+                'assignee',
+                'guestDetail',
+            ])
 
-            ->when($request->q, fn ($q) => $q->where('ticket_code', 'like', "%{$request->q}%")
-                ->orWhere('user_notes', 'like', "%{$request->q}%")
+            ->withCount('comments')
+
+            ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
+                $qq->where('ticket_code', 'like', "%{$request->q}%")
+                    ->orWhere('user_notes', 'like', "%{$request->q}%");
+            })
             )
 
             ->when($request->status, fn ($q) => $q->where('status', $request->status)
