@@ -233,7 +233,9 @@
                         <span class="material-icons-round text-base text-muted-light">person</span>
 
                         @php
-                            if (request('assigned_to') === 'unassigned') {
+                            if (request('assigned_to') === 'me') {
+                                $assigneeLabel = 'Ditugaskan ke saya';
+                            } elseif (request('assigned_to') === 'unassigned') {
                                 $assigneeLabel = 'Belum di-assign';
                             } elseif (request('assigned_to')) {
                                 $assigneeLabel = optional($admins->firstWhere('id', request('assigned_to')))->name;
@@ -265,6 +267,14 @@
                     </button>
 
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
+
+                    {{-- Assigned to Me --}}
+                    <button type="submit" name="assigned_to" value="me"
+                        class="w-full text-left px-4 py-2.5 text-sm
+                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
+                        {{ request('assigned_to') === 'me' ? 'font-semibold text-secondary' : '' }}">
+                        Ditugaskan ke saya
+                    </button>
 
                     {{-- Unassigned --}}
                     <button type="submit" name="assigned_to" value="unassigned"

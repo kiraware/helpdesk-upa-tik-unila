@@ -34,9 +34,11 @@ class TicketController extends Controller
             )
 
             ->when($request->assigned_to, function ($q) use ($request) {
-                $request->assigned_to === 'unassigned'
-                    ? $q->whereNull('assigned_to')
-                    : $q->where('assigned_to', $request->assigned_to);
+                match ($request->assigned_to) {
+                    'unassigned' => $q->whereNull('assigned_to'),
+                    'me' => $q->where('assigned_to', auth()->id()),
+                    default => $q->where('assigned_to', $request->assigned_to),
+                };
             })
 
             ->when($request->start_date || $request->end_date, function ($q) use ($request) {
