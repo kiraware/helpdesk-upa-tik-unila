@@ -13,45 +13,41 @@
     </div>
 
     {{-- Search & Filter --}}
-    <form method="GET" action="{{ route('tickets.index') }}" class="mb-6 space-y-3">
+    <form method="GET" action="{{ route('tickets.index') }}" class="mb-6 flex flex-col gap-3">
 
-        {{-- Row 1: Search + Status + Priority --}}
-        <div class="flex flex-col lg:flex-row gap-3">
-
-            {{-- Search --}}
-            <div class="relative flex-1">
-                <span
-                    class="absolute left-3 top-1/2 -translate-y-1/2
-               material-icons-round text-base text-muted-light">
-                    search
-                </span>
-
-                <input type="text" name="q" value="{{ request('q') }}"
-                    placeholder="Cari kode tiket / isi laporan..."
-                    class="h-11 w-full pl-10 pr-4
-            rounded-lg border border-border-light dark:border-border-dark
-            bg-surface-light dark:bg-slate-800
-            text-sm text-text-light dark:text-text-dark
-            placeholder-muted-light dark:placeholder-muted-dark
-            focus:ring-1 focus:ring-secondary focus:border-secondary
-            shadow-sm">
+        {{-- 1. Search Bar (Full Width) --}}
+        <div class="relative w-full">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <span class="material-icons-round text-base text-muted-light">search</span>
             </div>
 
-            {{-- Status --}}
-            <div class="relative w-full sm:w-[180px]" x-data="{ open: false }">
+            <input type="text" name="q" value="{{ request('q') }}"
+                placeholder="Cari kode tiket / isi laporan..."
+                class="w-full pl-10 pr-4 py-3
+                rounded-lg border border-border-light dark:border-border-dark
+                bg-surface-light dark:bg-slate-800
+                text-sm text-text-light dark:text-text-dark
+                placeholder-muted-light dark:placeholder-muted-dark
+                focus:ring-1 focus:ring-secondary focus:border-secondary
+                shadow-sm transition-all">
+        </div>
 
-                {{-- Trigger --}}
+        {{-- 2. Grid Baris Tengah (Status, Priority, Dates) --}}
+        {{-- Desktop: 4 Kolom sejajar --}}
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+
+            {{-- Status Dropdown --}}
+            <div class="relative w-full" x-data="{ open: false }">
                 <button type="button" @click="open = !open"
-                    class="h-10 w-full flex items-center justify-between px-4
+                    class="w-full flex items-center justify-between px-3 py-3
                     border border-border-light dark:border-border-dark
                     rounded-lg
                     bg-surface-light dark:bg-slate-800
                     text-sm text-text-light dark:text-text-dark
                     shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700/50">
 
-                    <span class="flex items-center gap-2">
+                    <span class="flex items-center gap-2 truncate">
                         <span class="material-icons-round text-base text-muted-light">flag</span>
-
                         @php
                             $statusLabel = match (request('status')) {
                                 'waiting' => 'Waiting',
@@ -61,80 +57,45 @@
                                 default => 'Semua Status',
                             };
                         @endphp
-
                         {{ $statusLabel }}
                     </span>
-
                     <span class="material-icons-round text-base text-muted-light">expand_more</span>
                 </button>
 
-                {{-- Dropdown --}}
                 <div x-show="open" x-transition x-cloak @click.outside="open = false"
-                    class="absolute z-20 mt-2 w-full
+                    class="absolute z-20 mt-1 w-full min-w-[180px]
                     rounded-xl overflow-hidden shadow-xl
                     border border-border-light dark:border-slate-700
-                    bg-white/90 dark:bg-slate-800/90
-                    backdrop-blur-md backdrop-saturate-150">
+                    bg-white/95 dark:bg-slate-800/95
+                    backdrop-blur-md">
 
-                    {{-- Semua --}}
                     <button type="submit" name="status" value=""
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('status') === null ? 'font-semibold text-secondary' : '' }}">
-                        Semua Status
-                    </button>
-
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === null ? 'font-semibold text-secondary' : '' }}">Semua
+                        Status</button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
-
-                    {{-- Waiting --}}
                     <button type="submit" name="status" value="waiting"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('status') === 'waiting' ? 'font-semibold text-yellow-600 dark:text-yellow-400' : '' }}">
-                        Waiting
-                    </button>
-
-                    {{-- Progress --}}
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'waiting' ? 'font-semibold text-yellow-600' : '' }}">Waiting</button>
                     <button type="submit" name="status" value="progress"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('status') === 'progress' ? 'font-semibold text-blue-600 dark:text-blue-400' : '' }}">
-                        Progress
-                    </button>
-
-                    {{-- Done --}}
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'progress' ? 'font-semibold text-blue-600' : '' }}">Progress</button>
                     <button type="submit" name="status" value="done"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('status') === 'done' ? 'font-semibold text-emerald-600 dark:text-emerald-400' : '' }}">
-                        Done
-                    </button>
-
-                    {{-- Reject --}}
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'done' ? 'font-semibold text-emerald-600' : '' }}">Done</button>
                     <button type="submit" name="status" value="reject"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('status') === 'reject' ? 'font-semibold text-red-600 dark:text-red-400' : '' }}">
-                        Reject
-                    </button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'reject' ? 'font-semibold text-red-600' : '' }}">Reject</button>
                 </div>
             </div>
 
-            {{-- Priority --}}
-            <div class="relative w-full sm:w-[180px]" x-data="{ open: false }">
-
-                {{-- Trigger --}}
+            {{-- Priority Dropdown --}}
+            <div class="relative w-full" x-data="{ open: false }">
                 <button type="button" @click="open = !open"
-                    class="h-10 w-full flex items-center justify-between px-4
+                    class="w-full flex items-center justify-between px-3 py-3
                     border border-border-light dark:border-border-dark
                     rounded-lg
                     bg-surface-light dark:bg-slate-800
                     text-sm text-text-light dark:text-text-dark
                     shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700/50">
 
-                    <span class="flex items-center gap-2">
+                    <span class="flex items-center gap-2 truncate">
                         <span class="material-icons-round text-base text-muted-light">priority_high</span>
-
                         @php
                             $priorityLabel = match (request('priority')) {
                                 'high' => 'High',
@@ -143,155 +104,116 @@
                                 default => 'Semua Prioritas',
                             };
                         @endphp
-
                         {{ $priorityLabel }}
                     </span>
-
                     <span class="material-icons-round text-base text-muted-light">expand_more</span>
                 </button>
 
-                {{-- Dropdown --}}
                 <div x-show="open" x-transition x-cloak @click.outside="open = false"
-                    class="absolute z-20 mt-2 w-full
+                    class="absolute z-20 mt-1 w-full min-w-[180px]
                     rounded-xl overflow-hidden shadow-xl
                     border border-border-light dark:border-slate-700
-                    bg-white/90 dark:bg-slate-800/90
-                    backdrop-blur-md backdrop-saturate-150">
+                    bg-white/95 dark:bg-slate-800/95
+                    backdrop-blur-md">
 
-                    {{-- Semua --}}
                     <button type="submit" name="priority" value=""
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('priority') === null ? 'font-semibold text-secondary' : '' }}">
-                        Semua Prioritas
-                    </button>
-
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === null ? 'font-semibold text-secondary' : '' }}">Semua
+                        Prioritas</button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
-
-                    {{-- High --}}
                     <button type="submit" name="priority" value="high"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('priority') === 'high' ? 'font-semibold text-red-600 dark:text-red-400' : '' }}">
-                        High
-                    </button>
-
-                    {{-- Medium --}}
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'high' ? 'font-semibold text-red-600' : '' }}">High</button>
                     <button type="submit" name="priority" value="medium"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('priority') === 'medium' ? 'font-semibold text-yellow-600 dark:text-yellow-400' : '' }}">
-                        Medium
-                    </button>
-
-                    {{-- Low --}}
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'medium' ? 'font-semibold text-yellow-600' : '' }}">Medium</button>
                     <button type="submit" name="priority" value="low"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('priority') === 'low' ? 'font-semibold text-gray-600 dark:text-gray-300' : '' }}">
-                        Low
-                    </button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'low' ? 'font-semibold text-gray-600' : '' }}">Low</button>
                 </div>
             </div>
-        </div>
 
-        {{-- Row 2: Date Range + Assignee --}}
-        <div class="flex flex-col sm:flex-row gap-3">
-
-            {{-- Date Range --}}
-            <div class="grid grid-cols-2 sm:flex gap-2 w-full sm:w-auto">
-
-                <input type="date" name="start_date" value="{{ request('start_date') }}"
-                    onchange="this.form.submit()"
-                    class="h-11 w-full sm:w-[150px]
-                        rounded-lg border border-border-light dark:border-border-dark
-                        bg-surface-light dark:bg-slate-800
-                        text-sm text-text-light dark:text-text-dark
-                        focus:ring-1 focus:ring-secondary">
-
-                <input type="date" name="end_date" value="{{ request('end_date') }}" onchange="this.form.submit()"
-                    class="h-11 w-full sm:w-[150px]
-                        rounded-lg border border-border-light dark:border-border-dark
-                        bg-surface-light dark:bg-slate-800
-                        text-sm text-text-light dark:text-text-dark
-                        focus:ring-1 focus:ring-secondary">
-            </div>
-
-            {{-- Assignee --}}
-            <div class="relative flex-1 sm:max-w-xs" x-data="{ open: false }">
-
-                {{-- Trigger --}}
-                <button type="button" @click="open = !open"
-                    class="h-10 w-full flex items-center justify-between px-4
-                    border border-border-light dark:border-border-dark
-                    rounded-lg
+            {{-- Start Date --}}
+            <div class="relative w-full">
+                <input type="text" name="start_date" value="{{ request('start_date') }}"
+                    onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')"
+                    placeholder="Tanggal Awal" onchange="this.form.submit()"
+                    class="w-full px-3 py-3
+                    rounded-lg border border-border-light dark:border-border-dark
                     bg-surface-light dark:bg-slate-800
                     text-sm text-text-light dark:text-text-dark
-                    shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700/50">
+                    placeholder-muted-light dark:placeholder-muted-dark
+                    focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm">
+                <span
+                    class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-base text-muted-light pointer-events-none">calendar_today</span>
+            </div>
 
-                    <span class="flex items-center gap-2">
-                        <span class="material-icons-round text-base text-muted-light">person</span>
+            {{-- End Date --}}
+            <div class="relative w-full">
+                <input type="text" name="end_date" value="{{ request('end_date') }}" onfocus="(this.type='date')"
+                    onblur="(this.value ? this.type='date' : this.type='text')" placeholder="Tanggal Akhir"
+                    onchange="this.form.submit()"
+                    class="w-full px-3 py-3
+                    rounded-lg border border-border-light dark:border-border-dark
+                    bg-surface-light dark:bg-slate-800
+                    text-sm text-text-light dark:text-text-dark
+                    placeholder-muted-light dark:placeholder-muted-dark
+                    focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm">
+                <span
+                    class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-base text-muted-light pointer-events-none">event</span>
+            </div>
 
-                        @php
-                            if (request('assigned_to') === 'me') {
-                                $assigneeLabel = 'Ditugaskan ke saya';
-                            } elseif (request('assigned_to') === 'unassigned') {
-                                $assigneeLabel = 'Belum di-assign';
-                            } elseif (request('assigned_to')) {
-                                $assigneeLabel = optional($admins->firstWhere('id', request('assigned_to')))->name;
-                            } else {
-                                $assigneeLabel = 'Semua Assignee';
-                            }
-                        @endphp
+        </div>
 
-                        {{ $assigneeLabel }}
-                    </span>
+        {{-- 3. Assignee  --}}
+        <div class="relative w-full" x-data="{ open: false }">
 
-                    <span class="material-icons-round text-base text-muted-light">expand_more</span>
-                </button>
+            <button type="button" @click="open = !open"
+                class="w-full flex items-center justify-between px-3 py-3
+                border border-border-light dark:border-border-dark
+                rounded-lg
+                bg-surface-light dark:bg-slate-800
+                text-sm text-text-light dark:text-text-dark
+                shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700/50">
 
-                {{-- Dropdown --}}
-                <div x-show="open" x-transition x-cloak @click.outside="open = false"
-                    class="absolute z-20 mt-2 w-full
-                    rounded-xl overflow-hidden shadow-xl
-                    border border-border-light dark:border-slate-700
-                    bg-white/90 dark:bg-slate-800/90
-                    backdrop-blur-md backdrop-saturate-150">
+                <span class="flex items-center gap-2 truncate">
+                    <span class="material-icons-round text-base text-muted-light">person</span>
+                    @php
+                        if (request('assigned_to') === 'me') {
+                            $assigneeLabel = 'Ditugaskan ke Saya';
+                        } elseif (request('assigned_to') === 'unassigned') {
+                            $assigneeLabel = 'Belum Ditugaskan';
+                        } elseif (request('assigned_to')) {
+                            $assigneeLabel = optional($admins->firstWhere('id', request('assigned_to')))->name;
+                        } else {
+                            $assigneeLabel = 'Semua Assignee';
+                        }
+                    @endphp
+                    {{ $assigneeLabel }}
+                </span>
+                <span class="material-icons-round text-base text-muted-light">expand_more</span>
+            </button>
 
-                    {{-- Semua --}}
+            {{-- Dropdown Menu --}}
+            {{-- Pastikan z-index tinggi (z-50) agar menimpa tabel dibawahnya --}}
+            <div x-show="open" x-transition x-cloak @click.outside="open = false"
+                class="absolute z-50 mt-1 w-full left-0
+                rounded-xl overflow-hidden shadow-xl
+                border border-border-light dark:border-slate-700
+                bg-white/95 dark:bg-slate-800/95
+                backdrop-blur-md">
+
+                <div class="max-h-60 overflow-y-auto"> {{-- Scroll jika list assignee panjang --}}
                     <button type="submit" name="assigned_to" value=""
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('assigned_to') === null ? 'font-semibold text-secondary' : '' }}">
-                        Semua Assignee
-                    </button>
-
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === null ? 'font-semibold text-secondary' : '' }}">Semua
+                        Assignee</button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
-
-                    {{-- Assigned to Me --}}
                     <button type="submit" name="assigned_to" value="me"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('assigned_to') === 'me' ? 'font-semibold text-secondary' : '' }}">
-                        Ditugaskan ke saya
-                    </button>
-
-                    {{-- Unassigned --}}
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === 'me' ? 'font-semibold text-secondary' : '' }}">Ditugaskan
+                        ke saya</button>
                     <button type="submit" name="assigned_to" value="unassigned"
-                        class="w-full text-left px-4 py-2.5 text-sm
-                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                        {{ request('assigned_to') === 'unassigned' ? 'font-semibold text-red-600 dark:text-red-400' : '' }}">
-                        Belum di-assign
-                    </button>
-
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === 'unassigned' ? 'font-semibold text-red-600' : '' }}">Belum
+                        ditugaskan</button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
-
-                    {{-- Admin List --}}
                     @foreach ($admins as $admin)
                         <button type="submit" name="assigned_to" value="{{ $admin->id }}"
-                            class="w-full text-left px-4 py-2.5 text-sm
-                            hover:bg-gray-100/70 dark:hover:bg-slate-700/60
-                            {{ request('assigned_to') == $admin->id ? 'font-semibold text-secondary' : '' }}">
+                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') == $admin->id ? 'font-semibold text-secondary' : '' }}">
                             {{ $admin->name }}
                         </button>
                     @endforeach
