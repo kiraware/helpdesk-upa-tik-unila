@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\TicketController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -16,6 +17,8 @@ Route::middleware([
     Route::resource('services', ServiceController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('divisions', DivisionController::class)
+        ->only(['index', 'store', 'update', 'destroy']);
+    Route::resource('tickets', TicketController::class)
         ->only(['index', 'store', 'update', 'destroy']);
 });
 
