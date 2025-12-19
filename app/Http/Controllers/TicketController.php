@@ -101,7 +101,7 @@ class TicketController extends Controller
     {
         // Cegah overwrite
         if ($ticket->assigned_to) {
-            return back()->with('error', 'Ticket sudah di-assign.');
+            return back()->with('error', 'Ticket sudah ditugaskan.');
         }
 
         $ticket->update([
@@ -109,6 +109,6 @@ class TicketController extends Controller
             'assigned_at' => now(),
         ]);
 
-        return back()->with('success', 'Ticket berhasil di-assign ke Anda.');
+        return back()->with('success', 'Ticket berhasil ditugaskan ke Anda.');
     }
 }
