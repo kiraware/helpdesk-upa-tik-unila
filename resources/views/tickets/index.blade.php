@@ -389,11 +389,12 @@
 
                     {{-- Assign --}}
                     @if (is_null($ticket->assigned_to))
-                        <form method="POST" action="{{-- route('tickets.assign', $ticket) --}}">
+                        <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
                             @csrf
                             <button type="submit"
                                 class="px-3 py-1.5 text-xs font-medium
-                                       bg-secondary text-white rounded-lg hover:bg-blue-600">
+                                    bg-secondary text-white rounded-lg
+                                    hover:bg-blue-600 transition">
                                 Assign ke saya
                             </button>
                         </form>

@@ -20,6 +20,8 @@ Route::middleware([
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('tickets', TicketController::class)
         ->only(['index', 'store', 'update', 'destroy']);
+    Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
+        ->name('tickets.assign.me');
 });
 
 Route::get('/test-login', function () {

@@ -96,4 +96,19 @@ class TicketController extends Controller
 
         return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dihapus.');
     }
+
+    public function assignMe(Ticket $ticket)
+    {
+        // Cegah overwrite
+        if ($ticket->assigned_to) {
+            return back()->with('error', 'Ticket sudah di-assign.');
+        }
+
+        $ticket->update([
+            'assigned_to' => auth()->id(),
+            'assigned_at' => now(),
+        ]);
+
+        return back()->with('success', 'Ticket berhasil di-assign ke Anda.');
+    }
 }
