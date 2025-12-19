@@ -28,7 +28,7 @@
                     <span class="material-icons-round text-gray-400">search</span>
                 </div>
                 <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama divisi..."
-                    class="block w-full pl-10 pr-3 py-2
+                    class="h-10 block w-full pl-10 pr-3 py-2
                         border border-border-light dark:border-border-dark
                         rounded-lg leading-5
                         bg-surface-light dark:bg-slate-800
