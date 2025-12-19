@@ -293,20 +293,47 @@
                     {{-- Meta Info Row (Bawah) --}}
                     <div
                         class="text-xs text-muted-light dark:text-slate-400 leading-relaxed flex flex-wrap gap-1 items-center">
+
+                        {{-- 1. Ticket Code --}}
                         <span class="font-mono text-gray-500">#{{ $ticket->ticket_code }}</span>
+
+                        {{-- Separator --}}
                         <span class="text-gray-400">·</span>
-                        <span>{{ $ticket->created_at->diffForHumans() }}</span>
-                        <span class="hidden sm:inline">oleh</span>
-                        <span
-                            class="font-medium text-gray-700 dark:text-slate-300 truncate max-w-[100px] sm:max-w-none">
+
+                        {{-- 2. User Name --}}
+                        <span class="font-medium text-gray-900 dark:text-slate-200 hover:underline">
                             @if ($ticket->user)
                                 {{ $ticket->user->name }}
                             @elseif ($ticket->guestDetail)
-                                {{ $ticket->guestDetail->full_name }} (Guest)
+                                {{ $ticket->guestDetail->full_name }}
                             @else
-                                -
+                                Pengguna
                             @endif
                         </span>
+
+                        {{-- 3. Action Verb & Time --}}
+                        @php
+                            // Tentukan apakah tiket sudah "Final" (Done/Reject) atau masih "Aktif"
+                            $isClosed = in_array($ticket->status, [
+                                \App\Enums\TicketStatus::DONE,
+                                \App\Enums\TicketStatus::REJECT,
+                            ]);
+
+                            // Tentukan Kata Kerja
+                            $actionVerb = match ($ticket->status) {
+                                \App\Enums\TicketStatus::WAITING, \App\Enums\TicketStatus::PROGRESS => 'membuka',
+                                \App\Enums\TicketStatus::DONE => 'selesai',
+                                \App\Enums\TicketStatus::REJECT => 'ditutup',
+                            };
+
+                            // Tentukan Waktu (Jika closed pakai updated_at, jika aktif pakai created_at)
+                            $timestamp = $isClosed ? $ticket->updated_at : $ticket->created_at;
+                        @endphp
+
+                        <span class="text-muted-light dark:text-slate-500">
+                            {{ $actionVerb }} {{ $timestamp->diffForHumans() }}
+                        </span>
+
                     </div>
                 </div>
 
