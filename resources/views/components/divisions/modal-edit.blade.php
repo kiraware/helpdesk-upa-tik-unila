@@ -19,7 +19,7 @@
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><span
                                 class="material-icons-round text-lg">layers</span></span>
-                        <input type="text" name="name" id="edit_name" required
+                        <input type="text" name="name" id="edit_name" required maxlength="50"
                             class="pl-10 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5">
                     </div>
                 </div>

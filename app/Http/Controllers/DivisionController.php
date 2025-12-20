@@ -23,7 +23,7 @@ class DivisionController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate(['name' => 'required|string|max:255|unique:divisions']);
+        $validated = $request->validate(['name' => 'required|string|max:50|unique:divisions']);
 
         Division::create(['name' => $validated['name']]);
 
@@ -33,7 +33,7 @@ class DivisionController extends Controller
     public function update(Request $request, Division $division)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('divisions')->ignore($division->id)],
+            'name' => ['required', 'string', 'max:50', Rule::unique('divisions')->ignore($division->id)],
         ]);
 
         $division->update(['name' => $validated['name']]);
