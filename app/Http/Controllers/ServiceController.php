@@ -27,7 +27,7 @@ class ServiceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:services',
+            'name' => 'required|string|max:50|unique:services',
             'is_active' => 'required|boolean',
         ]);
 
@@ -42,7 +42,7 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('services')->ignore($service->id)],
+            'name' => ['required', 'string', 'max:50', Rule::unique('services')->ignore($service->id)],
             'is_active' => 'required|boolean',
         ]);
 
