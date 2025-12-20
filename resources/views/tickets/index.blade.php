@@ -1,10 +1,10 @@
-<x-layouts.dashboard title="Manajemen Ticket">
+<x-layouts.dashboard title="Manajemen Tiket">
 
     {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
-                Ticket Masuk
+                Tiket Masuk
             </h1>
             <p class="text-sm text-muted-light dark:text-muted-dark">
                 Daftar laporan dan permintaan pengguna
@@ -33,7 +33,6 @@
         </div>
 
         {{-- 2. Grid Baris Tengah (Status, Priority, Dates) --}}
-        {{-- Desktop: 4 Kolom sejajar --}}
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
             {{-- Status Dropdown --}}
@@ -50,10 +49,10 @@
                         <span class="material-icons-round text-base text-muted-light">flag</span>
                         @php
                             $statusLabel = match (request('status')) {
-                                'waiting' => 'Waiting',
-                                'progress' => 'Progress',
-                                'done' => 'Done',
-                                'reject' => 'Reject',
+                                'waiting' => 'Menunggu',
+                                'progress' => 'Diproses',
+                                'done' => 'Selesai',
+                                'reject' => 'Ditolak',
                                 default => 'Semua Status',
                             };
                         @endphp
@@ -70,17 +69,26 @@
                     backdrop-blur-md">
 
                     <button type="submit" name="status" value=""
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === null ? 'font-semibold text-secondary' : '' }}">Semua
-                        Status</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === null ? 'font-semibold text-secondary' : '' }}">
+                        Semua Status
+                    </button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
                     <button type="submit" name="status" value="waiting"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'waiting' ? 'font-semibold text-yellow-600' : '' }}">Waiting</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'waiting' ? 'font-semibold text-yellow-600' : '' }}">
+                        Menunggu
+                    </button>
                     <button type="submit" name="status" value="progress"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'progress' ? 'font-semibold text-blue-600' : '' }}">Progress</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'progress' ? 'font-semibold text-blue-600' : '' }}">
+                        Diproses
+                    </button>
                     <button type="submit" name="status" value="done"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'done' ? 'font-semibold text-emerald-600' : '' }}">Done</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'done' ? 'font-semibold text-emerald-600' : '' }}">
+                        Selesai
+                    </button>
                     <button type="submit" name="status" value="reject"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'reject' ? 'font-semibold text-red-600' : '' }}">Reject</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('status') === 'reject' ? 'font-semibold text-red-600' : '' }}">
+                        Ditolak
+                    </button>
                 </div>
             </div>
 
@@ -98,9 +106,9 @@
                         <span class="material-icons-round text-base text-muted-light">priority_high</span>
                         @php
                             $priorityLabel = match (request('priority')) {
-                                'high' => 'High',
-                                'medium' => 'Medium',
-                                'low' => 'Low',
+                                'high' => 'Tinggi',
+                                'medium' => 'Sedang',
+                                'low' => 'Rendah',
                                 default => 'Semua Prioritas',
                             };
                         @endphp
@@ -117,15 +125,22 @@
                     backdrop-blur-md">
 
                     <button type="submit" name="priority" value=""
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === null ? 'font-semibold text-secondary' : '' }}">Semua
-                        Prioritas</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === null ? 'font-semibold text-secondary' : '' }}">
+                        Semua Prioritas
+                    </button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
                     <button type="submit" name="priority" value="high"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'high' ? 'font-semibold text-red-600' : '' }}">High</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'high' ? 'font-semibold text-red-600' : '' }}">
+                        Tinggi
+                    </button>
                     <button type="submit" name="priority" value="medium"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'medium' ? 'font-semibold text-yellow-600' : '' }}">Medium</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'medium' ? 'font-semibold text-yellow-600' : '' }}">
+                        Sedang
+                    </button>
                     <button type="submit" name="priority" value="low"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'low' ? 'font-semibold text-gray-600' : '' }}">Low</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('priority') === 'low' ? 'font-semibold text-gray-600' : '' }}">
+                        Rendah
+                    </button>
                 </div>
             </div>
 
@@ -182,7 +197,7 @@
                         } elseif (request('assigned_to')) {
                             $assigneeLabel = optional($admins->firstWhere('id', request('assigned_to')))->name;
                         } else {
-                            $assigneeLabel = 'Semua Assignee';
+                            $assigneeLabel = 'Semua Petugas';
                         }
                     @endphp
                     {{ $assigneeLabel }}
@@ -191,7 +206,6 @@
             </button>
 
             {{-- Dropdown Menu --}}
-            {{-- Pastikan z-index tinggi (z-50) agar menimpa tabel dibawahnya --}}
             <div x-show="open" x-transition x-cloak @click.outside="open = false"
                 class="absolute z-50 mt-1 w-full left-0
                 rounded-xl overflow-hidden shadow-xl
@@ -199,17 +213,20 @@
                 bg-white/95 dark:bg-slate-800/95
                 backdrop-blur-md">
 
-                <div class="max-h-60 overflow-y-auto"> {{-- Scroll jika list assignee panjang --}}
+                <div class="max-h-60 overflow-y-auto">
                     <button type="submit" name="assigned_to" value=""
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === null ? 'font-semibold text-secondary' : '' }}">Semua
-                        Assignee</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === null ? 'font-semibold text-secondary' : '' }}">
+                        Semua Petugas
+                    </button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
                     <button type="submit" name="assigned_to" value="me"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === 'me' ? 'font-semibold text-secondary' : '' }}">Ditugaskan
-                        ke saya</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === 'me' ? 'font-semibold text-secondary' : '' }}">
+                        Ditugaskan ke saya
+                    </button>
                     <button type="submit" name="assigned_to" value="unassigned"
-                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === 'unassigned' ? 'font-semibold text-red-600' : '' }}">Belum
-                        ditugaskan</button>
+                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-100/70 dark:hover:bg-slate-700/60 {{ request('assigned_to') === 'unassigned' ? 'font-semibold text-red-600' : '' }}">
+                        Belum ditugaskan
+                    </button>
                     <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
                     @foreach ($admins as $admin)
                         <button type="submit" name="assigned_to" value="{{ $admin->id }}"
@@ -262,8 +279,7 @@
                     {{-- Header Row: Judul + Badges --}}
                     <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
 
-                        {{-- Judul Tiket (PERBAIKAN WARNA DARK MODE DISINI) --}}
-                        {{-- Menggunakan dark:text-slate-100 (putih) dan dark:group-hover:text-blue-400 (biru muda) --}}
+                        {{-- Judul Tiket --}}
                         <h3
                             class="text-[16px] font-semibold 
                                    text-gray-900 dark:text-slate-100 
@@ -276,16 +292,25 @@
                         <div class="flex flex-wrap gap-1">
                             <span
                                 class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium 
-                                       bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border border-transparent whitespace-nowrap">
+                                         bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border border-transparent whitespace-nowrap">
                                 {{ $ticket->service->name }}
                             </span>
 
+                            {{-- Priority Badge (Terjemahan) --}}
+                            @php
+                                $priorityIndo = match ($ticket->priority) {
+                                    \App\Enums\TicketPriority::HIGH => 'Tinggi',
+                                    \App\Enums\TicketPriority::MEDIUM => 'Sedang',
+                                    \App\Enums\TicketPriority::LOW => 'Rendah',
+                                    default => 'Normal',
+                                };
+                            @endphp
                             <span
                                 class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium border border-transparent whitespace-nowrap
                                 {{ $ticket->priority === \App\Enums\TicketPriority::HIGH ? 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400' : '' }}
                                 {{ $ticket->priority === \App\Enums\TicketPriority::MEDIUM ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400' : '' }}
                                 {{ $ticket->priority === \App\Enums\TicketPriority::LOW ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300' : '' }}">
-                                {{ ucfirst($ticket->priority->value) }}
+                                {{ $priorityIndo }}
                             </span>
                         </div>
                     </div>
@@ -313,20 +338,17 @@
 
                         {{-- 3. Action Verb & Time --}}
                         @php
-                            // Tentukan apakah tiket sudah "Final" (Done/Reject) atau masih "Aktif"
                             $isClosed = in_array($ticket->status, [
                                 \App\Enums\TicketStatus::DONE,
                                 \App\Enums\TicketStatus::REJECT,
                             ]);
 
-                            // Tentukan Kata Kerja
                             $actionVerb = match ($ticket->status) {
                                 \App\Enums\TicketStatus::WAITING, \App\Enums\TicketStatus::PROGRESS => 'membuka',
                                 \App\Enums\TicketStatus::DONE => 'selesai',
                                 \App\Enums\TicketStatus::REJECT => 'ditutup',
                             };
 
-                            // Tentukan Waktu (Jika closed pakai updated_at, jika aktif pakai created_at)
                             $timestamp = $isClosed ? $ticket->updated_at : $ticket->created_at;
                         @endphp
 
@@ -349,12 +371,11 @@
                                 bg-white border border-border-light text-text-light
                                 hover:border-secondary hover:text-secondary hover:bg-gray-50
                                 dark:bg-slate-800 dark:border-slate-600 dark:text-slate-200 dark:hover:border-blue-400 transition-all whitespace-nowrap">
-                                Assign
+                                Ambil
                             </button>
                         </form>
                     @else
-                        {{-- (PERBAIKAN FOTO PROFIL ASSIGNEE DISINI) --}}
-                        <div class="hidden sm:flex items-center" title="Assigned to {{ $ticket->assignee->name }}">
+                        <div class="hidden sm:flex items-center" title="Ditugaskan ke {{ $ticket->assignee->name }}">
                             <img src="{{ $ticket->assignee->photo
                                 ? asset('storage/' . $ticket->assignee->photo)
                                 : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
@@ -380,7 +401,7 @@
             <div
                 class="p-10 text-center text-sm text-muted-light dark:text-slate-400 flex flex-col items-center justify-center">
                 <span class="material-icons-round text-4xl mb-2 text-gray-300 dark:text-slate-600">inbox</span>
-                Tidak ada ticket ditemukan.
+                Tidak ada tiket ditemukan.
             </div>
         @endforelse
     </div>
