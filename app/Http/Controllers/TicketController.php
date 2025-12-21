@@ -23,7 +23,8 @@ class TicketController extends Controller
 
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
                 $qq->where('ticket_code', 'like', "%{$request->q}%")
-                    ->orWhere('user_notes', 'like', "%{$request->q}%");
+                    ->orWhere('title', 'like', "%{$request->q}%")
+                    ->orWhere('description', 'like', "%{$request->q}%");
             })
             )
 

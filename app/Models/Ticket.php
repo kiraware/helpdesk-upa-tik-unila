@@ -24,8 +24,8 @@ class Ticket extends Model
         'assigned_to',
         'priority',
         'status',
-        'user_notes',
-        'attachment_pdf_path',
+        'title',
+        'description',
         'assigned_at',
         'closed_at',
     ];

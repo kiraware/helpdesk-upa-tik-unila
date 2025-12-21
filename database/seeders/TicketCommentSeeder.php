@@ -29,21 +29,19 @@ class TicketCommentSeeder extends Seeder
                 'created_at' => $ticket->created_at->addMinutes(10),
             ]);
 
-            // 2. Komentar Kedua: Staff merespon (Public)
+            // 2. Komentar Kedua: Staff merespon
             TicketComment::factory()->create([
                 'ticket_id' => $ticket->id,
                 'user_id' => $staff->id,
                 'message' => 'Baik, laporan Anda sedang kami pelajari. Mohon ditunggu.',
-                'is_internal_note' => false,
                 'created_at' => $ticket->created_at->addMinutes(30),
             ]);
 
-            // 3. Komentar Ketiga: Staff membuat catatan internal (Rahasia)
+            // 3. Komentar Ketiga: Staff merespon lagi
             TicketComment::factory()->create([
                 'ticket_id' => $ticket->id,
                 'user_id' => $staff->id,
                 'message' => 'Sepertinya ini bug di API SSO, perlu eskalasi ke Tim Infrastruktur.',
-                'is_internal_note' => true, // User tidak akan melihat ini
                 'created_at' => $ticket->created_at->addMinutes(35),
             ]);
         }

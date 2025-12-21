@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -17,11 +16,6 @@ class TicketComment extends Model
         'user_id',
         'message',
         'attachment_path',
-        'is_internal_note',
-    ];
-
-    protected $casts = [
-        'is_internal_note' => 'boolean',
     ];
 
     public function ticket(): BelongsTo
@@ -32,14 +26,6 @@ class TicketComment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    /**
-     * Scope untuk mengambil hanya komentar publik (untuk dilihat user biasa/guest)
-     */
-    public function scopePublic(Builder $query): void
-    {
-        $query->where('is_internal_note', false);
     }
 
     /**

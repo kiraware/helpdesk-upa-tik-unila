@@ -18,21 +18,10 @@ class TicketCommentFactory extends Factory
      */
     public function definition(): array
     {
-        // Randomly decide if it's internal note (20% chance)
-        $isInternal = fake()->boolean(20);
-
         return [
             'ticket_id' => Ticket::factory(),
-
-            // Jika internal note, PASTI dari user (staff).
-            // Jika publik, bisa dari user atau null (guest).
-            'user_id' => $isInternal
-                ? User::factory()
-                : (fake()->boolean() ? User::factory() : null),
-
+            'user_id' => fake()->boolean() ? User::factory() : null,
             'message' => fake()->paragraph(rand(1, 3)),
-            'is_internal_note' => $isInternal,
-            'attachment_path' => null,
             'created_at' => fake()->dateTimeBetween('-1 week', 'now'),
         ];
     }
