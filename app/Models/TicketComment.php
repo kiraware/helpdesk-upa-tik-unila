@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TicketComment extends Model
 {
@@ -28,6 +29,11 @@ class TicketComment extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(CommentAttachment::class, 'ticket_comment_id');
+    }
+
     /**
      * Mendapatkan nama pengirim secara dinamis
      * Cara pakai di Blade: {{ $comment->sender_name }}
@@ -35,11 +41,11 @@ class TicketComment extends Model
     public function getSenderNameAttribute(): string
     {
         if ($this->user) {
-            return $this->user->name.' ('.ucfirst($this->user->role->value).')';
+            return $this->user->name;
         }
 
         // Jika user_id null, berarti Guest (ambil dari data tiket)
         // Kita akses relasi guestDetail dari parent ticket
-        return $this->ticket->guestDetail->full_name ?? 'Guest User';
+        return $this->ticket->guestDetail->full_name;
     }
 }
