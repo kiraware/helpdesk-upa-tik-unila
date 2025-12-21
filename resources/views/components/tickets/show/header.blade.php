@@ -42,7 +42,7 @@
             <form id="update-title-form" action="{{ route('tickets.update', $ticket->uuid) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="mb-2 min-h-[40px] flex items-center">
+                <div class="mb-2 min-h-10 flex items-center">
                     {{-- MODE BACA --}}
                     <h1 x-show="!isEditing"
                         class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight wrap-break-word">
