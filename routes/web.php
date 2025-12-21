@@ -19,9 +19,11 @@ Route::middleware([
     Route::resource('divisions', DivisionController::class)
         ->only(['index', 'store', 'update', 'destroy']);
     Route::resource('tickets', TicketController::class)
-        ->only(['index', 'store', 'update', 'destroy']);
+        ->only(['index', 'show', 'store', 'update']);
     Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
         ->name('tickets.assign.me');
+    Route::post('/tickets/{ticket}/comments', [TicketController::class, 'storeComment'])
+        ->name('tickets.comments.store');
 });
 
 Route::get('/test-login', function () {

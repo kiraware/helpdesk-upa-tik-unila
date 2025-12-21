@@ -47,10 +47,10 @@
     {{-- 2. Main Content --}}
     <div class="grow min-w-0">
         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
-            <h3
-                class="text-[16px] font-semibold text-gray-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors leading-snug wrap-break-word">
+            <a href="{{ route('tickets.show', $ticket) }}"
+                class="text-[16px] font-semibold text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug wrap-break-word">
                 {{ Str::limit(strip_tags($ticket->title), 80) }}
-            </h3>
+            </a>
 
             {{-- Badges --}}
             <div class="flex flex-wrap gap-1">
