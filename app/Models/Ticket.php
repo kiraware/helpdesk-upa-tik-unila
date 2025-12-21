@@ -84,4 +84,9 @@ class Ticket extends Model
     {
         return $this->hasOne(TicketSurvey::class);
     }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class);
+    }
 }
