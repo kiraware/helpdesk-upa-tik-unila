@@ -37,6 +37,7 @@
     focusInput() { $nextTick(() => { $refs.titleInput.focus() }); }
 }">
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+
         {{-- Title & Meta --}}
         <div class="flex-1 min-w-0">
             <form id="update-title-form" action="{{ route('tickets.update', $ticket->uuid) }}" method="POST">
@@ -52,15 +53,14 @@
                             #{{ $ticket->ticket_code }}
                         </span>
                     </h1>
+
                     {{-- MODE EDIT --}}
                     <div x-show="isEditing" class="w-full flex items-center gap-2" x-cloak>
+                        {{-- Input Judul --}}
                         <input x-ref="titleInput" type="text" name="title"
                             value="{{ old('title', $ticket->title) }}"
                             class="w-full px-3 py-2 text-sm font-normal rounded-lg border border-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark transition-all"
                             required>
-                        <span class="text-sm font-normal text-muted-light whitespace-nowrap">
-                            #{{ $ticket->ticket_code }}
-                        </span>
                     </div>
                 </div>
             </form>
@@ -84,26 +84,31 @@
         </div>
 
         {{-- Action Buttons --}}
-        <div class="flex items-center gap-2 shrink-0 self-start md:self-auto min-w-[180px] justify-end">
-            <div x-show="!isEditing" class="flex items-center gap-2">
+        <div class="flex items-center gap-2 shrink-0 w-full md:w-auto mb-2 md:mb-0 order-first md:order-last">
+
+            {{-- VIEW MODE BUTTONS --}}
+            <div x-show="!isEditing" class="flex items-center gap-2 w-full md:w-auto">
                 <a href="{{ route('tickets.index') }}"
-                    class="px-3 py-2 text-sm font-medium text-muted-light hover:text-text-light dark:text-muted-dark dark:hover:text-text-dark transition-colors">
+                    class="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-center text-muted-light hover:text-text-light dark:text-muted-dark dark:hover:text-text-dark bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark md:border-transparent rounded-lg transition-colors">
                     Kembali
                 </a>
+
                 @if (!$isClosed)
                     <button type="button" @click="isEditing = true; focusInput()"
-                        class="px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
+                        class="flex-1 md:flex-none px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
                         Edit
                     </button>
                 @endif
             </div>
-            <div x-show="isEditing" class="flex items-center gap-2" x-cloak>
+
+            {{-- EDIT MODE BUTTONS --}}
+            <div x-show="isEditing" class="flex items-center gap-2 w-full md:w-auto" x-cloak>
                 <button type="button" @click="isEditing = false"
-                    class="px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                    class="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-center text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 rounded-lg transition-colors border border-transparent">
                     Batal
                 </button>
                 <button type="submit" form="update-title-form"
-                    class="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
+                    class="flex-1 md:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
                     Simpan
                 </button>
             </div>

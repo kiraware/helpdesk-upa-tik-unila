@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 
 class TicketController extends Controller
@@ -128,37 +127,5 @@ class TicketController extends Controller
         ]);
 
         return back()->with('success', 'Ticket berhasil ditugaskan ke Anda.');
-    }
-
-    public function storeComment(Request $request, Ticket $ticket)
-    {
-        $request->validate([
-            'message' => 'required|string',
-            'attachments.*' => 'nullable|file|max:20480|mimes:jpg,jpeg,png,pdf,doc,docx,zip', // Max 20MB
-        ]);
-
-        DB::transaction(function () use ($request, $ticket) {
-            // 1. Simpan Komentar
-            $comment = $ticket->comments()->create([
-                'user_id' => auth()->id(),
-                'message' => $request->message,
-            ]);
-
-            // 2. Simpan Attachment (jika ada)
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('comments/'.$ticket->uuid, 'public');
-
-                    $comment->attachments()->create([
-                        'name' => $file->getClientOriginalName(),
-                        'path' => $path,
-                        'mime_type' => $file->getMimeType(),
-                        'size' => $file->getSize(),
-                    ]);
-                }
-            }
-        });
-
-        return back()->with('success', 'Komentar berhasil dikirim.');
     }
 }

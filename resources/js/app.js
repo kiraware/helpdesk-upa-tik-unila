@@ -1,5 +1,9 @@
 import "./bootstrap";
 import Alpine from "alpinejs";
+import "trix";
+import { initTrixAttachmentUpload } from "./trix-upload";
+
+initTrixAttachmentUpload();
 
 Alpine.data("toast", () => ({
     visible: false,
