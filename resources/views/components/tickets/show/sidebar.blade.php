@@ -70,51 +70,86 @@
     @if (!$ticket->user_id && $ticket->guestDetail)
         <div
             class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
-            <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Detail Pelapor</h3>
+
+            {{-- Header --}}
+            <div
+                class="px-4 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center group cursor-pointer">
+                <h3
+                    class="text-xs font-bold uppercase tracking-wider text-muted-light dark:text-muted-dark hover:text-blue-600 transition-colors">
+                    Detail Pelapor
+                </h3>
+                <span
+                    class="material-icons-round text-muted-light dark:text-muted-dark text-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                    settings
+                </span>
             </div>
+
             <div class="p-4">
+                {{-- Profile Section --}}
                 <div class="flex items-center gap-3 mb-4">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode($ticket->guestDetail->full_name) }}"
-                        class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark">
-                    <div class="min-w-0">
-                        <p class="text-sm font-bold text-text-light dark:text-text-dark truncate"
-                            title="{{ $ticket->guestDetail->full_name }}">{{ $ticket->guestDetail->full_name }}</p>
-                        <p class="text-xs text-muted-light truncate" title="{{ $ticket->guestDetail->email }}">
-                            {{ $ticket->guestDetail->email }}</p>
+                    {{-- Avatar --}}
+                    <div class="shrink-0">
+                        <img src="https://ui-avatars.com/api/?name={{ urlencode($ticket->guestDetail->full_name) }}"
+                            class="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-300 flex items-center justify-center font-bold text-sm border border-border-light dark:border-border-dark shadow-sm object-cover">
+                    </div>
+
+                    {{-- Name --}}
+                    <div class="flex flex-col min-w-0">
+                        <span
+                            class="text-sm font-bold text-text-light dark:text-text-dark wrap-break-word leading-tight">
+                            {{ $ticket->guestDetail->full_name }}
+                        </span>
                     </div>
                 </div>
-                <div class="space-y-3 text-sm">
-                    <div
-                        class="flex justify-between items-center py-2 border-t border-dashed border-border-light dark:border-border-dark">
-                        <span class="text-muted-light text-xs">Identitas</span>
-                        <span
-                            class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">{{ strtoupper($ticket->guestDetail->entity_type->value) }}</span>
+
+                {{-- Fields Detail (Tanpa Background/Border) --}}
+                <div class="space-y-4 text-xs">
+
+                    {{-- Email --}}
+                    <div>
+                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Email</p>
+                        <p class="text-text-light dark:text-text-dark font-medium break-all"
+                            title="{{ $ticket->guestDetail->email }}">
+                            {{ $ticket->guestDetail->email }}
+                        </p>
                     </div>
-                    <div
-                        class="flex justify-between items-center py-2 border-t border-dashed border-border-light dark:border-border-dark">
-                        <span class="text-muted-light text-xs">Nomor ID</span>
-                        <span
-                            class="font-mono text-text-light dark:text-text-dark font-medium">{{ $ticket->guestDetail->identity_number }}</span>
+
+                    {{-- ID Number --}}
+                    <div>
+                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Nomor ID</p>
+                        <p class="text-text-light dark:text-text-dark font-medium break-words font-mono">
+                            {{ $ticket->guestDetail->identity_number }}
+                        </p>
+                    </div>
+
+                    {{-- Entity / Identity --}}
+                    <div>
+                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Identitas</p>
+                        <p class="text-text-light dark:text-text-dark font-medium break-words">
+                            {{ strtoupper($ticket->guestDetail->entity_type->value) }}
+                        </p>
                     </div>
                 </div>
-                <div class="mt-4 pt-2 border-t border-border-light dark:border-border-dark">
-                    <p class="text-xs font-semibold text-muted-light mb-2">Lampiran Identitas</p>
-                    <div class="grid grid-cols-2 gap-2">
-                        @foreach ([['path' => $ticket->guestDetail->photo_identity_path, 'label' => 'KTP', 'icon' => 'visibility'], ['path' => $ticket->guestDetail->photo_selfie_path, 'label' => 'Selfie', 'icon' => 'face']] as $doc)
-                            <a href="{{ asset('storage/' . $doc['path']) }}" target="_blank"
-                                class="relative group block aspect-4/3 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800 border border-border-light dark:border-border-dark">
-                                <img src="{{ asset('storage/' . $doc['path']) }}"
-                                    class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110">
-                                <div
-                                    class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white">
-                                    <span class="material-icons-round text-xl mb-1">{{ $doc['icon'] }}</span>
-                                    <span
-                                        class="text-[10px] uppercase font-bold tracking-wider">{{ $doc['label'] }}</span>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
+
+                {{-- Action Buttons (Identity/Selfie) --}}
+                <div class="mt-6 flex flex-row md:flex-col gap-2">
+                    @if ($ticket->guestDetail->photo_identity_path)
+                        <a href="{{ asset('storage/' . $ticket->guestDetail->photo_identity_path) }}" target="_blank"
+                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group">
+                            <span
+                                class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">badge</span>
+                            Kartu Identitas
+                        </a>
+                    @endif
+
+                    @if ($ticket->guestDetail->photo_selfie_path)
+                        <a href="{{ asset('storage/' . $ticket->guestDetail->photo_selfie_path) }}" target="_blank"
+                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group">
+                            <span
+                                class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">face</span>
+                            Selfie
+                        </a>
+                    @endif
                 </div>
             </div>
         </div>
