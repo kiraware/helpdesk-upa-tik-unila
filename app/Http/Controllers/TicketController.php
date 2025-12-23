@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TicketStatus;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -124,6 +125,7 @@ class TicketController extends Controller
         $ticket->update([
             'assigned_to' => auth()->id(),
             'assigned_at' => now(),
+            'status' => TicketStatus::PROGRESS,
         ]);
 
         return back()->with('success', 'Ticket berhasil ditugaskan ke Anda.');

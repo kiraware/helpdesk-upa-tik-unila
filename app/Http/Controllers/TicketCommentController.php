@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TicketStatus;
+use App\Enums\UserRole;
 use App\Models\Ticket;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -38,6 +40,21 @@ class TicketCommentController extends Controller
                         'size' => $file->getSize(),
                     ]);
                 }
+            }
+
+            $user = auth()->user();
+
+            // Cek apakah user adalah Admin atau Superuser
+            // Kita gunakan ->value karena kolom role di DB kemungkinan string ('admin', 'superuser')
+            $isAuthorized = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
+
+            // Jika User berwenang DAN Tiket belum ada petugasnya
+            if ($isAuthorized && is_null($ticket->assigned_to)) {
+                $ticket->update([
+                    'assigned_to' => $user->id,
+                    'assigned_at' => now(),
+                    'status' => TicketStatus::PROGRESS,
+                ]);
             }
         });
 
