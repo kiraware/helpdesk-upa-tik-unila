@@ -10,7 +10,7 @@
     };
 @endphp
 
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ showModal: false, modalImage: '' }">
     {{-- ASSIGNEE --}}
     <div
         class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
@@ -72,16 +72,10 @@
             class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
 
             {{-- Header --}}
-            <div
-                class="px-4 py-4 border-b border-border-light dark:border-border-dark flex justify-between items-center group cursor-pointer">
-                <h3
-                    class="text-xs font-bold uppercase tracking-wider text-muted-light dark:text-muted-dark hover:text-blue-600 transition-colors">
+            <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
+                <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">
                     Detail Pelapor
                 </h3>
-                <span
-                    class="material-icons-round text-muted-light dark:text-muted-dark text-sm opacity-0 group-hover:opacity-100 transition-opacity">
-                    settings
-                </span>
             </div>
 
             <div class="p-4">
@@ -102,9 +96,8 @@
                     </div>
                 </div>
 
-                {{-- Fields Detail (Tanpa Background/Border) --}}
+                {{-- Fields Detail --}}
                 <div class="space-y-4 text-xs">
-
                     {{-- Email --}}
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Email</p>
@@ -117,7 +110,7 @@
                     {{-- ID Number --}}
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Nomor ID</p>
-                        <p class="text-text-light dark:text-text-dark font-medium break-words font-mono">
+                        <p class="text-text-light dark:text-text-dark font-medium wrap-break-word font-mono">
                             {{ $ticket->guestDetail->identity_number }}
                         </p>
                     </div>
@@ -125,7 +118,7 @@
                     {{-- Entity / Identity --}}
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Identitas</p>
-                        <p class="text-text-light dark:text-text-dark font-medium break-words">
+                        <p class="text-text-light dark:text-text-dark font-medium wrap-break-word">
                             {{ strtoupper($ticket->guestDetail->entity_type->value) }}
                         </p>
                     </div>
@@ -134,24 +127,55 @@
                 {{-- Action Buttons (Identity/Selfie) --}}
                 <div class="mt-6 flex flex-row md:flex-col gap-2">
                     @if ($ticket->guestDetail->photo_identity_path)
-                        <a href="{{ asset('storage/' . $ticket->guestDetail->photo_identity_path) }}" target="_blank"
-                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group">
+                        {{-- Trigger Modal --}}
+                        <button type="button"
+                            @click="modalImage = '{{ asset('storage/' . $ticket->guestDetail->photo_identity_path) }}'; showModal = true"
+                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group cursor-pointer">
                             <span
                                 class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">badge</span>
                             Kartu Identitas
-                        </a>
+                        </button>
                     @endif
 
                     @if ($ticket->guestDetail->photo_selfie_path)
-                        <a href="{{ asset('storage/' . $ticket->guestDetail->photo_selfie_path) }}" target="_blank"
-                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group">
+                        {{-- Trigger Modal --}}
+                        <button type="button"
+                            @click="modalImage = '{{ asset('storage/' . $ticket->guestDetail->photo_selfie_path) }}'; showModal = true"
+                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group cursor-pointer">
                             <span
                                 class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">face</span>
                             Selfie
-                        </a>
+                        </button>
                     @endif
                 </div>
             </div>
         </div>
     @endif
+
+    {{-- MODAL PREVIEW GAMBAR --}}
+    <div x-show="showModal" style="display: none;"
+        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
+        x-transition:enter="transition ease-out duration-300" x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100" x-transition:leave="transition ease-in duration-200"
+        x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0">
+
+        {{-- Close on click outside --}}
+        <div class="absolute inset-0" @click="showModal = false"></div>
+
+        <div
+            class="relative bg-white dark:bg-surface-dark rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            {{-- Modal Header --}}
+            <div class="flex justify-between items-center p-4 border-b border-border-light dark:border-border-dark">
+                <h3 class="font-bold text-text-light dark:text-text-dark">Preview Gambar</h3>
+                <button @click="showModal = false" class="text-muted-light hover:text-red-500 transition-colors">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+
+            {{-- Modal Image Content --}}
+            <div class="p-2 flex items-center justify-center bg-gray-100 dark:bg-slate-900 overflow-auto h-full">
+                <img :src="modalImage" class="max-w-full max-h-[75vh] object-contain rounded-lg shadow-sm">
+            </div>
+        </div>
+    </div>
 </div>
