@@ -1,6 +1,9 @@
 @import "tailwindcss";
 @import "trix/dist/trix.css";
 
+@import "@material-design-icons/font/round.css";
+@import "@fontsource-variable/inter";
+
 @plugin "@tailwindcss/typography";
 
 @source "../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php";
@@ -10,8 +13,12 @@
 
 @theme {
     /* Font Settings */
-    --font-display: "Inter", "sans-serif";
-    --font-body: "Inter", "sans-serif";
+    --font-sans:
+        "Inter Variable", ui-sans-serif, system-ui, sans-serif,
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol",
+        "Noto Color Emoji";
+    --font-display: var(--font-sans);
+    --font-body: var(--font-sans);
 
     /* Border Radius (Set default radius menjadi 0.5rem) */
     --radius: 0.5rem;
