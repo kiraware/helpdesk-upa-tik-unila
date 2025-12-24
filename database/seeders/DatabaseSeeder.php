@@ -22,7 +22,15 @@ class DatabaseSeeder extends Seeder
             // --- TICKETING SYSTEM ---
             TicketSeeder::class,
             GuestTicketDetailSeeder::class,
+
+            // Attachment untuk Tiket (harus setelah TicketSeeder)
+            TicketAttachmentSeeder::class,
+
             TicketCommentSeeder::class,
+
+            // Attachment untuk Komentar (harus setelah TicketCommentSeeder)
+            CommentAttachmentSeeder::class,
+
             TicketSurveySeeder::class,
 
             // --- DYNAMIC FORM SYSTEM ---

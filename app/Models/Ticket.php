@@ -24,8 +24,8 @@ class Ticket extends Model
         'assigned_to',
         'priority',
         'status',
-        'user_notes',
-        'attachment_pdf_path',
+        'title',
+        'description',
         'assigned_at',
         'closed_at',
     ];
@@ -83,5 +83,10 @@ class Ticket extends Model
     public function survey(): HasOne
     {
         return $this->hasOne(TicketSurvey::class);
+    }
+
+    public function attachments(): HasMany
+    {
+        return $this->hasMany(TicketAttachment::class);
     }
 }

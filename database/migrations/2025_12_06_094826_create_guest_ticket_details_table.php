@@ -18,9 +18,9 @@ return new class extends Migration
                 ->unique()
                 ->constrained('tickets')
                 ->cascadeOnDelete();
-            $table->string('full_name');
+            $table->string('full_name', 50);
             $table->string('email');
-            $table->string('identity_number');
+            $table->string('identity_number', 32);
             $table->enum('entity_type', array_column(IdentityType::cases(), 'value'));
             $table->string('photo_identity_path');
             $table->string('photo_selfie_path');

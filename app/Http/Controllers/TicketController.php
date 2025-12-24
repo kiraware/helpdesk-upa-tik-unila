@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TicketStatus;
 use App\Models\Ticket;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -23,7 +24,8 @@ class TicketController extends Controller
 
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
                 $qq->where('ticket_code', 'like', "%{$request->q}%")
-                    ->orWhere('user_notes', 'like', "%{$request->q}%");
+                    ->orWhere('title', 'like', "%{$request->q}%")
+                    ->orWhere('description', 'like', "%{$request->q}%");
             })
             )
 
@@ -70,6 +72,23 @@ class TicketController extends Controller
         return view('tickets.index', compact('tickets', 'admins'));
     }
 
+    public function show(Ticket $ticket)
+    {
+        $ticket->load([
+            'user',
+            'service',
+            'assignee',
+            'guestDetail',
+            'attachments',
+            'comments.user',
+            'comments.attachments',
+        ]);
+
+        $admins = User::whereIn('role', ['admin', 'superuser'])->get();
+
+        return view('tickets.show', compact('ticket', 'admins'));
+    }
+
     public function store(Request $request)
     {
         $validated = $request->validate(['name' => 'required|string|max:255|unique:tickets']);
@@ -82,19 +101,18 @@ class TicketController extends Controller
     public function update(Request $request, Ticket $ticket)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:255', Rule::unique('tickets')->ignore($ticket->id)],
+            'title' => [
+                'required',
+                'string',
+                'max:100',
+                Rule::unique('tickets', 'title')->ignore($ticket->id),
+            ],
         ]);
 
-        $ticket->update(['name' => $validated['name']]);
+        $ticket->update(['title' => $validated['title']]);
 
-        return redirect()->route('tickets.index')->with('success', 'Tiket berhasil diperbarui.');
-    }
-
-    public function destroy(Ticket $ticket)
-    {
-        $ticket->delete();
-
-        return redirect()->route('tickets.index')->with('success', 'Tiket berhasil dihapus.');
+        return redirect()->route('tickets.show', $ticket->uuid)
+            ->with('success', 'Judul tiket berhasil diperbarui.');
     }
 
     public function assignMe(Ticket $ticket)
@@ -107,6 +125,7 @@ class TicketController extends Controller
         $ticket->update([
             'assigned_to' => auth()->id(),
             'assigned_at' => now(),
+            'status' => TicketStatus::PROGRESS,
         ]);
 
         return back()->with('success', 'Ticket berhasil ditugaskan ke Anda.');

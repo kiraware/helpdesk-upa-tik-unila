@@ -21,7 +21,7 @@
                             <span class="material-icons-round text-lg">layers</span>
                         </span>
                         <input type="text" name="name" value="{{ old('name') }}" placeholder="Contoh: Pusdatin"
-                            required
+                            required maxlength="50"
                             class="pl-10 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-sm focus:border-secondary focus:ring-secondary sm:text-sm py-2.5">
                     </div>
                     @error('name')

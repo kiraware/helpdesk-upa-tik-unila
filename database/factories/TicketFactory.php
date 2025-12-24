@@ -31,7 +31,8 @@ class TicketFactory extends Factory
                 array_column(TicketPriority::cases(), 'value')
             ),
             'status' => TicketStatus::WAITING,
-            'user_notes' => fake()->paragraph(),
+            'title' => fake()->sentence(),
+            'description' => fake()->paragraph(),
             'created_at' => fake()->dateTimeBetween('-1 month', 'now'),
         ];
     }

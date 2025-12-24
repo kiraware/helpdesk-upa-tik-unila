@@ -14,7 +14,7 @@
 
     {{-- Search & Filter Component --}}
     {{-- Kita passing $admins karena dibutuhkan untuk dropdown filter --}}
-    <x-tickets.filter :admins="$admins" />
+    <x-tickets.index.filter :admins="$admins" />
 
     {{-- Ticket List Container --}}
     <div
@@ -22,7 +22,7 @@
 
         @forelse ($tickets as $ticket)
             {{-- Ticket Item Component --}}
-            <x-tickets.item :ticket="$ticket" />
+            <x-tickets.index.item :ticket="$ticket" />
         @empty
             <div
                 class="p-10 text-center text-sm text-muted-light dark:text-slate-400 flex flex-col items-center justify-center">
