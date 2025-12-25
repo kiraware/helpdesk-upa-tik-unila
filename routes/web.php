@@ -15,17 +15,50 @@ Route::get('/', function () {
 });
 
 // --- TESTING ONLY ---
-Route::get('/test-login', function () {
-    $user = \App\Models\User::first();
-    if ($user) {
-        \Illuminate\Support\Facades\Auth::login($user);
+Route::get('/test-login/{role?}', function (?string $role = null) {
+    // 1. Jika Role tidak diisi, Tampilkan Pilihan Menu
+    if (! $role) {
+        $roles = \App\Enums\UserRole::cases();
 
-        return redirect()->route('dashboard');
+        $html = '<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:sans-serif; gap:1rem; background:#f3f4f6;">';
+        $html .= '<h1 style="color:#1f2937;">Pilih User untuk Login</h1>';
+
+        foreach ($roles as $r) {
+            // Cek apakah user tersedia di DB
+            $exists = \App\Models\User::where('role', $r->value)->exists();
+            $color = $exists ? '#3b82f6' : '#9ca3af'; // Biru jika ada, Abu jika tidak ada
+            $cursor = $exists ? 'pointer' : 'not-allowed';
+            $link = $exists ? url("/test-login/{$r->value}") : '#';
+            $text = $exists ? 'Login as '.strtoupper($r->value) : strtoupper($r->value).' (User not found)';
+
+            $html .= "<a href='{$link}' style='text-decoration:none; background:{$color}; color:white; padding:10px 20px; border-radius:5px; width:250px; text-align:center; cursor:{$cursor}'>{$text}</a>";
+        }
+
+        $html .= '<p style="color:#6b7280; margin-top:20px; font-size:12px;">Pastikan Anda sudah menjalankan database seeder.</p>';
+        $html .= '</div>';
+
+        return $html;
     }
 
-    return 'Tidak ada user di database, jalankan seeder dulu.';
+    // 2. Jika Role diisi, Cari User dan Login
+    $user = \App\Models\User::where('role', $role)->first();
+
+    if ($user) {
+        // Logout user sebelumnya (opsional, untuk kebersihan sesi)
+        \Illuminate\Support\Facades\Auth::logout();
+
+        // Login user baru
+        \Illuminate\Support\Facades\Auth::login($user);
+
+        // Regenerate session ID (security best practice, meski testing)
+        request()->session()->regenerate();
+
+        return redirect()->route('dashboard')
+            ->with('success', "Berhasil login testing sebagai: <b>{$user->name}</b> ({$role})");
+    }
+
+    return "User dengan role '{$role}' tidak ditemukan di database. Silakan jalankan seeder.";
 });
-// --------------------
 
 Route::middleware(['auth'])->group(function () {
 

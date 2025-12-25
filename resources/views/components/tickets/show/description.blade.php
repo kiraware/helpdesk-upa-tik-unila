@@ -1,70 +1,68 @@
 @props(['ticket'])
 
 @php
-    $creatorName = $ticket->user
-        ? $ticket->user->name
-        : ($ticket->guestDetail
-            ? $ticket->guestDetail->full_name
-            : 'Guest');
-    $creatorAvatar = $ticket->user
-        ? ($ticket->user->photo
-            ? asset('storage/' . $ticket->user->photo)
-            : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->user->name))
-        : 'https://ui-avatars.com/api/?name=' . urlencode($creatorName);
+    // Logika Avatar & Nama (Sama seperti Comment)
+    $creator = $ticket->user;
+    $isGuest = !$creator;
+
+    // Nama Pengirim
+    $senderName = $creator ? $creator->name : ($ticket->guestDetail ? $ticket->guestDetail->full_name : 'Guest');
+
+    // Role Label
+    $roleLabel = $creator ? ucfirst($creator->role->value) : 'Guest';
+
+    // Cek apakah Admin/Superuser (Untuk styling border biru)
+    $isStaff = $creator && in_array($creator->role->value, ['admin', 'superuser']);
+
+    // Avatar URL
+    if ($creator && $creator->photo) {
+        $avatarUrl = asset('storage/' . $creator->photo);
+    } else {
+        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($senderName);
+    }
 @endphp
 
-<div class="flex gap-4 group relative">
-    <div class="shrink-0 hidden sm:block">
-        <img src="{{ $creatorAvatar }}" alt="{{ $creatorName }}"
-            class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm">
+<div class="flex gap-4 relative mb-6 group">
+    {{-- Avatar --}}
+    <div class="shrink-0 hidden sm:block z-10">
+        <img src="{{ $avatarUrl }}"
+            class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light">
     </div>
+
+    {{-- Bubble Content --}}
     <div class="grow min-w-0">
         <div
-            class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
+            class="border {{ $isStaff ? 'border-blue-200 dark:border-blue-900/50' : 'border-border-light dark:border-border-dark' }} rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
+
+            {{-- HEADER --}}
             <div
-                class="px-4 py-3 bg-gray-50 dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark flex items-center justify-between gap-2 text-sm">
-                <div class="flex items-center gap-2 text-muted-light dark:text-muted-dark">
-                    <span class="font-semibold text-text-light dark:text-text-dark">{{ $creatorName }}</span>
+                class="px-4 py-2.5 {{ $isStaff ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-slate-800/50' }} border-b {{ $isStaff ? 'border-blue-100 dark:border-blue-900/30' : 'border-border-light dark:border-border-dark' }} flex items-center justify-between text-sm">
+                <div class="flex items-center gap-2">
+                    <span class="font-semibold text-text-light dark:text-text-dark">{{ $senderName }}</span>
+                    <span class="text-muted-light dark:text-muted-dark text-xs">
+                        membuat tiket {{ $ticket->created_at->diffForHumans() }}
+                    </span>
                 </div>
-                <span
-                    class="text-xs px-2 py-0.5 rounded-full border border-border-light dark:border-border-dark text-muted-light">
-                    {{ $ticket->user ? ucfirst($ticket->user->role->value) : 'Guest' }}
-                </span>
-            </div>
-            <div
-                class="p-4 sm:p-6 text-text-light dark:text-text-dark leading-relaxed prose dark:prose-invert max-w-none wrap-break-word">
-                {!! nl2br(e($ticket->description)) !!}
+
+                {{-- Role / Badge --}}
+                @if ($isStaff)
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                        {{ $roleLabel }}
+                    </span>
+                @else
+                    <span
+                        class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 dark:bg-slate-700 dark:text-slate-300 border border-gray-200 dark:border-slate-600">
+                        {{ $roleLabel }}
+                    </span>
+                @endif
             </div>
 
-            @if ($ticket->attachments->count() > 0)
-                <div class="px-4 sm:px-6 pb-4 pt-2 border-t border-border-light dark:border-border-dark border-dashed">
-                    <p class="text-xs font-semibold text-muted-light mb-3 uppercase tracking-wider">Lampiran Tiket</p>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        @foreach ($ticket->attachments as $att)
-                            <a href="{{ $att->url }}" target="_blank"
-                                class="group flex items-center gap-3 p-2 rounded-lg border border-border-light dark:border-border-dark hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors">
-                                @if (Str::startsWith($att->mime_type, 'image/'))
-                                    <div
-                                        class="w-10 h-10 shrink-0 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden">
-                                        <img src="{{ $att->url }}" class="w-full h-full object-cover">
-                                    </div>
-                                @else
-                                    <div
-                                        class="w-10 h-10 shrink-0 flex items-center justify-center bg-gray-100 dark:bg-gray-800 rounded text-muted-light">
-                                        <span class="material-icons-round text-xl">description</span>
-                                    </div>
-                                @endif
-                                <div class="min-w-0">
-                                    <p
-                                        class="text-sm font-medium text-text-light dark:text-text-dark truncate group-hover:text-secondary">
-                                        {{ $att->name }}</p>
-                                    <p class="text-xs text-muted-light">{{ number_format($att->size / 1024, 1) }} KB</p>
-                                </div>
-                            </a>
-                        @endforeach
-                    </div>
-                </div>
-            @endif
+            {{-- CONTENT BODY --}}
+            <div
+                class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none wrap-break-word prose dark:prose-invert prose-sm">
+                {!! clean($ticket->description) !!}
+            </div>
         </div>
     </div>
 </div>

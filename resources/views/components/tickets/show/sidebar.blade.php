@@ -2,11 +2,16 @@
 
 @php
     $isClosed = in_array($ticket->status, [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT]);
+
+    $currentUser = auth()->user();
+    $canTakeTicket =
+        $currentUser && in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
+
     $prioColor = match ($ticket->priority) {
         \App\Enums\TicketPriority::HIGH => 'text-red-600',
         \App\Enums\TicketPriority::MEDIUM => 'text-yellow-600',
         \App\Enums\TicketPriority::LOW => 'text-gray-600',
-        \App\Enums\TicketPriority::DEFAULT => 'text-gray-600', // Fallback
+        \App\Enums\TicketPriority::DEFAULT => 'text-gray-600',
     };
 @endphp
 
@@ -17,12 +22,14 @@
         <div
             class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center">
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Petugas</h3>
-            @if (is_null($ticket->assigned_to) && !$isClosed)
+
+            @if (is_null($ticket->assigned_to) && !$isClosed && $canTakeTicket)
                 <form method="POST" action="{{ route('tickets.assign.me', $ticket->uuid) }}">
                     @csrf
                     <button type="submit" class="text-xs text-secondary hover:underline">Ambil Tiket</button>
                 </form>
             @endif
+
         </div>
         <div class="p-4">
             @if ($ticket->assignee)

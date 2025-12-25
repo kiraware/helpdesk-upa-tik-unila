@@ -83,7 +83,9 @@
 
     {{-- 3. Right Actions --}}
     <div class="shrink-0 flex items-center gap-3 self-start mt-0.5 pl-2">
-        @if (is_null($ticket->assigned_to))
+
+        {{-- LOGIC: Tampilkan tombol HANYA jika belum ada assignee DAN user BUKAN role 'USER' --}}
+        @if (is_null($ticket->assigned_to) && auth()->user()->role !== \App\Enums\UserRole::USER)
             <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
                 @csrf
                 <button type="submit"
@@ -91,7 +93,9 @@
                     Ambil
                 </button>
             </form>
-        @else
+
+            {{-- Tampilkan Avatar Assignee jika sudah diambil --}}
+        @elseif (!is_null($ticket->assigned_to))
             <div class="hidden sm:flex items-center" title="Ditugaskan ke {{ $ticket->assignee->name }}">
                 <img src="{{ $ticket->assignee->photo ? asset('storage/' . $ticket->assignee->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
                     alt="{{ $ticket->assignee->name }}"
@@ -99,6 +103,7 @@
             </div>
         @endif
 
+        {{-- Comment Icon --}}
         @if ($ticket->comments_count > 0)
             <div class="flex items-center text-muted-light dark:text-slate-400 hover:text-secondary transition-colors">
                 <span class="material-icons-round text-[16px] mr-0.5">chat_bubble_outline</span>
