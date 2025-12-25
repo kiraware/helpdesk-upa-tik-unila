@@ -40,24 +40,9 @@
 
                 {{-- CONTENT BODY --}}
                 <div
-                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none wrap-break-word prose dark:prose-invert prose-sm trix-content">
+                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none wrap-break-word prose dark:prose-invert prose-sm">
                     {!! clean($comment->message) !!}
                 </div>
-
-                {{-- ATTACHMENTS --}}
-                @if ($comment->attachments->count() > 0)
-                    <div class="px-4 pb-4 pt-2">
-                        <div class="flex flex-wrap gap-2">
-                            @foreach ($comment->attachments as $cAtt)
-                                <a href="{{ $cAtt->url }}" target="_blank"
-                                    class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 text-xs font-medium transition-colors text-text-light dark:text-text-dark border border-transparent hover:border-border-light dark:hover:border-border-dark">
-                                    <span class="material-icons-round text-sm">attachment</span>
-                                    {{ $cAtt->name }}
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
             </div>
         </div>
     </div>

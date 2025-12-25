@@ -60,11 +60,6 @@
 /* TRIX EDITOR CUSTOMIZATION                                                  */
 /* -------------------------------------------------------------------------- */
 
-/* Sembunyikan caption ukuran file */
-.trix-content .attachment__caption {
-    display: none;
-}
-
 /* Toolbar Buttons */
 trix-toolbar .trix-button {
     background-color: transparent;
@@ -148,76 +143,4 @@ trix-toolbar .trix-button--icon-increase-nesting-level {
     trix-toolbar .trix-button-group {
         margin-right: 0.25rem !important;
     }
-}
-
-/* -------------------------------------------------------------------------- */
-/* COMMENT CONTENT FORMATTING (Typography Recovery)                           */
-/* -------------------------------------------------------------------------- */
-.trix-content ul {
-    list-style-type: disc;
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-.trix-content ol {
-    list-style-type: decimal;
-    padding-left: 1.5rem;
-    margin-bottom: 1rem;
-}
-
-/* Blockquote (Kutipan) */
-.trix-content blockquote {
-    border-left: 4px solid var(--color-secondary); /* Gunakan warna biru/secondary agar terlihat */
-    padding-left: 1rem;
-    font-style: italic;
-    color: var(--color-muted-light); /* Gray 500 */
-    background-color: transparent; /* Reset jika prose memberi bg */
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    quotes: none; /* Hilangkan tanda kutip otomatis browser */
-}
-
-:is(.dark) .trix-content blockquote {
-    border-left-color: var(--color-secondary);
-    color: var(--color-muted-dark);
-}
-
-/* Pre / Code Block (Kode Program) */
-.trix-content pre {
-    white-space: pre-wrap;
-    word-wrap: break-word;
-
-    /* Styling Visual */
-    background-color: #1e293b; /* Slate 800 (Dark background selalu) */
-    color: #e2e8f0; /* Slate 200 */
-    padding: 1rem;
-    border-radius: 0.5rem;
-    overflow-x: auto;
-    font-family:
-        ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.875rem;
-    margin-top: 0.75rem;
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--color-border-light);
-}
-
-:is(.dark) .trix-content pre {
-    border-color: var(--color-border-dark);
-    background-color: #0f172a; /* Slate 900 lebih gelap di dark mode */
-}
-
-/* Pastikan link tetap berwarna */
-.trix-content a {
-    color: var(--color-secondary);
-    text-decoration: underline;
-    font-weight: 500;
-}
-
-.trix-content a:hover {
-    color: #2563eb;
-}
-
-.trix-content img {
-    border-radius: 0.5rem;
-    margin: 0.5rem 0;
 }

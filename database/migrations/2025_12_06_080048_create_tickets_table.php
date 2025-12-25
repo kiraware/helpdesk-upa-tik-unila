@@ -31,7 +31,7 @@ return new class extends Migration
             $table->enum('priority', array_column(TicketPriority::cases(), 'value'));
             $table->enum('status', array_column(TicketStatus::cases(), 'value'))
                 ->default(TicketStatus::WAITING->value);
-            $table->string('title', 100)->unique();
+            $table->string('title', 100);
             $table->text('description');
             $table->timestamp('assigned_at')->nullable();
             $table->timestamp('closed_at')->nullable();

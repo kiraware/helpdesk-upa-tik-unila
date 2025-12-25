@@ -7,7 +7,7 @@
  * $config->set('Core.Encoding', $this->config->get('purifier.encoding'));
  * $config->set('Cache.SerializerPath', $this->config->get('purifier.cachePath'));
  * if ( ! $this->config->get('purifier.finalize')) {
- * $config->autoFinalize = false;
+ *     $config->autoFinalize = false;
  * }
  * $config->loadArray($this->getConfig());
  *
@@ -26,11 +26,7 @@ return [
     'settings' => [
         'default' => [
             'HTML.Doctype' => 'HTML 4.01 Transitional',
-            // PERUBAHAN UTAMA DI SINI:
-            // 1. Ditambahkan: blockquote, pre, code (Untuk Quote & Code Block)
-            // 2. Ditambahkan: h1, h2, h3, h4, h5, h6 (Untuk Heading Trix)
-            // 3. Ditambahkan: s, del (Untuk Strikethrough)
-            'HTML.Allowed' => 'div,b,strong,i,em,u,a[href|title|target],ul,ol,li,p[style],br,span[style],img[width|height|alt|src],blockquote,pre,code,s,del,h1,h2,h3,h4,h5,h6',
+            'HTML.Allowed' => 'div,b,strong,i,em,u,a[href|title|target],ul,ol,li,p[style],br,span[style],img[width|height|alt|src],blockquote,pre,code,s,del,h1,h2,h3,h4,h5,h6,figure[class],figcaption',
             'CSS.AllowedProperties' => 'font,font-size,font-weight,font-style,font-family,text-decoration,padding-left,color,background-color,text-align',
             'AutoFormat.AutoParagraph' => true,
             'AutoFormat.RemoveEmpty' => true,
