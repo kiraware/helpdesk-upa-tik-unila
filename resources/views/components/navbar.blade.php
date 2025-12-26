@@ -35,11 +35,15 @@
         <div class="h-6 w-px bg-border-light dark:bg-slate-700/70"></div>
 
         <button @click="open = !open" class="flex items-center gap-3 focus:outline-none">
-            <div class="text-right hidden sm:block leading-tight">
-                <p class="text-sm font-medium text-text-light dark:text-slate-100">
+            <div class="text-right hidden sm:block leading-tight min-w-0 max-w-[180px]">
+                <p class="text-sm font-medium text-text-light dark:text-slate-100
+               truncate"
+                    title="{{ auth()->user()->name }}">
                     {{ auth()->user()->name }}
                 </p>
-                <p class="text-xs text-muted-light dark:text-slate-400 capitalize">
+
+                <p class="text-xs text-muted-light dark:text-slate-400 capitalize
+               truncate">
                     {{ auth()->user()->role }}
                 </p>
             </div>

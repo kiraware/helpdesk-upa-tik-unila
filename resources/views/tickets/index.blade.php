@@ -14,7 +14,7 @@
 
     {{-- Search & Filter Component --}}
     {{-- Kita passing $admins karena dibutuhkan untuk dropdown filter --}}
-    <x-tickets.index.filter :admins="$admins" />
+    <x-tickets.index.filter :admins="$admins" :services="$services" />
 
     {{-- Ticket List Container --}}
     <div

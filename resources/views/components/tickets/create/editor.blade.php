@@ -16,7 +16,7 @@
 
             <input id="x_description" type="hidden" name="description" value="{{ old('description') }}">
 
-            <trix-editor input="x_description" data-upload-url="{{ route('comments.upload.editor.image') }}"
+            <trix-editor input="x_description" data-upload-url="{{ route('comments.upload.editor.attachments') }}"
                 class="min-h-[250px]
                prose dark:prose-invert max-w-none
                text-text-light dark:text-text-dark
@@ -39,7 +39,7 @@
     </div>
 
     <p class="text-xs text-muted-light mt-2 ml-1">
-        * Gambar dapat langsung ditempel (paste) atau drag ke editor.
+        * Anda dapat menyisipkan gambar atau file langsung ke dalam editor.
     </p>
 
     @error('description')

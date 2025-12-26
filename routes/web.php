@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\GuestTicketController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TicketCommentController;
@@ -60,6 +61,13 @@ Route::get('/test-login/{role?}', function (?string $role = null) {
     return "User dengan role '{$role}' tidak ditemukan di database. Silakan jalankan seeder.";
 });
 
+Route::controller(GuestTicketController::class)->group(function () {
+    Route::get('/create-ticket', 'create')->name('guest.tickets.create');
+    Route::post('/create-ticket', 'store')->name('guest.tickets.store');
+
+    Route::post('/guest/upload-trix', 'storeEmbeddedFile')->name('guest.upload.editor.trix');
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // 1. DASHBOARD (Semua Role punya dashboard, logic tampilan diatur di Controller)
@@ -71,8 +79,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])
         ->name('tickets.comments.store');
-    Route::post('/comments/upload-editor-image', [TicketCommentController::class, 'uploadEditorImage'])
-        ->name('comments.upload.editor.image');
+    Route::post('/comments/upload-editor-attachments', [TicketCommentController::class, 'storeEmbeddedFile'])
+        ->name('comments.upload.editor.attachments');
 
     // 3. GROUP ADMIN & SUPERUSER
     Route::middleware([

@@ -36,8 +36,10 @@
                 <div class="flex items-center gap-3">
                     <img src="{{ $ticket->assignee->photo ? asset('storage/' . $ticket->assignee->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
                         class="w-8 h-8 rounded-full">
-                    <div>
-                        <p class="text-sm font-medium text-text-light dark:text-text-dark">{{ $ticket->assignee->name }}
+                    <div class="min-w-0">
+                        <p
+                            class="text-sm font-medium text-text-light dark:text-text-dark break-all whitespace-normal max-w-full">
+                            {{ $ticket->assignee->name }}
                         </p>
                         <p class="text-xs text-muted-light">Ditugaskan
                             {{ $ticket->assigned_at ? $ticket->assigned_at->diffForHumans() : '-' }}</p>
@@ -97,7 +99,7 @@
                     {{-- Name --}}
                     <div class="flex flex-col min-w-0">
                         <span
-                            class="text-sm font-bold text-text-light dark:text-text-dark wrap-break-word leading-tight">
+                            class="text-sm font-bold text-text-light dark:text-text-dark break-all whitespace-normal max-w-full leading-tight">
                             {{ $ticket->guestDetail->full_name }}
                         </span>
                     </div>
@@ -108,7 +110,7 @@
                     {{-- Email --}}
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Email</p>
-                        <p class="text-text-light dark:text-text-dark font-medium break-all"
+                        <p class="text-text-light dark:text-text-dark font-medium break-all whitespace-normal max-w-full"
                             title="{{ $ticket->guestDetail->email }}">
                             {{ $ticket->guestDetail->email }}
                         </p>
@@ -117,15 +119,18 @@
                     {{-- ID Number --}}
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Nomor ID</p>
-                        <p class="text-text-light dark:text-text-dark font-medium wrap-break-word font-mono">
+                        <p
+                            class="text-text-light dark:text-text-dark font-medium font-mono break-all whitespace-normal max-w-full">
+
                             {{ $ticket->guestDetail->identity_number }}
                         </p>
                     </div>
 
                     {{-- Entity / Identity --}}
                     <div>
-                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Identitas</p>
-                        <p class="text-text-light dark:text-text-dark font-medium wrap-break-word">
+                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Status</p>
+                        <p
+                            class="text-text-light dark:text-text-dark font-medium break-all whitespace-normal max-w-full">
                             {{ strtoupper($ticket->guestDetail->entity_type->value) }}
                         </p>
                     </div>

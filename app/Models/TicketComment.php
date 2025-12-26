@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Mews\Purifier\Facades\Purifier;
 
 class TicketComment extends Model
 {
@@ -16,7 +17,6 @@ class TicketComment extends Model
         'ticket_id',
         'user_id',
         'message',
-        'attachment_path',
     ];
 
     public function ticket(): BelongsTo
@@ -47,5 +47,13 @@ class TicketComment extends Model
         // Jika user_id null, berarti Guest (ambil dari data tiket)
         // Kita akses relasi guestDetail dari parent ticket
         return $this->ticket->guestDetail->full_name;
+    }
+
+    /**
+     * Mutator: Setiap kali field 'message' di-set, otomatis dibersihkan
+     */
+    public function setMessageAttribute($value)
+    {
+        $this->attributes['message'] = Purifier::clean($value);
     }
 }

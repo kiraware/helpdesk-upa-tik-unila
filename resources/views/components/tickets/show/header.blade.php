@@ -39,14 +39,16 @@
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
 
         {{-- Title & Meta --}}
-        <div class="flex-1 min-w-0">
-            <form id="update-title-form" action="{{ route('tickets.update', $ticket->uuid) }}" method="POST">
+        <div class="flex-1 min-w-0 w-full">
+
+            <form id="update-title-form" action="{{ route('tickets.update', $ticket->uuid) }}" method="POST"
+                class="min-w-0 w-full">
                 @csrf
                 @method('PUT')
-                <div class="mb-2 min-h-10 flex items-center">
+                <div class="mb-2 min-h-10 flex items-center w-full">
                     {{-- MODE BACA --}}
                     <h1 x-show="!isEditing"
-                        class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight wrap-break-word">
+                        class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight wrap-break-word w-full">
                         {{ $ticket->title }}
                         <span
                             class="text-xl sm:text-2xl font-light text-muted-light dark:text-muted-dark ml-2 inline-block whitespace-nowrap">
@@ -72,14 +74,21 @@
                     <span class="material-icons-round text-base">{{ $statusColors['icon'] }}</span>
                     {{ ucfirst($ticket->status->value) }}
                 </span>
+
                 <span class="hidden sm:inline">&bull;</span>
-                <span class="flex items-center gap-1 truncate">
-                    <span class="font-semibold text-text-light dark:text-text-dark">{{ $creatorName }}</span>
-                    <span class="hidden sm:inline">membuka tiket ini</span>
-                    <span>{{ $ticket->created_at->diffForHumans() }}</span>
+
+                {{-- Nama User --}}
+                <span class="flex flex-wrap items-center gap-1">
+                    <span class="font-semibold text-text-light dark:text-text-dark wrap-break-word break-all">
+                        {{ $creatorName }}
+                    </span>
+                    <span class="hidden sm:inline whitespace-nowrap">membuka tiket ini</span>
+                    <span class="whitespace-nowrap">{{ $ticket->created_at->diffForHumans() }}</span>
                 </span>
+
                 <span class="hidden sm:inline">&bull;</span>
-                <span>{{ $ticket->comments->count() }} komentar</span>
+
+                <span class="whitespace-nowrap">{{ $ticket->comments->count() }} komentar</span>
             </div>
         </div>
 
@@ -88,10 +97,7 @@
 
             {{-- VIEW MODE BUTTONS --}}
             <div x-show="!isEditing" class="flex items-center gap-2 w-full md:w-auto">
-                <a href="{{ route('tickets.index') }}"
-                    class="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-center text-muted-light hover:text-text-light dark:text-muted-dark dark:hover:text-text-dark bg-white dark:bg-slate-800 border border-border-light dark:border-border-dark md:border-transparent rounded-lg transition-colors">
-                    Kembali
-                </a>
+                {{-- Tombol Kembali DIHAPUS --}}
 
                 @if (!$isClosed)
                     <button type="button" @click="isEditing = true; focusInput()"
