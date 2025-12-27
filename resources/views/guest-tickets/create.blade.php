@@ -198,7 +198,13 @@
                         </div>
 
                         {{-- Service --}}
-                        <div x-data="{ open: false, selected: '{{ old('service_id') }}' }" class="relative">
+                        <div x-data='{
+                            open: false,
+                            selected: "{{ old('service_id') }}",
+                            listLayanan: @json($services->keyBy('id')->map->name)
+                        }'
+                            class="relative">
+
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Jenis Layanan <span class="text-red-500">*</span>
                             </label>
@@ -212,7 +218,7 @@
                                 <span class="flex items-center gap-2 truncate">
                                     <span class="material-icons-round text-base text-slate-400">dns</span>
                                     <span
-                                        x-text="selected ? '{{ $services->keyBy('id')->map->name }}'[selected] : 'Pilih Layanan...'"></span>
+                                        x-text="selected && listLayanan[selected] ? listLayanan[selected] : 'Pilih Layanan...'"></span>
                                 </span>
 
                                 <span class="material-icons-round text-slate-400 transition-transform duration-200"
@@ -231,7 +237,6 @@
                                 <div class="max-h-60 overflow-y-auto">
                                     @foreach ($services as $service)
                                         <button type="button" @click="selected='{{ $service->id }}'; open=false"
-                                            {{-- PERBAIKAN TYPO CSS: text-sm hover:bg... --}}
                                             class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ old('service_id') == $service->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">
                                             {{ $service->name }}
                                         </button>
@@ -245,7 +250,6 @@
                         </div>
 
                         {{-- Priority --}}
-                        {{-- PERBAIKAN: Tambahkan class="relative" --}}
                         <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Tingkat Urgensi <span class="text-red-500">*</span>
@@ -286,7 +290,6 @@
                                     @endphp
 
                                     <button type="button" @click="selected='{{ $priority->value }}'; open=false"
-                                        {{-- PERBAIKAN TYPO CSS --}}
                                         class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ $color }} {{ old('priority') === $priority->value ? 'font-semibold bg-slate-50' : '' }}">
                                         {{ ucfirst($priority->value) }}
                                     </button>
@@ -306,7 +309,6 @@
                             Deskripsi Detail & Lampiran <span class="text-red-500">*</span>
                         </label>
 
-                        {{-- Tambahkan ID editor-container untuk validasi --}}
                         <div id="editor-container"
                             class="border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
                             <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/30">
