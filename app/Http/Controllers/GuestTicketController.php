@@ -15,6 +15,37 @@ use Illuminate\Validation\Rules\Enum;
 
 class GuestTicketController extends Controller
 {
+    /**
+     * Menampilkan form pencarian tiket.
+     */
+    public function index()
+    {
+        return view('guest-tickets.index');
+    }
+
+    /**
+     * Menampilkan detail tiket berdasarkan ticket_code.
+     */
+    public function show(Request $request, Ticket $ticket)
+    {
+        // Security Check: Pastikan tiket ini memang tiket Guest (tidak punya user_id)
+        // Atau jika ingin user biasa juga bisa ditracking, hapus pengecekan ini.
+        // Disini kita asumsikan tracking publik hanya untuk tiket guest demi privasi user internal.
+        if ($ticket->user_id) {
+            abort(403, 'Tiket ini terdaftar sebagai tiket user internal. Silakan login untuk melihat.');
+        }
+
+        $ticket->load([
+            'service',
+            'assignee',
+            'guestDetail',
+            'comments.user',
+            'comments.attachments',
+        ]);
+
+        return view('guest-tickets.show', compact('ticket'));
+    }
+
     public function create()
     {
         $services = Service::where('is_active', true)

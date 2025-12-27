@@ -19,17 +19,16 @@ class TicketCommentController extends Controller
         $request->validate(['message' => 'required|string']);
 
         DB::transaction(function () use ($request, $ticket) {
-            // 1. Simpan Komentar (Gunakan clean() jika pakai HTML Purifier)
-            $comment = $ticket->comments()->create([
-                'user_id' => auth()->id(),
-                'message' => $request->message, // Data dari Trix sudah berupa HTML
-            ]);
-
             $user = auth()->user();
+
+            $comment = $ticket->comments()->create([
+                'user_id' => $user ? $user->id : null,
+                'message' => $request->message,
+            ]);
 
             // Cek apakah user adalah Admin atau Superuser
             // Kita gunakan ->value karena kolom role di DB kemungkinan string ('admin', 'superuser')
-            $isAuthorized = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
+            $isAuthorized = $user && in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
             // Jika User berwenang DAN Tiket belum ada petugasnya
             if ($isAuthorized && is_null($ticket->assigned_to)) {

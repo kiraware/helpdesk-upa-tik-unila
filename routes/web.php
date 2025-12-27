@@ -62,10 +62,17 @@ Route::get('/test-login/{role?}', function (?string $role = null) {
 });
 
 Route::controller(GuestTicketController::class)->group(function () {
+    Route::get('/tracking', 'index')->name('guest.tracking.index');
     Route::get('/create-ticket', 'create')->name('guest.tickets.create');
     Route::post('/create-ticket', 'store')->name('guest.tickets.store');
+    Route::get('/tracking/{ticket:ticket_code}', 'show')->name('guest.tracking.show');
 
     Route::post('/guest/upload-trix', 'storeEmbeddedFile')->name('guest.upload.editor.trix');
+});
+
+Route::controller(TicketCommentController::class)->group(function () {
+    Route::post('/guest-tickets/{ticket}/comments', 'store')->name('guest.tickets.comments.store');
+    Route::post('/guest/upload-editor-attachments', 'storeEmbeddedFile')->name('guest.comments.upload.editor.attachments');
 });
 
 Route::middleware(['auth'])->group(function () {
