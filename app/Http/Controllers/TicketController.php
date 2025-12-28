@@ -190,4 +190,47 @@ class TicketController extends Controller
 
         return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
     }
+
+    /**
+     * Menutup tiket (Selesai / Tolak).
+     * Jika belum ada petugas, otomatis assign ke yang menutup.
+     */
+    public function close(Request $request, Ticket $ticket)
+    {
+        $user = auth()->user();
+
+        // 1. Cek Permission (Hanya Admin/Superuser)
+        if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+            abort(403, 'Anda tidak memiliki izin untuk menutup tiket.');
+        }
+
+        // 2. Validasi Input Status (Hanya boleh DONE atau REJECT)
+        $validated = $request->validate([
+            'status' => ['required', new Enum(TicketStatus::class)],
+        ]);
+
+        // Pastikan status yang dikirim valid untuk penutupan
+        if (! in_array($validated['status'], [TicketStatus::DONE->value, TicketStatus::REJECT->value])) {
+            return back()->with('error', 'Status tidak valid untuk penutupan tiket.');
+        }
+
+        DB::transaction(function () use ($ticket, $validated, $user) {
+            $updateData = [
+                'status' => $validated['status'],
+                'closed_at' => now(),
+            ];
+
+            // 3. Auto-assign jika belum ada petugas
+            if (is_null($ticket->assigned_to)) {
+                $updateData['assigned_to'] = $user->id;
+                $updateData['assigned_at'] = now();
+            }
+
+            $ticket->update($updateData);
+        });
+
+        $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
+
+        return back()->with('success', "Tiket berhasil {$statusLabel}.");
+    }
 }

@@ -102,6 +102,10 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
             ->name('tickets.assign.me');
 
+        // Close Ticket Logic
+        Route::patch('/tickets/{ticket}/close', [TicketController::class, 'close'])
+            ->name('tickets.close');
+
         // Laporan (Reports)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
     });

@@ -8,26 +8,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    {{-- PENTING: CSRF Token wajib ada untuk upload Trix & Form --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <title>{{ $title }}</title>
 
-    {{-- Load Assets (Sama seperti dashboard) --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body
-    class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark antialiased transition-colors duration-200 font-sans">
+    class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark 
+           antialiased transition-colors duration-200 font-sans 
+           overflow-x-hidden">
 
-    {{-- Main Content Wrapper --}}
-    {{-- Layout ini memusatkan konten (form) di tengah layar --}}
-    <main class="min-h-screen flex flex-col justify-center">
-        {{ $slot }}
-    </main>
+    <div class="min-h-screen flex flex-col w-full min-w-0">
+        <main class="flex-1 w-full p-4 md:p-6 lg:p-8">
+            {{ $slot }}
+        </main>
+    </div>
 
     {{-- Toast Notifications --}}
-    {{-- Kita pasang juga disini agar Guest bisa melihat pesan sukses/error --}}
     @if (session('success'))
         <x-toast type="success" :message="session('success')" />
     @endif

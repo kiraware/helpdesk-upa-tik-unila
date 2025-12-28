@@ -244,4 +244,54 @@
             </div>
         </div>
     </div>
+
+    {{-- RIWAYAT TIKET (TIMELINE) --}}
+    <div
+        class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
+        <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Riwayat Tiket</h3>
+        </div>
+        <div class="p-4 space-y-4">
+
+            {{-- Created At --}}
+            <div class="relative pl-4 border-l-2 border-border-light dark:border-border-dark">
+                <div
+                    class="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-white dark:ring-surface-dark">
+                </div>
+                <p class="text-xs text-muted-light mb-0.5">Dibuat</p>
+                <p class="text-sm font-medium text-text-light dark:text-text-dark">
+                    {{ $ticket->created_at->format('d M Y, H:i') }}
+                </p>
+            </div>
+
+            {{-- Assigned At --}}
+            @if ($ticket->assigned_at)
+                <div class="relative pl-4 border-l-2 border-border-light dark:border-border-dark">
+                    <div
+                        class="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full bg-yellow-500 ring-2 ring-white dark:ring-surface-dark">
+                    </div>
+                    <p class="text-xs text-muted-light mb-0.5">Ditugaskan</p>
+                    <p class="text-sm font-medium text-text-light dark:text-text-dark">
+                        {{ $ticket->assigned_at->format('d M Y, H:i') }}
+                    </p>
+                </div>
+            @endif
+
+            {{-- Closed At --}}
+            @if ($ticket->closed_at)
+                <div class="relative pl-4 border-l-2 border-transparent">
+                    <div
+                        class="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full {{ $ticket->status === TicketStatus::DONE ? 'bg-emerald-500' : 'bg-red-500' }} ring-2 ring-white dark:ring-surface-dark">
+                    </div>
+                    <p class="text-xs text-muted-light mb-0.5">
+                        {{ $ticket->status === TicketStatus::DONE ? 'Selesai' : 'Ditolak' }}
+                    </p>
+                    <p class="text-sm font-medium text-text-light dark:text-text-dark">
+                        {{ $ticket->closed_at->format('d M Y, H:i') }}
+                    </p>
+                </div>
+            @endif
+
+        </div>
+    </div>
 </div>

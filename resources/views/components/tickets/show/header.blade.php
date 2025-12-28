@@ -30,33 +30,25 @@
             ? $ticket->guestDetail->full_name
             : 'Guest');
 
-    // 1. Cek apakah tiket sudah ditutup
     $isClosed = in_array($ticket->status, [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT]);
-
-    // 2. Cek apakah ini tiket buatan Guest (user_id null)
     $isGuestTicket = is_null($ticket->user_id);
-
-    // 3. Ambil user yang sedang login (bisa null jika Guest)
     $currentUser = auth()->user();
 
-    // LOGIKA PENENTUAN HAK EDIT JUDUL
+    // Logic Edit Title
     $canEditTitle = false;
-
-    if (!$isClosed) {
-        if ($currentUser) {
-            // Jika User Login
-            if ($currentUser->role === \App\Enums\UserRole::USER) {
-                // Role User: HANYA boleh edit jika ini BUKAN tiket guest (artinya tiket miliknya sendiri)
-                $canEditTitle = !$isGuestTicket;
-            } else {
-                // Role Admin/Superuser: Boleh edit semua
-                $canEditTitle = true;
-            }
+    if (!$isClosed && $currentUser) {
+        if ($currentUser->role === \App\Enums\UserRole::USER) {
+            $canEditTitle = !$isGuestTicket;
         } else {
-            // Jika Guest (Tidak Login): Tidak boleh edit
-            $canEditTitle = false;
+            $canEditTitle = true;
         }
     }
+
+    // Logic Close Ticket (Hanya Staff)
+    $canCloseTicket =
+        $currentUser &&
+        in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]) &&
+        !$isClosed;
 @endphp
 
 <div class="border-b border-border-light dark:border-border-dark pb-6 mb-6" x-data="{
@@ -67,27 +59,20 @@
 
         {{-- Title & Meta --}}
         <div class="flex-1 min-w-0 w-full">
-
             <form id="update-title-form" action="{{ route('tickets.update', $ticket->uuid) }}" method="POST"
                 class="min-w-0 w-full">
-                @csrf
-                @method('PUT')
+                @csrf @method('PUT')
                 <div class="mb-2 min-h-10 flex items-center w-full">
-                    {{-- MODE BACA --}}
                     <h1 x-show="!isEditing"
-                        class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight break-all wrap-break-word w-full">
+                        class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight break-all wrap-break-word whitespace-normal w-full">
                         {{ $ticket->title }}
                         <span
                             class="text-xl sm:text-2xl font-light text-muted-light dark:text-muted-dark ml-2 inline-block whitespace-nowrap">
                             #{{ $ticket->ticket_code }}
                         </span>
                     </h1>
-
-                    {{-- MODE EDIT --}}
-                    {{-- Hanya render input jika diperbolehkan edit --}}
                     @if ($canEditTitle)
                         <div x-show="isEditing" class="w-full flex items-center gap-2" x-cloak>
-                            {{-- Input Judul --}}
                             <input x-ref="titleInput" type="text" name="title"
                                 value="{{ old('title', $ticket->title) }}"
                                 class="w-full px-3 py-2 text-sm font-normal rounded-lg border border-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark transition-all"
@@ -104,37 +89,73 @@
                     <span class="material-icons-round text-base">{{ $statusColors['icon'] }}</span>
                     {{ ucfirst($ticket->status->value) }}
                 </span>
-
                 <span class="hidden sm:inline">&bull;</span>
-
-                {{-- Nama User --}}
                 <span class="flex flex-wrap items-center gap-1">
-                    <span class="font-semibold text-text-light dark:text-text-dark break-all whitespace-normal">
+                    <span class="font-semibold text-text-light dark:text-text-dark break-all">
                         {{ $creatorName }}
                     </span>
                     <span class="hidden sm:inline whitespace-nowrap">membuka tiket ini</span>
                     <span class="whitespace-nowrap">{{ $ticket->created_at->diffForHumans() }}</span>
                 </span>
-
                 <span class="hidden sm:inline">&bull;</span>
-
                 <span class="whitespace-nowrap">{{ $ticket->comments->count() }} komentar</span>
             </div>
         </div>
 
         {{-- Action Buttons --}}
-        <div class="flex items-center gap-2 shrink-0 w-full md:w-auto mb-2 md:mb-0 order-first md:order-last">
+        <div class="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto mb-2 md:mb-0 order-first md:order-last">
 
             {{-- VIEW MODE BUTTONS --}}
-            <div x-show="!isEditing" class="flex items-center gap-2 w-full md:w-auto">
+            <div x-show="!isEditing" class="flex flex-wrap items-center gap-2 w-full md:w-auto">
 
-                {{-- Tombol EDIT: Gunakan variabel $canEditTitle yang sudah kita buat --}}
+                {{-- 1. Tombol Edit --}}
                 @if ($canEditTitle)
                     <button type="button" @click="isEditing = true; focusInput()"
-                        class="flex-1 md:flex-none px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
+                        class="flex-1 md:flex-none px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center whitespace-nowrap">
                         Edit
                     </button>
                 @endif
+
+                {{-- 2. Tombol Close Ticket --}}
+                @if ($canCloseTicket)
+                    <div class="relative flex-1 md:flex-none" x-data="{ open: false }">
+                        <button type="button" @click="open = !open" @click.outside="open = false"
+                            class="w-full md:w-auto flex items-center justify-center gap-1 px-4 py-2 bg-white dark:bg-surface-dark hover:bg-gray-50 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark text-text-light dark:text-text-dark text-sm font-medium rounded-lg shadow-sm transition-colors whitespace-nowrap">
+                            <span>Tutup Tiket</span>
+                            <span class="material-icons-round text-base">expand_more</span>
+                        </button>
+
+                        {{-- Dropdown Menu --}}
+                        <div x-show="open" x-transition x-cloak
+                            class="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-50 overflow-hidden">
+
+                            {{-- Option: Selesai --}}
+                            <form action="{{ route('tickets.close', $ticket->uuid) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="done">
+                                <button type="submit"
+                                    class="w-full text-left px-4 py-3 text-sm text-text-light dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
+                                    <span class="material-icons-round text-emerald-600">check_circle</span>
+                                    Selesai
+                                </button>
+                            </form>
+
+                            <div class="border-t border-border-light dark:border-border-dark"></div>
+
+                            {{-- Option: Tolak --}}
+                            <form action="{{ route('tickets.close', $ticket->uuid) }}" method="POST">
+                                @csrf @method('PATCH')
+                                <input type="hidden" name="status" value="reject">
+                                <button type="submit"
+                                    class="w-full text-left px-4 py-3 text-sm text-text-light dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
+                                    <span class="material-icons-round text-red-600">cancel</span>
+                                    Tolak
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                @endif
+
             </div>
 
             {{-- EDIT MODE BUTTONS --}}
