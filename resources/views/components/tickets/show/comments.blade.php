@@ -29,7 +29,7 @@
                     class="px-4 py-2.5 {{ $isStaff ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-slate-800/50' }} border-b {{ $isStaff ? 'border-blue-100 dark:border-blue-900/30' : 'border-border-light dark:border-border-dark' }} flex items-start justify-between text-sm gap-4">
                     <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
                         <span
-                            class="font-semibold text-text-light dark:text-text-dark wrap-break-word whitespace-normal max-w-full">
+                            class="font-semibold text-text-light dark:text-text-dark break-all wrap-break-word whitespace-normal max-w-full">
                             {{ $senderName }}
                         </span>
 
@@ -48,7 +48,7 @@
 
                 {{-- CONTENT BODY --}}
                 <div
-                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none wrap-break-word prose dark:prose-invert prose-sm">
+                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none break-all wrap-break-word prose dark:prose-invert prose-sm">
                     {!! $comment->message !!}
                 </div>
             </div>

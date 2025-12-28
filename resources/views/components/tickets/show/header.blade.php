@@ -75,7 +75,7 @@
                 <div class="mb-2 min-h-10 flex items-center w-full">
                     {{-- MODE BACA --}}
                     <h1 x-show="!isEditing"
-                        class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight wrap-break-word w-full">
+                        class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight break-all wrap-break-word w-full">
                         {{ $ticket->title }}
                         <span
                             class="text-xl sm:text-2xl font-light text-muted-light dark:text-muted-dark ml-2 inline-block whitespace-nowrap">
@@ -109,7 +109,7 @@
 
                 {{-- Nama User --}}
                 <span class="flex flex-wrap items-center gap-1">
-                    <span class="font-semibold text-text-light dark:text-text-dark wrap-break-word whitespace-normal">
+                    <span class="font-semibold text-text-light dark:text-text-dark break-all whitespace-normal">
                         {{ $creatorName }}
                     </span>
                     <span class="hidden sm:inline whitespace-nowrap">membuka tiket ini</span>

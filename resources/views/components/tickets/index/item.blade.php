@@ -1,7 +1,7 @@
 @props(['ticket'])
 
 @php
-    // Logika warna dan icon dipindahkan ke bagian atas component agar HTML bersih
+    // Logika warna dan icon
     $statusColor = match ($ticket->status) {
         \App\Enums\TicketStatus::WAITING => 'text-yellow-600',
         \App\Enums\TicketStatus::PROGRESS => 'text-blue-600',
@@ -32,6 +32,13 @@
     };
 
     $timestamp = $isClosed ? $ticket->updated_at : $ticket->created_at;
+
+    // Siapkan nama untuk ditampilkan
+    $displayName = $ticket->user
+        ? $ticket->user->name
+        : ($ticket->guestDetail
+            ? $ticket->guestDetail->full_name
+            : 'Pengguna');
 @endphp
 
 <div
@@ -45,15 +52,17 @@
     </div>
 
     {{-- 2. Main Content --}}
-    <div class="grow min-w-0">
+    <div class="grow min-w-0"> {{-- min-w-0 penting agar truncate berfungsi di dalam flex --}}
+
         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
             <a href="{{ route('tickets.show', $ticket) }}"
-                class="text-[16px] font-semibold text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug wrap-break-word">
-                {{ Str::limit(strip_tags($ticket->title), 80) }}
+                class="text-[16px] font-semibold text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug line-clamp-2 break-words"
+                title="{{ strip_tags($ticket->title) }}">
+                {{ strip_tags($ticket->title) }}
             </a>
 
             {{-- Badges --}}
-            <div class="flex flex-wrap gap-1">
+            <div class="flex flex-wrap gap-1 shrink-0">
                 <span
                     class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border border-transparent whitespace-nowrap">
                     {{ $ticket->service->name }}
@@ -70,12 +79,16 @@
 
         {{-- Meta Info --}}
         <div class="text-xs text-muted-light dark:text-slate-400 leading-relaxed flex flex-wrap gap-1 items-center">
-            <span class="font-mono text-gray-500">#{{ $ticket->ticket_code }}</span>
-            <span class="text-gray-400">·</span>
-            <span class="font-medium text-gray-900 dark:text-slate-200 hover:underline">
-                {{ $ticket->user ? $ticket->user->name : ($ticket->guestDetail ? $ticket->guestDetail->full_name : 'Pengguna') }}
+            <span class="font-mono text-gray-500 shrink-0">#{{ $ticket->ticket_code }}</span>
+            <span class="text-gray-400 shrink-0">·</span>
+
+            <span
+                class="font-medium text-gray-900 dark:text-slate-200 hover:underline truncate max-w-[100px] sm:max-w-none align-bottom"
+                title="{{ $displayName }}">
+                {{ $displayName }}
             </span>
-            <span class="text-muted-light dark:text-slate-500">
+
+            <span class="text-muted-light dark:text-slate-500 shrink-0">
                 {{ $actionVerb }} {{ $timestamp->diffForHumans() }}
             </span>
         </div>
@@ -83,8 +96,6 @@
 
     {{-- 3. Right Actions --}}
     <div class="shrink-0 flex items-center gap-3 self-start mt-0.5 pl-2">
-
-        {{-- LOGIC: Tampilkan tombol HANYA jika belum ada assignee DAN user BUKAN role 'USER' --}}
         @if (is_null($ticket->assigned_to) && auth()->user()->role !== \App\Enums\UserRole::USER)
             <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
                 @csrf
@@ -93,8 +104,6 @@
                     Ambil
                 </button>
             </form>
-
-            {{-- Tampilkan Avatar Assignee jika sudah diambil --}}
         @elseif (!is_null($ticket->assigned_to))
             <div class="hidden sm:flex items-center" title="Ditugaskan ke {{ $ticket->assignee->name }}">
                 <img src="{{ $ticket->assignee->photo ? asset('storage/' . $ticket->assignee->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
@@ -103,7 +112,6 @@
             </div>
         @endif
 
-        {{-- Comment Icon --}}
         @if ($ticket->comments_count > 0)
             <div class="flex items-center text-muted-light dark:text-slate-400 hover:text-secondary transition-colors">
                 <span class="material-icons-round text-[16px] mr-0.5">chat_bubble_outline</span>

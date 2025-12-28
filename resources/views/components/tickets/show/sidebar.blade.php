@@ -74,7 +74,7 @@
                         class="w-8 h-8 rounded-full">
                     <div class="min-w-0">
                         <p
-                            class="text-sm font-medium text-text-light dark:text-text-dark wrap-break-word whitespace-normal max-w-full">
+                            class="text-sm font-medium text-text-light dark:text-text-dark break-all wrap-break-word whitespace-normal max-w-full">
                             {{ $ticket->assignee->name }}
                         </p>
                         <p class="text-xs text-muted-light">Ditugaskan
@@ -135,7 +135,7 @@
                     {{-- Name --}}
                     <div class="flex flex-col min-w-0">
                         <span
-                            class="text-sm font-bold text-text-light dark:text-text-dark wrap-break-word whitespace-normal max-w-full leading-tight">
+                            class="text-sm font-bold text-text-light dark:text-text-dark break-all wrap-break-word whitespace-normal max-w-full leading-tight">
                             {{ $ticket->guestDetail->full_name }}
                         </span>
                     </div>
@@ -147,7 +147,7 @@
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Email</p>
                         <p
-                            class="text-text-light dark:text-text-dark font-medium wrap-break-word whitespace-normal max-w-full">
+                            class="text-text-light dark:text-text-dark font-medium break-all wrap-break-word whitespace-normal max-w-full">
                             @if ($showSensitiveData)
                                 {{ $ticket->guestDetail->email }}
                             @else
@@ -160,7 +160,7 @@
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Nomor ID</p>
                         <p
-                            class="text-text-light dark:text-text-dark font-medium font-mono wrap-break-word whitespace-normal max-w-full">
+                            class="text-text-light dark:text-text-dark font-medium font-mono break-all wrap-break-word whitespace-normal max-w-full">
                             @if ($showSensitiveData)
                                 {{ $ticket->guestDetail->identity_number }}
                             @else
@@ -173,7 +173,7 @@
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Status</p>
                         <p
-                            class="text-text-light dark:text-text-dark font-medium wrap-break-word whitespace-normal max-w-full">
+                            class="text-text-light dark:text-text-dark font-medium break-all wrap-break-word whitespace-normal max-w-full">
                             {{ strtoupper($ticket->guestDetail->entity_type->value) }}
                         </p>
                     </div>

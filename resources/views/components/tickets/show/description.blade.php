@@ -44,7 +44,7 @@
                 {{-- LEFT : NAME --}}
                 <div class="flex flex-wrap items-center min-w-0">
                     <span
-                        class="font-semibold text-text-light dark:text-text-dark wrap-break-word whitespace-normal max-w-full">
+                        class="font-semibold text-text-light dark:text-text-dark break-all wrap-break-word whitespace-normal max-w-full">
                         {{ $senderName }}
                     </span>
                 </div>
@@ -61,7 +61,7 @@
 
             {{-- CONTENT BODY --}}
             <div
-                class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none wrap-break-word whitespace-normal prose dark:prose-invert prose-sm">
+                class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none break-all wrap-break-word whitespace-normal prose dark:prose-invert prose-sm">
                 {!! $ticket->description !!}
             </div>
 

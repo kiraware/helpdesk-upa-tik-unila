@@ -18,7 +18,7 @@
 <body
     class="bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark antialiased transition-colors duration-200">
 
-    <div x-data="{ sidebarOpen: false }" class="flex h-screen overflow-hidden">
+    <div x-data="{ sidebarOpen: false }" class="flex min-h-screen relative">
 
         {{-- Sidebar --}}
         <x-sidebar />
@@ -28,11 +28,12 @@
             class="fixed inset-0 bg-black/50 z-20 lg:hidden">
         </div>
 
-        {{-- Main Content --}}
-        <div class="flex flex-col flex-1 w-full overflow-hidden">
+        {{-- Main Content Wrapper --}}
+        <div class="flex flex-col flex-1 w-full min-w-0">
+
             <x-navbar :title="$title" />
 
-            <main class="flex-1 p-6 overflow-y-auto">
+            <main class="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">
                 {{ $slot }}
             </main>
         </div>

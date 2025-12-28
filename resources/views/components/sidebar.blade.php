@@ -3,10 +3,11 @@
            bg-primary dark:bg-surface-dark text-text-dark
            border-r border-border-dark
            transform transition-transform duration-300
-           lg:static lg:translate-x-0">
+           lg:translate-x-0 
+           lg:sticky lg:top-0 lg:h-screen">
 
     {{-- Logo / Brand --}}
-    <div class="h-16 flex items-center px-6 border-b border-border-dark bg-opacity-50">
+    <div class="h-16 shrink-0 flex items-center px-6 border-b border-border-dark bg-opacity-50">
         <div class="flex items-center gap-3">
             <div class="bg-secondary p-1.5 rounded-lg">
                 <span class="material-icons-round text-white text-xl">support_agent</span>
@@ -20,16 +21,16 @@
     {{-- Navigation --}}
     <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto custom-scrollbar">
 
-        {{-- 1. GLOBAL MENUS (Semua Role) --}}
+        {{-- 1. GLOBAL MENUS --}}
         <p class="px-3 text-xs font-semibold text-muted-dark uppercase tracking-wider mb-2 mt-2">
             Menu Utama
         </p>
 
         <a href="{{ route('dashboard') }}"
             class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
-           {{ request()->routeIs('dashboard')
-               ? 'bg-secondary text-white shadow-lg shadow-blue-900/20'
-               : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+            {{ request()->routeIs('dashboard')
+                ? 'bg-secondary text-white shadow-lg shadow-blue-900/20'
+                : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
             <span
                 class="material-icons-round mr-3 {{ request()->routeIs('dashboard') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
                 dashboard
@@ -85,7 +86,6 @@
                 Semua Tiket
             </a>
 
-            {{-- Filter via Query Parameter logic --}}
             <a href="{{ route('tickets.index', ['assigned_to' => 'me']) }}"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
                {{ request()->input('assigned_to') == 'me'
@@ -162,7 +162,6 @@
                 Manajemen Pengguna
             </a>
 
-            {{-- Tombol Settings dummy --}}
             <a href="#"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group 
                text-muted-dark hover:bg-background-dark/30 hover:text-white">
@@ -176,7 +175,7 @@
     </nav>
 
     {{-- Footer Sidebar --}}
-    <div class="p-4 border-t border-border-dark">
+    <div class="p-4 border-t border-border-dark shrink-0">
         <p class="text-xs text-center text-muted-dark">
             &copy; {{ date('Y') }} Helpdesk System
         </p>
