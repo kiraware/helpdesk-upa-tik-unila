@@ -1,17 +1,53 @@
 @props(['ticket'])
 
 @php
-    $isClosed = in_array($ticket->status, [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT]);
+    use Illuminate\Support\Str;
+    use App\Enums\TicketStatus;
+    use App\Enums\UserRole;
+    use App\Enums\TicketPriority;
 
+    $isClosed = in_array($ticket->status, [TicketStatus::DONE, TicketStatus::REJECT]);
     $currentUser = auth()->user();
-    $canTakeTicket =
-        $currentUser && in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
+
+    // Cek Role Admin/Superuser
+    $isAdminOrSuper = $currentUser && in_array($currentUser->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
+
+    // Logic Tombol "Ambil Tiket"
+    $canTakeTicket = $isAdminOrSuper;
+
+    // Logic Menampilkan Data Sensitif (Email, ID, Foto)
+    // Jika tiket dibuat oleh Guest (user_id null), maka data sensitif HANYA boleh dilihat oleh Admin/Superuser.
+    // User biasa atau Guest (public tracking) akan melihat data tersensor.
+    $isGuestTicket = is_null($ticket->user_id);
+    $showSensitiveData = !$isGuestTicket || $isAdminOrSuper;
 
     $prioColor = match ($ticket->priority) {
-        \App\Enums\TicketPriority::HIGH => 'text-red-600',
-        \App\Enums\TicketPriority::MEDIUM => 'text-yellow-600',
-        \App\Enums\TicketPriority::LOW => 'text-gray-600',
-        \App\Enums\TicketPriority::DEFAULT => 'text-gray-600',
+        TicketPriority::HIGH => 'text-red-600',
+        TicketPriority::MEDIUM => 'text-yellow-600',
+        TicketPriority::LOW => 'text-gray-600',
+        TicketPriority::DEFAULT => 'text-gray-600',
+    };
+
+    // Helper closure untuk sensor Email
+    $maskEmail = function ($email) {
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return '******';
+        }
+        [$first, $last] = explode('@', $email);
+        $len = strlen($first);
+        $visible = floor($len / 2);
+        // Tampilkan maks 3 karakter awal, sisanya bintang
+        $show = min(3, $visible);
+        return substr($first, 0, $show) . str_repeat('*', 5) . '@' . $last;
+    };
+
+    // Helper closure untuk sensor ID
+    $maskID = function ($id) {
+        $len = strlen($id);
+        if ($len <= 4) {
+            return str_repeat('*', $len);
+        }
+        return str_repeat('*', $len - 4) . substr($id, -4);
     };
 @endphp
 
@@ -38,7 +74,7 @@
                         class="w-8 h-8 rounded-full">
                     <div class="min-w-0">
                         <p
-                            class="text-sm font-medium text-text-light dark:text-text-dark break-all whitespace-normal max-w-full">
+                            class="text-sm font-medium text-text-light dark:text-text-dark wrap-break-word whitespace-normal max-w-full">
                             {{ $ticket->assignee->name }}
                         </p>
                         <p class="text-xs text-muted-light">Ditugaskan
@@ -99,7 +135,7 @@
                     {{-- Name --}}
                     <div class="flex flex-col min-w-0">
                         <span
-                            class="text-sm font-bold text-text-light dark:text-text-dark break-all whitespace-normal max-w-full leading-tight">
+                            class="text-sm font-bold text-text-light dark:text-text-dark wrap-break-word whitespace-normal max-w-full leading-tight">
                             {{ $ticket->guestDetail->full_name }}
                         </span>
                     </div>
@@ -110,9 +146,13 @@
                     {{-- Email --}}
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Email</p>
-                        <p class="text-text-light dark:text-text-dark font-medium break-all whitespace-normal max-w-full"
-                            title="{{ $ticket->guestDetail->email }}">
-                            {{ $ticket->guestDetail->email }}
+                        <p
+                            class="text-text-light dark:text-text-dark font-medium wrap-break-word whitespace-normal max-w-full">
+                            @if ($showSensitiveData)
+                                {{ $ticket->guestDetail->email }}
+                            @else
+                                {{ $maskEmail($ticket->guestDetail->email) }}
+                            @endif
                         </p>
                     </div>
 
@@ -120,9 +160,12 @@
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Nomor ID</p>
                         <p
-                            class="text-text-light dark:text-text-dark font-medium font-mono break-all whitespace-normal max-w-full">
-
-                            {{ $ticket->guestDetail->identity_number }}
+                            class="text-text-light dark:text-text-dark font-medium font-mono wrap-break-word whitespace-normal max-w-full">
+                            @if ($showSensitiveData)
+                                {{ $ticket->guestDetail->identity_number }}
+                            @else
+                                {{ $maskID($ticket->guestDetail->identity_number) }}
+                            @endif
                         </p>
                     </div>
 
@@ -130,36 +173,47 @@
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Status</p>
                         <p
-                            class="text-text-light dark:text-text-dark font-medium break-all whitespace-normal max-w-full">
+                            class="text-text-light dark:text-text-dark font-medium wrap-break-word whitespace-normal max-w-full">
                             {{ strtoupper($ticket->guestDetail->entity_type->value) }}
                         </p>
                     </div>
                 </div>
 
-                {{-- Action Buttons (Identity/Selfie) --}}
-                <div class="mt-6 flex flex-row md:flex-col gap-2">
-                    @if ($ticket->guestDetail->photo_identity_path)
-                        {{-- Trigger Modal --}}
-                        <button type="button"
-                            @click="modalImage = '{{ asset('storage/' . $ticket->guestDetail->photo_identity_path) }}'; showModal = true"
-                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group cursor-pointer">
-                            <span
-                                class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">badge</span>
-                            Kartu Identitas
-                        </button>
-                    @endif
+                {{-- Action Buttons (Identity/Selfie) - HANYA UNTUK ADMIN/SUPERUSER --}}
+                @if ($showSensitiveData)
+                    <div class="mt-6 flex flex-row md:flex-col gap-2">
+                        @if ($ticket->guestDetail->photo_identity_path)
+                            {{-- Trigger Modal --}}
+                            <button type="button"
+                                @click="modalImage = '{{ asset('storage/' . $ticket->guestDetail->photo_identity_path) }}'; showModal = true"
+                                class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group cursor-pointer">
+                                <span
+                                    class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">badge</span>
+                                Kartu Identitas
+                            </button>
+                        @endif
 
-                    @if ($ticket->guestDetail->photo_selfie_path)
-                        {{-- Trigger Modal --}}
-                        <button type="button"
-                            @click="modalImage = '{{ asset('storage/' . $ticket->guestDetail->photo_selfie_path) }}'; showModal = true"
-                            class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group cursor-pointer">
-                            <span
-                                class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">face</span>
-                            Selfie
-                        </button>
-                    @endif
-                </div>
+                        @if ($ticket->guestDetail->photo_selfie_path)
+                            {{-- Trigger Modal --}}
+                            <button type="button"
+                                @click="modalImage = '{{ asset('storage/' . $ticket->guestDetail->photo_selfie_path) }}'; showModal = true"
+                                class="w-full flex items-center justify-center md:justify-start py-2 px-3 bg-background-light dark:bg-background-dark hover:bg-gray-200 dark:hover:bg-slate-700 border border-border-light dark:border-border-dark rounded-lg text-secondary hover:text-blue-700 transition-colors text-xs font-medium group cursor-pointer">
+                                <span
+                                    class="material-icons-round text-sm mr-2 text-muted-light dark:text-muted-dark group-hover:text-secondary transition-colors">face</span>
+                                Selfie
+                            </button>
+                        @endif
+                    </div>
+                @else
+                    {{-- Pesan Privasi untuk User/Guest --}}
+                    <div
+                        class="mt-6 p-3 bg-gray-100 dark:bg-slate-800 rounded-lg text-center border border-dashed border-gray-300 dark:border-gray-600">
+                        <span class="material-icons-round text-gray-400 text-lg mb-1">lock</span>
+                        <p class="text-[10px] text-gray-500 dark:text-gray-400 leading-tight">
+                            Lampiran identitas dilindungi demi privasi pelapor.
+                        </p>
+                    </div>
+                @endif
             </div>
         </div>
     @endif

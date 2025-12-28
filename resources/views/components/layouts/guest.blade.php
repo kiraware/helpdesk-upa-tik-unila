@@ -22,7 +22,7 @@
 
     {{-- Main Content Wrapper --}}
     {{-- Layout ini memusatkan konten (form) di tengah layar --}}
-    <main class="min-h-screen flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <main class="min-h-screen flex flex-col justify-center">
         {{ $slot }}
     </main>
 

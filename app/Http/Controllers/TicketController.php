@@ -105,7 +105,7 @@ class TicketController extends Controller
     {
         // Mencegah User A mengakses URL tiket milik User B secara manual
         $user = auth()->user();
-        if ($user && $user->role === UserRole::USER) {
+        if ($user->role === UserRole::USER) {
             // Jika tiket ini bukan punya dia, tampilkan 403 Forbidden
             if ($ticket->user_id !== $user->id) {
                 abort(403, 'Anda tidak memiliki akses ke tiket ini.');

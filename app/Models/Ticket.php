@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Str;
+use Mews\Purifier\Facades\Purifier;
 
 class Ticket extends Model
 {
@@ -88,5 +89,13 @@ class Ticket extends Model
     public function attachments(): HasMany
     {
         return $this->hasMany(TicketAttachment::class);
+    }
+
+    /**
+     * Mutator: Setiap kali field 'description' di-set, otomatis dibersihkan
+     */
+    public function setDescriptionAttribute($value)
+    {
+        $this->attributes['description'] = Purifier::clean($value);
     }
 }

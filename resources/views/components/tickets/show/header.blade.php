@@ -29,7 +29,34 @@
         : ($ticket->guestDetail
             ? $ticket->guestDetail->full_name
             : 'Guest');
+
+    // 1. Cek apakah tiket sudah ditutup
     $isClosed = in_array($ticket->status, [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT]);
+
+    // 2. Cek apakah ini tiket buatan Guest (user_id null)
+    $isGuestTicket = is_null($ticket->user_id);
+
+    // 3. Ambil user yang sedang login (bisa null jika Guest)
+    $currentUser = auth()->user();
+
+    // LOGIKA PENENTUAN HAK EDIT JUDUL
+    $canEditTitle = false;
+
+    if (!$isClosed) {
+        if ($currentUser) {
+            // Jika User Login
+            if ($currentUser->role === \App\Enums\UserRole::USER) {
+                // Role User: HANYA boleh edit jika ini BUKAN tiket guest (artinya tiket miliknya sendiri)
+                $canEditTitle = !$isGuestTicket;
+            } else {
+                // Role Admin/Superuser: Boleh edit semua
+                $canEditTitle = true;
+            }
+        } else {
+            // Jika Guest (Tidak Login): Tidak boleh edit
+            $canEditTitle = false;
+        }
+    }
 @endphp
 
 <div class="border-b border-border-light dark:border-border-dark pb-6 mb-6" x-data="{
@@ -57,13 +84,16 @@
                     </h1>
 
                     {{-- MODE EDIT --}}
-                    <div x-show="isEditing" class="w-full flex items-center gap-2" x-cloak>
-                        {{-- Input Judul --}}
-                        <input x-ref="titleInput" type="text" name="title"
-                            value="{{ old('title', $ticket->title) }}"
-                            class="w-full px-3 py-2 text-sm font-normal rounded-lg border border-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark transition-all"
-                            required>
-                    </div>
+                    {{-- Hanya render input jika diperbolehkan edit --}}
+                    @if ($canEditTitle)
+                        <div x-show="isEditing" class="w-full flex items-center gap-2" x-cloak>
+                            {{-- Input Judul --}}
+                            <input x-ref="titleInput" type="text" name="title"
+                                value="{{ old('title', $ticket->title) }}"
+                                class="w-full px-3 py-2 text-sm font-normal rounded-lg border border-secondary/50 focus:border-secondary focus:ring-2 focus:ring-secondary/20 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark transition-all"
+                                required>
+                        </div>
+                    @endif
                 </div>
             </form>
 
@@ -79,7 +109,7 @@
 
                 {{-- Nama User --}}
                 <span class="flex flex-wrap items-center gap-1">
-                    <span class="font-semibold text-text-light dark:text-text-dark wrap-break-word break-all">
+                    <span class="font-semibold text-text-light dark:text-text-dark wrap-break-word whitespace-normal">
                         {{ $creatorName }}
                     </span>
                     <span class="hidden sm:inline whitespace-nowrap">membuka tiket ini</span>
@@ -97,9 +127,9 @@
 
             {{-- VIEW MODE BUTTONS --}}
             <div x-show="!isEditing" class="flex items-center gap-2 w-full md:w-auto">
-                {{-- Tombol Kembali DIHAPUS --}}
 
-                @if (!$isClosed)
+                {{-- Tombol EDIT: Gunakan variabel $canEditTitle yang sudah kita buat --}}
+                @if ($canEditTitle)
                     <button type="button" @click="isEditing = true; focusInput()"
                         class="flex-1 md:flex-none px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
                         Edit
@@ -108,16 +138,18 @@
             </div>
 
             {{-- EDIT MODE BUTTONS --}}
-            <div x-show="isEditing" class="flex items-center gap-2 w-full md:w-auto" x-cloak>
-                <button type="button" @click="isEditing = false"
-                    class="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-center text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 rounded-lg transition-colors border border-transparent">
-                    Batal
-                </button>
-                <button type="submit" form="update-title-form"
-                    class="flex-1 md:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
-                    Simpan
-                </button>
-            </div>
+            @if ($canEditTitle)
+                <div x-show="isEditing" class="flex items-center gap-2 w-full md:w-auto" x-cloak>
+                    <button type="button" @click="isEditing = false"
+                        class="flex-1 md:flex-none px-4 py-2 text-sm font-medium text-center text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/30 rounded-lg transition-colors border border-transparent">
+                        Batal
+                    </button>
+                    <button type="submit" form="update-title-form"
+                        class="flex-1 md:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors flex items-center justify-center">
+                        Simpan
+                    </button>
+                </div>
+            @endif
         </div>
     </div>
 </div>
