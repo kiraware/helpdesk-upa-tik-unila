@@ -1,6 +1,7 @@
 <x-layouts.guest title="Tiket #{{ $ticket->ticket_code }}">
 
-    <div class="min-h-screen bg-background-light dark:bg-background-dark py-8 px-4 sm:px-6 lg:px-8 font-sans">
+    <div
+        class="min-h-screen bg-background-light dark:bg-background-dark py-8 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
         <div class="max-w-7xl mx-auto w-full">
 
             {{-- Tombol Kembali --}}

@@ -21,7 +21,7 @@
            overflow-x-hidden">
 
     <div class="min-h-screen flex flex-col w-full min-w-0">
-        <main class="flex-1 w-full p-4 md:p-6 lg:p-8">
+        <main class="flex-1 w-full">
             {{ $slot }}
         </main>
     </div>
