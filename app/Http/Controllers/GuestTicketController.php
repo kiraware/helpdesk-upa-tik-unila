@@ -7,6 +7,7 @@ use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Models\Service;
 use App\Models\Ticket;
+use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -77,7 +78,7 @@ class GuestTicketController extends Controller
             'title' => 'required|string|max:100',
             'description' => 'required|string', // Trix Content (HTML)
 
-            // Validasi attachments[] manual DIHAPUS karena pakai Trix
+            'cf-turnstile-response' => ['required', new ValidTurnstile],
         ]);
 
         DB::transaction(function () use ($validated, $request) {

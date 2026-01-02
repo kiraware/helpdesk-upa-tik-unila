@@ -29,7 +29,6 @@
                 </div>
             @endif
 
-            {{-- Tambahkan ID ticketForm untuk validasi JS nanti --}}
             <form id="ticketForm" action="{{ route('guest.tickets.store') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
@@ -161,8 +160,7 @@
                                         <p class="text-sm font-medium text-center">Klik untuk upload foto selfie beserta
                                             kartu identitas</p>
                                         <p class="text-xs text-center text-slate-400 mt-1">Pastikan wajah dan kartu
-                                            identias terlihat jelas
-                                        </p>
+                                            identias terlihat jelas</p>
                                     </div>
 
                                     <img id="preview-selfie" class="hidden h-full w-full object-contain rounded-xl p-2">
@@ -329,14 +327,32 @@
                     </div>
                 </div>
 
-                {{-- Footer Buttons --}}
+                {{-- Footer Buttons & Security --}}
                 <div
                     class="p-6 md:px-8 md:py-6 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
-                    <div class="flex items-center justify-end w-full">
-                        <button type="submit"
-                            class="flex-1 sm:flex-none flex items-center justify-center gap-2 rounded-lg h-11 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/30 transition-all transform hover:-translate-y-0.5">
-                            Kirim Tiket
-                        </button>
+                    <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-6">
+
+                        {{-- KIRI: Widget Captcha --}}
+                        <div class="flex flex-col items-center sm:items-start w-full sm:w-auto">
+                            <div class="cf-turnstile scale-90 sm:scale-100 origin-center sm:origin-top-left"
+                                data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="auto"
+                                data-size="flexible" data-callback="enableSubmitButton"
+                                data-expired-callback="disableSubmitButton" data-error-callback="disableSubmitButton">
+                            </div>
+                            @error('cf-turnstile-response')
+                                <p class="text-red-500 text-xs mt-1 text-center sm:text-left">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- KANAN: Tombol Submit --}}
+                        <div class="w-full sm:w-auto flex justify-end">
+                            <button type="submit" id="submitButton" disabled
+                                class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg h-11 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:hover:bg-blue-600">
+                                <span class="material-icons-round text-lg">send</span>
+                                Kirim Tiket
+                            </button>
+                        </div>
+
                     </div>
                 </div>
 
@@ -346,6 +362,22 @@
 
     {{-- Script Preview & Validasi --}}
     <script>
+        // PERUBAHAN: Fungsi Callback Turnstile
+        // Fungsi ini harus berada di Global Scope (diluar DOMContentLoaded jika widget me-render cepat)
+        function enableSubmitButton() {
+            const btn = document.getElementById('submitButton');
+            if (btn) {
+                btn.removeAttribute('disabled');
+            }
+        }
+
+        function disableSubmitButton() {
+            const btn = document.getElementById('submitButton');
+            if (btn) {
+                btn.setAttribute('disabled', 'disabled');
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', () => {
             // Validasi Trix Editor
             const form = document.getElementById('ticketForm');
