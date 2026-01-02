@@ -4,25 +4,23 @@
     :class="{ 'border-border-light! dark:border-border-dark!': scrolled }">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
-            {{-- Logo --}}
-            <div class="flex items-center gap-3">
+            {{-- Logo (Tetap berfungsi sebagai link ke Beranda) --}}
+            <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
                 <div class="text-brand">
-                    {{-- Menggunakan class dari NPM --}}
-                    <span class="material-icons-round icon-lg">school</span>
+                    <span class="material-icons-round icon-lg">support_agent</span>
                 </div>
                 <div class="flex flex-col">
                     <h1 class="text-lg font-bold leading-tight tracking-tight text-text-light dark:text-surface-light">
                         Helpdesk UPA TIK</h1>
                     <span class="text-xs font-medium text-muted-light dark:text-muted-dark">Universitas Lampung</span>
                 </div>
-            </div>
+            </a>
 
             {{-- Desktop Navigation --}}
             <nav class="hidden md:flex items-center gap-6">
-                <a href="{{ url('/') }}"
-                    class="text-sm font-medium text-text-light dark:text-text-dark hover:text-brand transition-colors">Beranda</a>
-                <a href="#services"
-                    class="text-sm font-medium text-text-light dark:text-text-dark hover:text-brand transition-colors">Layanan</a>
+                {{-- Tombol Beranda Dihapus --}}
+                {{-- Tombol Layanan Dihapus --}}
+
                 <a href="#faq"
                     class="text-sm font-medium text-text-light dark:text-text-dark hover:text-brand transition-colors">FAQ</a>
 
@@ -53,9 +51,9 @@
         class="md:hidden bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark"
         style="display: none;">
         <div class="px-4 py-4 space-y-3">
-            <a href="{{ url('/') }}"
-                class="block text-sm font-medium text-text-light dark:text-text-dark">Beranda</a>
-            <a href="#services" class="block text-sm font-medium text-text-light dark:text-text-dark">Layanan</a>
+            {{-- Tombol Beranda Mobile Dihapus --}}
+            {{-- Tombol Layanan Mobile Dihapus --}}
+
             <a href="#faq" class="block text-sm font-medium text-text-light dark:text-text-dark">FAQ</a>
             <div class="border-t border-border-light dark:border-border-dark pt-3 flex flex-col gap-3">
                 <a href="{{-- route('login') --}}"

@@ -1,5 +1,5 @@
 @props([
-    'title' => 'Helpdesk System',
+    'title' => 'Helpdesk UPA TIK - Universitas Lampung',
 ])
 
 <!DOCTYPE html>
@@ -21,9 +21,13 @@
            overflow-x-hidden">
 
     <div class="min-h-screen flex flex-col w-full min-w-0">
+        <x-landing.navbar />
+
         <main class="flex-1 w-full">
             {{ $slot }}
         </main>
+
+        <x-landing.footer />
     </div>
 
     {{-- Toast Notifications --}}

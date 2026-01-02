@@ -1,7 +1,7 @@
 <x-layouts.guest title="Formulir Buat Tiket">
 
     {{-- Container Utama --}}
-    <div class="px-4 sm:px-0 sm:mx-auto sm:w-full sm:max-w-4xl">
+    <div class="px-4 sm:px-0 sm:mx-auto sm:w-full sm:max-w-4xl my-4 sm:my-8">
 
         {{-- Header Halaman --}}
         <div class="text-center mb-8">
