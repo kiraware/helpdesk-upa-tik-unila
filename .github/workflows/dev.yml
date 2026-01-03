@@ -27,7 +27,7 @@ jobs:
 
       - name: Load cached vendor
         id: cached-composer-dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: vendor
           key: vendor-dev-${{ runner.os }}-${{ steps.setup-php.outputs.php-version }}-${{ hashFiles('**/composer.lock') }}
@@ -47,7 +47,7 @@ jobs:
           cache: "npm"
 
       - name: Cache node modules
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         env:
           cache-name: cache-node-modules
         with:
