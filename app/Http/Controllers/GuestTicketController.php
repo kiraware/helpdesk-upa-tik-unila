@@ -64,8 +64,6 @@ class GuestTicketController extends Controller
             'email' => 'required|email|max:100',
             'identity_number' => 'required|string|max:50',
             'entity_type' => ['required', new Enum(IdentityType::class)],
-
-            // Limit 5MB (5120 KB)
             'photo_identity' => 'required|image|max:5120',
             'photo_selfie' => 'required|image|max:5120',
 
@@ -76,29 +74,27 @@ class GuestTicketController extends Controller
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
             'title' => 'required|string|max:100',
-            'description' => 'required|string', // Trix Content (HTML)
-
+            'description' => 'required|string',
             'cf-turnstile-response' => ['required', new ValidTurnstile],
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
+        $ticket = DB::transaction(function () use ($validated, $request) {
             // A. Buat Tiket Utama
-            $ticket = Ticket::create([
+            $newTicket = Ticket::create([
                 'user_id' => null, // Guest
                 'service_id' => $validated['service_id'],
                 'priority' => $validated['priority'],
                 'title' => $validated['title'],
-                'description' => $validated['description'], // HTML dari Trix
+                'description' => $validated['description'],
                 'status' => TicketStatus::WAITING,
             ]);
 
-            // B. Upload Foto Identitas & Selfie (Tetap Manual karena field khusus)
-            // Simpan di folder guest-identities
+            // B. Upload Foto Identitas & Selfie
             $identityPath = $request->file('photo_identity')->store('guest-identities', 'public');
             $selfiePath = $request->file('photo_selfie')->store('guest-selfies', 'public');
 
             // C. Simpan Detail Guest
-            $ticket->guestDetail()->create([
+            $newTicket->guestDetail()->create([
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
                 'identity_number' => $validated['identity_number'],
@@ -107,10 +103,12 @@ class GuestTicketController extends Controller
                 'photo_selfie_path' => $selfiePath,
             ]);
 
-            // D. Logic Attachment Manual DIHAPUS (Step D sebelumnya)
+            return $newTicket;
         });
 
-        return back()->with('success', 'Tiket berhasil dibuat! Silakan cek email Anda untuk notifikasi selanjutnya.');
+        return redirect()
+            ->route('guest.tracking.show', $ticket->ticket_code)
+            ->with('success', 'Tiket berhasil dibuat! Silakan simpan Kode Tiket atau URL ini untuk memantau perkembangan.');
     }
 
     /**

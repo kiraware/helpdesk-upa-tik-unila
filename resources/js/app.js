@@ -12,6 +12,13 @@ Alpine.data("toast", () => ({
     interval: null,
 
     init() {
+        const perfEntries = performance.getEntriesByType("navigation");
+
+        if (perfEntries.length > 0 && perfEntries[0].type === "back_forward") {
+            this.visible = false;
+            return;
+        }
+
         this.show();
     },
 

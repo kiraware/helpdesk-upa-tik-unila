@@ -4,13 +4,6 @@
         class="min-h-screen bg-background-light dark:bg-background-dark py-8 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
         <div class="max-w-7xl mx-auto w-full">
 
-            {{-- Tombol Kembali --}}
-            <a href="{{ route('guest.tracking.index') }}"
-                class="inline-flex items-center text-sm text-muted-light hover:text-secondary mb-6 transition-colors">
-                <span class="material-icons-round mr-1 text-base">arrow_back</span>
-                Cari Tiket Lain
-            </a>
-
             {{-- HEADER SECTION --}}
             <x-tickets.show.header :ticket="$ticket" />
 
@@ -77,7 +70,7 @@
                                                 class="prose dark:prose-invert max-w-none
                                                        text-text-light dark:text-text-dark
                                                        bg-transparent min-h-[100px] outline-none"
-                                                placeholder="Tulis balasan anda... (Drag & drop gambar atau file di sini)"></trix-editor>
+                                                placeholder="Tulis balasan anda..."></trix-editor>
                                         </div>
 
                                         {{-- FOOTER --}}
@@ -111,8 +104,12 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-xs text-muted-light mt-2 ml-1">
-                                        * Anda dapat menyisipkan gambar atau file langsung ke dalam editor.
+                                    <p class="text-xs text-slate-500 mt-2 ml-1 flex items-start gap-1">
+                                        <span class="material-icons-round text-base -mt-0.5">info</span>
+                                        <span>
+                                            Anda dapat menyisipkan gambar atau file langsung ke dalam editor (Drag &
+                                            Drop).
+                                        </span>
                                     </p>
                                 </form>
                             </div>

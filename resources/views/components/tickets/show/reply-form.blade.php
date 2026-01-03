@@ -38,7 +38,7 @@
                             class="prose dark:prose-invert max-w-none
                                    text-text-light dark:text-text-dark
                                    bg-transparent"
-                            placeholder="Tulis balasan anda... (Drag & drop gambar atau file di sini)">
+                            placeholder="Tulis balasan anda...">
                         </trix-editor>
                     </div>
 
@@ -58,8 +58,11 @@
                     </div>
                 </div>
 
-                <p class="text-xs text-muted-light mt-2 ml-1">
-                    * Anda dapat menyisipkan gambar atau file langsung ke dalam editor.
+                <p class="text-xs text-slate-500 mt-2 ml-1 flex items-start gap-1">
+                    <span class="material-icons-round text-base -mt-0.5">info</span>
+                    <span>
+                        Anda dapat menyisipkan gambar atau file langsung ke dalam editor (Drag & Drop).
+                    </span>
                 </p>
             </form>
         </div>
