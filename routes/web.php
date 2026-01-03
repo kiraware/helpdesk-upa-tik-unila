@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\GuestTicketCommentController;
 use App\Http\Controllers\GuestTicketController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
@@ -70,7 +71,7 @@ Route::controller(GuestTicketController::class)->group(function () {
     Route::post('/guest/upload-trix', 'storeEmbeddedFile')->name('guest.upload.editor.trix');
 });
 
-Route::controller(TicketCommentController::class)->group(function () {
+Route::controller(GuestTicketCommentController::class)->group(function () {
     Route::post('/guest-tickets/{ticket}/comments', 'store')->name('guest.tickets.comments.store');
     Route::post('/guest/upload-editor-attachments', 'storeEmbeddedFile')->name('guest.comments.upload.editor.attachments');
 });
