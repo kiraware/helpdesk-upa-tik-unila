@@ -122,7 +122,7 @@ class GuestTicketController extends Controller
                 'required',
                 'file',
                 'max:5120', // Max 5MB
-                'mimes:jpg,jpeg,png,pdf,doc,docx,zip,rar',
+                'mimes:jpg,jpeg,png,pdf,doc,docx,zip',
             ],
         ]);
 

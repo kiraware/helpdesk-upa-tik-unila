@@ -37,7 +37,7 @@ class GuestTicketCommentController extends Controller
                 'required',
                 'file',
                 'max:5120', // Limit 5MB
-                'mimes:jpg,jpeg,png,pdf,doc,docx,zip,rar',
+                'mimes:jpg,jpeg,png,pdf,doc,docx,zip',
             ],
         ]);
 
