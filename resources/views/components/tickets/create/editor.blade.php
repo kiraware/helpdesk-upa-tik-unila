@@ -21,7 +21,7 @@
                prose dark:prose-invert max-w-none
                text-text-light dark:text-text-dark
                bg-transparent border-none focus:outline-none px-0"
-                placeholder="Jelaskan kronologi masalah, lokasi tepat, dan detail lainnya... (Paste atau drag gambar di sini)">
+                placeholder="Jelaskan kronologi dan detail masalah Anda... (Drag & drop gambar atau file di sini)">
             </trix-editor>
         </div>
 

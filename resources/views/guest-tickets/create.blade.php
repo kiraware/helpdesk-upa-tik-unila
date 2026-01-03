@@ -347,8 +347,7 @@
                         {{-- KANAN: Tombol Submit --}}
                         <div class="w-full sm:w-auto flex justify-end">
                             <button type="submit" id="submitButton" disabled
-                                class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg h-11 px-10 bg-blue-600 hover:bg-blue-700 text-white font-bold text-sm shadow-md shadow-blue-500/30 transition-all transform hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none disabled:hover:bg-blue-600">
-                                <span class="material-icons-round text-lg">send</span>
+                                class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg h-11 px-10 bg-secondary text-white font-bold text-sm shadow-md shadow-blue-500/30 transition-all  hover:bg-blue-700 hover:-translate-y-0.5  disabled:opacity-50  disabled:cursor-not-allowed  disabled:transform-none  disabled:shadow-none  disabled:bg-blue-600 disabled:hover:bg-blue-600">
                                 Kirim Tiket
                             </button>
                         </div>

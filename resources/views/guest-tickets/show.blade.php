@@ -33,13 +33,9 @@
                             \App\Enums\TicketStatus::REJECT,
                         ]);
 
-                        // LOGIKA PENENTUAN NAMA AVATAR
                         if (auth()->check()) {
-                            // Jika yang melihat adalah User Login (Admin/Staff)
                             $responderName = auth()->user()->name;
                         } else {
-                            // Jika yang melihat adalah Guest (Masyarakat/Pelapor)
-                            // Ambil nama dari tabel guest_ticket_details via relasi
                             $responderName = $ticket->guestDetail->full_name ?? 'Guest';
                         }
 
@@ -49,7 +45,7 @@
                     @if (!$isClosed)
                         <div class="flex gap-4 pt-6 border-t border-border-light dark:border-border-dark mt-6">
 
-                            {{-- Avatar (Dinamis: User Login atau Guest Name) --}}
+                            {{-- Avatar --}}
                             <div class="shrink-0 hidden sm:block">
                                 <img src="{{ $avatarUrl }}" alt="{{ $responderName }}"
                                     class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm"
@@ -85,15 +81,33 @@
                                         </div>
 
                                         {{-- FOOTER --}}
-                                        <div class="px-3 py-2 bg-gray-50 dark:bg-slate-800/50 flex justify-end">
-                                            <button type="submit"
-                                                class="px-3 py-1.5 sm:px-4
-                                                       bg-secondary hover:opacity-90
-                                                       text-white text-xs sm:text-sm
-                                                       font-medium rounded-lg shadow-sm
-                                                       transition-all whitespace-nowrap">
-                                                Kirim Balasan
-                                            </button>
+                                        <div
+                                            class="px-4 py-3 bg-gray-50 dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+                                            {{-- AREA TURNSTILE (KIRI) --}}
+                                            <div class="w-full sm:w-auto">
+                                                {{-- Widget Container --}}
+                                                <div class="cf-turnstile scale-90 sm:scale-100 origin-left"
+                                                    data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="auto"
+                                                    data-size="flexible" data-callback="enableSubmitButton"
+                                                    data-expired-callback="disableSubmitButton"
+                                                    data-error-callback="disableSubmitButton">
+                                                </div>
+
+                                                @error('cf-turnstile-response')
+                                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                                @enderror
+                                            </div>
+
+                                            {{-- TOMBOL KIRIM (KANAN) --}}
+                                            <div class="flex items-center gap-2 self-end sm:self-auto">
+                                                <button type="submit" id="submitButton" disabled
+                                                    class="px-4 py-2 bg-secondary text-white text-sm font-medium rounded-lg shadow-sm transition-all whitespace-nowrap
+                                                           hover:opacity-90 
+                                                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50">
+                                                    Kirim Balasan
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -129,4 +143,23 @@
             </div>
         </div>
     </div>
+
+    {{-- SCRIPT PENGENDALI TOMBOL --}}
+    <script>
+        // Fungsi Callback Turnstile (Global Scope)
+        function enableSubmitButton() {
+            const btn = document.getElementById('submitButton');
+            if (btn) {
+                btn.removeAttribute('disabled');
+            }
+        }
+
+        function disableSubmitButton() {
+            const btn = document.getElementById('submitButton');
+            if (btn) {
+                btn.setAttribute('disabled', 'disabled');
+            }
+        }
+    </script>
+
 </x-layouts.guest>
