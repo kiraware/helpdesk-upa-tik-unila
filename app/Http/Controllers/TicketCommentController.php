@@ -12,44 +12,32 @@ use Illuminate\Support\Facades\Storage;
 class TicketCommentController extends Controller
 {
     /**
-     * Menyimpan komentar baru untuk tiket tertentu.
+     * Menyimpan komentar baru untuk tiket.
      */
     public function store(Request $request, Ticket $ticket)
     {
-        $request->validate([
-            'message' => 'required|string',
-            'attachments.*' => 'nullable|file|max:20480|mimes:jpg,jpeg,png,pdf,doc,docx,zip', // Max 20MB
-        ]);
+        $request->validate(['message' => 'required|string']);
 
-        DB::transaction(function () use ($request, $ticket) {
-            // 1. Simpan Komentar (Gunakan clean() jika pakai HTML Purifier)
-            $comment = $ticket->comments()->create([
-                'user_id' => auth()->id(),
-                'message' => $request->message, // Data dari Trix sudah berupa HTML
+        $user = $request->user();
+
+        // 1. KEAMANAN: Cek Otorisasi
+        // Jika user adalah 'USER' biasa (bukan Admin/Superuser),
+        // dia HANYA boleh komen di tiket miliknya sendiri.
+        if ($user->role === UserRole::USER && $ticket->user_id !== $user->id) {
+            abort(403, 'Anda tidak memiliki akses ke tiket ini.');
+        }
+
+        DB::transaction(function () use ($request, $ticket, $user) {
+            // 2. Simpan Komentar (User ID pasti ada)
+            $ticket->comments()->create([
+                'user_id' => $user->id,
+                'message' => $request->message,
             ]);
 
-            // 2. Simpan Attachment (File lampiran biasa)
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('comments/'.$ticket->uuid, 'public');
+            $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-                    $comment->attachments()->create([
-                        'name' => $file->getClientOriginalName(),
-                        'path' => $path,
-                        'mime_type' => $file->getMimeType(),
-                        'size' => $file->getSize(),
-                    ]);
-                }
-            }
-
-            $user = auth()->user();
-
-            // Cek apakah user adalah Admin atau Superuser
-            // Kita gunakan ->value karena kolom role di DB kemungkinan string ('admin', 'superuser')
-            $isAuthorized = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
-
-            // Jika User berwenang DAN Tiket belum ada petugasnya
-            if ($isAuthorized && is_null($ticket->assigned_to)) {
+            // Jika yang komen adalah Staff, DAN tiket belum ada yang pegang
+            if ($isStaff && is_null($ticket->assigned_to)) {
                 $ticket->update([
                     'assigned_to' => $user->id,
                     'assigned_at' => now(),
@@ -62,20 +50,18 @@ class TicketCommentController extends Controller
     }
 
     /**
-     * Handle upload gambar via Drag & Drop di Trix Editor.
-     * Return JSON URL untuk ditampilkan di editor.
+     * Handle upload file Trix Editor.
      */
-    public function uploadEditorImage(Request $request)
+    public function storeEmbeddedFile(Request $request)
     {
+        $request->validate([
+            'file' => ['required', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip,rar'],
+        ]);
+
         if ($request->hasFile('file')) {
-            $file = $request->file('file');
+            $path = $request->file('file')->store('trix-attachments', 'public');
 
-            // Simpan di folder khusus gambar editor
-            $path = $file->store('editor-images', 'public');
-
-            return response()->json([
-                'url' => Storage::url($path),
-            ]);
+            return response()->json(['url' => Storage::url($path)]);
         }
 
         return response()->json(['error' => 'No file uploaded'], 400);

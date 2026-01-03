@@ -18,6 +18,10 @@ class TicketController extends Controller
     {
         $user = auth()->user();
 
+        $services = Service::where('is_active', true)
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
         $tickets = Ticket::query()
             ->with([
                 'user',
@@ -42,6 +46,8 @@ class TicketController extends Controller
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
 
             ->when($request->priority, fn ($q) => $q->where('priority', $request->priority))
+
+            ->when($request->service_id, fn ($q) => $q->where('service_id', $request->service_id))
 
             ->when($request->assigned_to, function ($q) use ($request) {
                 match ($request->assigned_to) {
@@ -77,7 +83,7 @@ class TicketController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
-        return view('tickets.index', compact('tickets', 'admins'));
+        return view('tickets.index', compact('tickets', 'admins', 'services'));
     }
 
     public function create()
@@ -99,7 +105,7 @@ class TicketController extends Controller
     {
         // Mencegah User A mengakses URL tiket milik User B secara manual
         $user = auth()->user();
-        if ($user && $user->role === UserRole::USER) {
+        if ($user->role === UserRole::USER) {
             // Jika tiket ini bukan punya dia, tampilkan 403 Forbidden
             if ($ticket->user_id !== $user->id) {
                 abort(403, 'Anda tidak memiliki akses ke tiket ini.');
@@ -137,10 +143,9 @@ class TicketController extends Controller
             'priority' => ['required', new Enum(\App\Enums\TicketPriority::class)],
             'title' => 'required|string|max:100',
             'description' => 'required|string',
-            'attachments.*' => 'nullable|file|max:20480|mimes:pdf,doc,docx,jpg,jpeg,png,zip', // Max 20MB
         ]);
 
-        DB::transaction(function () use ($validated, $request) {
+        DB::transaction(function () use ($validated) {
             $ticket = Ticket::create([
                 'user_id' => auth()->id(),
                 'service_id' => $validated['service_id'],
@@ -149,20 +154,6 @@ class TicketController extends Controller
                 'description' => $validated['description'],
                 'status' => TicketStatus::WAITING,
             ]);
-
-            // Simpan Lampiran (Jika ada)
-            if ($request->hasFile('attachments')) {
-                foreach ($request->file('attachments') as $file) {
-                    $path = $file->store('tickets/'.$ticket->uuid, 'public');
-
-                    $ticket->attachments()->create([
-                        'name' => $file->getClientOriginalName(),
-                        'path' => $path,
-                        'mime_type' => $file->getMimeType(),
-                        'size' => $file->getSize(),
-                    ]);
-                }
-            }
         });
 
         return redirect()->route('tickets.index')
@@ -188,7 +179,7 @@ class TicketController extends Controller
 
         // Cegah overwrite jika sudah ada petugas
         if ($ticket->assigned_to) {
-            return back()->with('error', 'Ticket sudah ditugaskan.');
+            return back()->with('error', 'Tiket sudah ditugaskan.');
         }
 
         $ticket->update([
@@ -197,6 +188,49 @@ class TicketController extends Controller
             'status' => TicketStatus::PROGRESS,
         ]);
 
-        return back()->with('success', 'Ticket berhasil ditugaskan ke Anda.');
+        return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
+    }
+
+    /**
+     * Menutup tiket (Selesai / Tolak).
+     * Jika belum ada petugas, otomatis assign ke yang menutup.
+     */
+    public function close(Request $request, Ticket $ticket)
+    {
+        $user = auth()->user();
+
+        // 1. Cek Permission (Hanya Admin/Superuser)
+        if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+            abort(403, 'Anda tidak memiliki izin untuk menutup tiket.');
+        }
+
+        // 2. Validasi Input Status (Hanya boleh DONE atau REJECT)
+        $validated = $request->validate([
+            'status' => ['required', new Enum(TicketStatus::class)],
+        ]);
+
+        // Pastikan status yang dikirim valid untuk penutupan
+        if (! in_array($validated['status'], [TicketStatus::DONE->value, TicketStatus::REJECT->value])) {
+            return back()->with('error', 'Status tidak valid untuk penutupan tiket.');
+        }
+
+        DB::transaction(function () use ($ticket, $validated, $user) {
+            $updateData = [
+                'status' => $validated['status'],
+                'closed_at' => now(),
+            ];
+
+            // 3. Auto-assign jika belum ada petugas
+            if (is_null($ticket->assigned_to)) {
+                $updateData['assigned_to'] = $user->id;
+                $updateData['assigned_at'] = now();
+            }
+
+            $ticket->update($updateData);
+        });
+
+        $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
+
+        return back()->with('success', "Tiket berhasil {$statusLabel}.");
     }
 }

@@ -3,6 +3,8 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\GuestTicketCommentController;
+use App\Http\Controllers\GuestTicketController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TicketCommentController;
@@ -60,6 +62,20 @@ Route::get('/test-login/{role?}', function (?string $role = null) {
     return "User dengan role '{$role}' tidak ditemukan di database. Silakan jalankan seeder.";
 });
 
+Route::controller(GuestTicketController::class)->group(function () {
+    Route::get('/tracking', 'index')->name('guest.tracking.index');
+    Route::get('/create-ticket', 'create')->name('guest.tickets.create');
+    Route::post('/create-ticket', 'store')->name('guest.tickets.store');
+    Route::get('/tracking/{ticket:ticket_code}', 'show')->name('guest.tracking.show');
+
+    Route::post('/guest/upload-trix', 'storeEmbeddedFile')->name('guest.upload.editor.trix');
+});
+
+Route::controller(GuestTicketCommentController::class)->group(function () {
+    Route::post('/guest-tickets/{ticket}/comments', 'store')->name('guest.tickets.comments.store');
+    Route::post('/guest/upload-editor-attachments', 'storeEmbeddedFile')->name('guest.comments.upload.editor.attachments');
+});
+
 Route::middleware(['auth'])->group(function () {
 
     // 1. DASHBOARD (Semua Role punya dashboard, logic tampilan diatur di Controller)
@@ -71,8 +87,8 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])
         ->name('tickets.comments.store');
-    Route::post('/comments/upload-editor-image', [TicketCommentController::class, 'uploadEditorImage'])
-        ->name('comments.upload.editor.image');
+    Route::post('/comments/upload-editor-attachments', [TicketCommentController::class, 'storeEmbeddedFile'])
+        ->name('comments.upload.editor.attachments');
 
     // 3. GROUP ADMIN & SUPERUSER
     Route::middleware([
@@ -86,6 +102,10 @@ Route::middleware(['auth'])->group(function () {
         // Assign Ticket Logic
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
             ->name('tickets.assign.me');
+
+        // Close Ticket Logic
+        Route::patch('/tickets/{ticket}/close', [TicketController::class, 'close'])
+            ->name('tickets.close');
 
         // Laporan (Reports)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');

@@ -26,22 +26,30 @@
 
                 {{-- HEADER --}}
                 <div
-                    class="px-4 py-2.5 {{ $isStaff ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-slate-800/50' }} border-b {{ $isStaff ? 'border-blue-100 dark:border-blue-900/30' : 'border-border-light dark:border-border-dark' }} flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="font-semibold text-text-light dark:text-text-dark">{{ $senderName }}</span>
-                        <span class="text-muted-light dark:text-muted-dark text-xs">berkomentar
-                            {{ $comment->created_at->diffForHumans() }}</span>
+                    class="px-4 py-2.5 {{ $isStaff ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-slate-800/50' }} border-b {{ $isStaff ? 'border-blue-100 dark:border-blue-900/30' : 'border-border-light dark:border-border-dark' }} flex items-start justify-between text-sm gap-4">
+                    <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 min-w-0">
+                        <span
+                            class="font-semibold text-text-light dark:text-text-dark break-all wrap-break-word whitespace-normal max-w-full">
+                            {{ $senderName }}
+                        </span>
+
+                        <span class="text-muted-light dark:text-muted-dark text-xs whitespace-nowrap">
+                            berkomentar {{ $comment->created_at->diffForHumans() }}
+                        </span>
                     </div>
+
                     @if ($isStaff)
                         <span
-                            class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800">Staff</span>
+                            class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 border border-blue-200 dark:border-blue-800 shrink-0">
+                            Staff
+                        </span>
                     @endif
                 </div>
 
                 {{-- CONTENT BODY --}}
                 <div
-                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none wrap-break-word prose dark:prose-invert prose-sm">
-                    {!! clean($comment->message) !!}
+                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none break-all wrap-break-word prose dark:prose-invert prose-sm">
+                    {!! $comment->message !!}
                 </div>
             </div>
         </div>

@@ -1,13 +1,13 @@
 <header
-    class="relative h-16 flex items-center justify-between px-6 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark shadow-sm z-10">
+    class="sticky top-0 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8
+           bg-surface-light dark:bg-surface-dark 
+           border-b border-border-light dark:border-border-dark 
+           shadow-sm z-40">
 
     {{-- PEMISAH BAWAH HALUS --}}
     <div
         class="pointer-events-none absolute inset-x-0 bottom-0 h-px
-               bg-linear-to-r
-               from-transparent
-               via-gray-300/70 dark:via-slate-600/60
-               to-transparent
+               bg-linear-to-r from-transparent via-gray-300/70 dark:via-slate-600/60 to-transparent
                blur-[0.5px]">
     </div>
 
@@ -35,11 +35,13 @@
         <div class="h-6 w-px bg-border-light dark:bg-slate-700/70"></div>
 
         <button @click="open = !open" class="flex items-center gap-3 focus:outline-none">
-            <div class="text-right hidden sm:block leading-tight">
-                <p class="text-sm font-medium text-text-light dark:text-slate-100">
+            <div class="text-right hidden sm:block leading-tight min-w-0 max-w-[180px]">
+                <p class="text-sm font-medium text-text-light dark:text-slate-100 truncate"
+                    title="{{ auth()->user()->name }}">
                     {{ auth()->user()->name }}
                 </p>
-                <p class="text-xs text-muted-light dark:text-slate-400 capitalize">
+
+                <p class="text-xs text-muted-light dark:text-slate-400 capitalize truncate">
                     {{ auth()->user()->role }}
                 </p>
             </div>
@@ -62,8 +64,8 @@
 
             <a href="#"
                 class="block px-4 py-2.5 text-sm
-                      text-text-light dark:text-slate-100
-                      hover:bg-gray-100/70 dark:hover:bg-slate-700/60">
+                       text-text-light dark:text-slate-100
+                       hover:bg-gray-100/70 dark:hover:bg-slate-700/60">
                 Profil
             </a>
 

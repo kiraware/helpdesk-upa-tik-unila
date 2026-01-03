@@ -33,11 +33,12 @@
 
                         <input id="x_message" type="hidden" name="message">
 
-                        <trix-editor input="x_message" data-upload-url="{{ route('comments.upload.editor.image') }}"
+                        <trix-editor input="x_message"
+                            data-upload-url="{{ route('comments.upload.editor.attachments') }}"
                             class="prose dark:prose-invert max-w-none
                                    text-text-light dark:text-text-dark
                                    bg-transparent"
-                            placeholder="Tulis balasan anda, paste atau drag gambar di sini...">
+                            placeholder="Tulis balasan anda... (Drag & drop gambar atau file di sini)">
                         </trix-editor>
                     </div>
 
@@ -58,7 +59,7 @@
                 </div>
 
                 <p class="text-xs text-muted-light mt-2 ml-1">
-                    * Gambar dapat langsung ditempel (paste) atau drag ke editor.
+                    * Anda dapat menyisipkan gambar atau file langsung ke dalam editor.
                 </p>
             </form>
         </div>

@@ -41,6 +41,9 @@
 
     --color-border-light: #e5e7eb; /* Gray 200 */
     --color-border-dark: #334155; /* Slate 700 */
+
+    --color-brand: #137fec;
+    --color-brand-hover: #0f6bd0;
 }
 
 @layer base {
@@ -54,6 +57,17 @@
         @apply bg-background-light text-text-light antialiased;
         @apply dark:bg-background-dark dark:text-text-dark;
     }
+}
+
+/* Custom Class untuk Material Icons (Agar ukurannya pas dengan Tailwind) */
+@utility icon-sm {
+    font-size: 1.25rem !important; /* 20px */
+}
+@utility icon-md {
+    font-size: 1.5rem !important; /* 24px */
+}
+@utility icon-lg {
+    font-size: 2.25rem !important; /* 36px */
 }
 
 /* -------------------------------------------------------------------------- */
