@@ -21,18 +21,25 @@
 
                     {{-- 3. Reply Form --}}
                     @php
+                        // Logika Status Tiket
                         $isClosed = in_array($ticket->status, [
                             \App\Enums\TicketStatus::DONE,
                             \App\Enums\TicketStatus::REJECT,
                         ]);
 
+                        // Logika Nama & Avatar
                         if (auth()->check()) {
                             $responderName = auth()->user()->name;
                         } else {
                             $responderName = $ticket->guestDetail->full_name ?? 'Guest';
                         }
-
                         $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($responderName);
+
+                        // KONFIGURASI FILE
+                        $maxSizeKp = 5120; // 5MB dalam KB
+                        $acceptedMimes =
+                            'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
+                        $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
                     @endphp
 
                     @if (!$isClosed)
@@ -65,11 +72,13 @@
 
                                             <input id="x_message_guest" type="hidden" name="message">
 
+                                            {{-- Update: Tambahkan data-max-size & data-accept --}}
                                             <trix-editor input="x_message_guest"
                                                 data-upload-url="{{ route('guest.comments.upload.editor.attachments') }}"
+                                                data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
                                                 class="prose dark:prose-invert max-w-none
                                                        text-text-light dark:text-text-dark
-                                                       bg-transparent min-h-[100px] outline-none"
+                                                       bg-transparent min-h-25 outline-none"
                                                 placeholder="Tulis balasan anda..."></trix-editor>
                                         </div>
 
@@ -104,13 +113,23 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-xs text-slate-500 mt-2 ml-1 flex items-start gap-1">
-                                        <span class="material-icons-round text-base -mt-0.5">info</span>
-                                        <span>
-                                            Anda dapat menyisipkan gambar atau file langsung ke dalam editor (Drag &
-                                            Drop).
-                                        </span>
-                                    </p>
+                                    {{-- Update: Informasi File dengan Layout Baru --}}
+                                    <div class="flex items-start gap-2 mt-2 ml-1">
+                                        <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
+
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                                            <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
+                                                Sisipkan file atau gambar dengan cara <span
+                                                    class="text-blue-600 dark:text-blue-400 font-bold">Drag &
+                                                    Drop</span> ke kolom editor.
+                                            </p>
+                                            <p>
+                                                Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
+                                                Format: {{ $readableFormat }}.
+                                            </p>
+                                        </div>
+                                    </div>
+
                                 </form>
                             </div>
                         </div>

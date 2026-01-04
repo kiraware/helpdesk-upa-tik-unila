@@ -294,27 +294,51 @@
 
                     {{-- Editor --}}
                     <div>
+                        @php
+                            // KONFIGURASI FILE
+                            $maxSizeKp = 5120; // 5MB dalam KB
+                            $acceptedMimes =
+                                'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
+                            $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+                        @endphp
+
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 pl-1">
                             Deskripsi Detail & Lampiran <span class="text-red-500">*</span>
                         </label>
 
                         <div id="editor-container"
                             class="border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+
                             <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/30">
                                 <input id="x_description" type="hidden" name="description"
                                     value="{{ old('description') }}">
+
+                                {{-- Update: Tambahkan data-max-size & data-accept --}}
                                 <trix-editor input="x_description"
                                     data-upload-url="{{ route('guest.upload.editor.trix') }}"
-                                    class="min-h-[200px] prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
+                                    data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
+                                    class="min-h-50 prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
                                     placeholder="Jelaskan kronologi dan detail masalah Anda..."></trix-editor>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 mt-2 ml-1 flex items-start gap-1">
-                            <span class="material-icons-round text-base -mt-0.5">info</span>
-                            <span>
-                                Anda dapat menyisipkan gambar atau file langsung ke dalam editor (Drag & Drop).
-                            </span>
-                        </p>
+
+                        {{-- Update: Informasi File dengan Layout Baru --}}
+                        <div class="flex items-start gap-2 mt-2 ml-1">
+                            <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
+
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
+                                <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
+                                    Sisipkan file atau gambar dengan cara <span
+                                        class="text-blue-600 dark:text-blue-400 font-bold">Drag & Drop</span> ke kolom
+                                    editor.
+                                </p>
+                                <p>
+                                    Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
+                                    Format: {{ $readableFormat }}.
+                                </p>
+                            </div>
+                        </div>
+
                         @error('description')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
