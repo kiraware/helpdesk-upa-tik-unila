@@ -177,7 +177,7 @@
     {{-- Footer Sidebar --}}
     <div class="p-4 border-t border-border-dark shrink-0">
         <p class="text-xs text-center text-muted-dark">
-            &copy; {{ date('Y') }} Helpdesk System
+            &copy; {{ date('Y') }} Helpdesk UPA TIK Unila
         </p>
     </div>
 </aside>

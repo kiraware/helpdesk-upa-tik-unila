@@ -127,7 +127,7 @@
                     </div>
                     <h4 class="text-xl font-bold text-text-light dark:text-text-dark mb-3">Layanan Helpdesk</h4>
                     <p class="text-sm text-muted-light dark:text-muted-dark">
-                        Kami melayani permasalahan Email Unila, WiFi, SIAKAD, dan SSO.
+                        Kami melayani permasalahan Email Unila, Jaringan Internet, Siakadu, SSO, dan Lainnya.
                     </p>
                 </div>
 
