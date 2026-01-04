@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
@@ -232,5 +233,47 @@ class TicketController extends Controller
         $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
 
         return back()->with('success', "Tiket berhasil {$statusLabel}.");
+    }
+
+    /**
+     * Generate PDF Surat Tugas
+     */
+    public function printAssignment(Ticket $ticket)
+    {
+        // 1. Cek Permission
+        $user = auth()->user();
+        $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
+
+        // Hanya Admin/Superuser atau Petugas ybs yang boleh cetak
+        if (! $isStaff && $ticket->assigned_to !== $user->id) {
+            abort(403, 'Anda tidak memiliki izin untuk mencetak surat tugas ini.');
+        }
+
+        // 2. Pastikan tiket sudah ada petugasnya
+        if (! $ticket->assigned_to) {
+            return back()->with('error', 'Tiket belum memiliki petugas.');
+        }
+
+        $ticket->load([
+            'assignee.division',
+            'service',
+            'user',
+            'guestDetail',
+        ]);
+
+        // 3. Data Kepala UPA TIK (Sesuaikan dengan data riil)
+        // Idealnya data ini diambil dari config atau database settings
+        $kepalaUpa = [
+            'name' => 'Muhammad Komaruddin, S.T., M.T.', // Contoh Nama
+            'nip' => '19681207 199703 1 006',           // Contoh NIP
+            'jabatan' => 'Kepala UPA TIK',
+        ];
+
+        // 4. Generate PDF
+        $pdf = Pdf::loadView('tickets.pdf.assignment_letter', compact('ticket', 'kepalaUpa'))
+            ->setPaper('a4', 'portrait');
+
+        // Stream (tampil di browser) atau Download
+        return $pdf->stream('Surat_Tugas_'.$ticket->ticket_code.'.pdf');
     }
 }
