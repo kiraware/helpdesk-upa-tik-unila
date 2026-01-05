@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Enums\UserRole;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Rules\ValidTurnstile;
@@ -22,6 +23,62 @@ class GuestTicketController extends Controller
     public function index()
     {
         return view('guest-tickets.index');
+    }
+
+    /**
+     * Menangani logika pencarian tiket (Search Logic).
+     */
+    public function search(Request $request)
+    {
+        $request->validate([
+            'ticket_code' => 'required|string',
+        ]);
+
+        $code = $request->ticket_code;
+        $user = auth()->user();
+
+        $ticket = Ticket::where('ticket_code', $code)->first();
+
+        // Skenario 1: Tiket tidak ditemukan di sistem
+        if (! $ticket) {
+            return back()->with('error', 'Tiket tidak ditemukan dengan kode tersebut.');
+        }
+
+        // Cek apakah Tiket dibuat oleh User (Internal) atau Guest
+        if ($ticket->user_id) {
+            // --- TIKET USER ---
+
+            // Jika yang mencari adalah Guest (tidak login)
+            if (! $user) {
+                // Skenario 2 (Variant Guest): Anggap tidak ada demi privasi
+                return back()->with('error', 'Tiket tidak ditemukan.');
+            }
+
+            // Jika role USER
+            if ($user->role === UserRole::USER) {
+                // Skenario 3: User adalah pemilik tiket
+                if ($ticket->user_id === $user->id) {
+                    return redirect()->route('tickets.show', $ticket->uuid);
+                }
+
+                // Skenario 2 (Variant User Lain): User bukan pemilik tiket
+                return back()->with('error', 'Tiket tidak ditemukan.');
+            }
+
+            // Skenario 4: Admin/Superuser mencari tiket User
+            if (in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+                return redirect()->route('tickets.show', $ticket->uuid);
+            }
+
+        } else {
+            // --- TIKET GUEST ---
+
+            // Skenario 5: Admin/Superuser mencari tiket Guest -> Redirect ke Guest View
+            // (Juga mencakup Guest biasa mencari tiket Guest)
+            return redirect()->route('guest.tracking.show', $ticket->ticket_code);
+        }
+
+        return back()->with('error', 'Akses ditolak.');
     }
 
     /**
