@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Models\Configuration;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
@@ -261,12 +262,12 @@ class TicketController extends Controller
             'guestDetail',
         ]);
 
-        // 3. Data Kepala UPA TIK (Sesuaikan dengan data riil)
-        // Idealnya data ini diambil dari config atau database settings
+        // 3. Data Kepala UPA TIK
+        $config = Configuration::first();
         $kepalaUpa = [
-            'name' => 'Muhammad Komaruddin, S.T., M.T.', // Contoh Nama
-            'nip' => '19681207 199703 1 006',           // Contoh NIP
-            'jabatan' => 'Kepala UPA TIK',
+            'name' => $config->upa_head_name,
+            'nip' => $config->upa_head_nip,
+            'jabatan' => $config->upa_head_position,
         ];
 
         // 4. Generate PDF

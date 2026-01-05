@@ -162,13 +162,16 @@
                 Manajemen Pengguna
             </a>
 
-            <a href="#"
+            <a href="{{ route('configurations.index') }}"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group 
-               text-muted-dark hover:bg-background-dark/30 hover:text-white">
-                <span class="material-icons-round mr-3 text-muted-dark group-hover:text-white">
-                    settings
+               {{ request()->routeIs('configurations.*')
+                   ? 'bg-secondary text-white'
+                   : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+                <span
+                    class="material-icons-round mr-3 {{ request()->routeIs('configurations.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
+                    admin_panel_settings
                 </span>
-                Pengaturan Sistem
+                Pengaturan Surat Tugas
             </a>
         @endif
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Enums\UserRole;
+use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\GuestTicketCommentController;
@@ -114,6 +115,10 @@ Route::middleware(['auth'])->group(function () {
         // Print Assignment Letter
         Route::get('/tickets/{ticket}/assignment', [TicketController::class, 'printAssignment'])
             ->name('tickets.print_assignment');
+
+        // Configuration Management
+        Route::get('/configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
+        Route::put('/configurations', [ConfigurationController::class, 'update'])->name('configurations.update');
     });
 
     // 4. GROUP SUPERUSER ONLY

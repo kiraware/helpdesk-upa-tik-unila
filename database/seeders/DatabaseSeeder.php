@@ -38,6 +38,9 @@ class DatabaseSeeder extends Seeder
             FormQuestionSeeder::class,
             FormSubmissionSeeder::class,
             FormAnswerSeeder::class,
+
+            // --- CONFIGURATION ---
+            ConfigurationSeeder::class,
         ]);
     }
 }
