@@ -109,6 +109,10 @@ Route::middleware(['auth'])->group(function () {
 
         // Laporan (Reports)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+
+        // Print Assignment Letter
+        Route::get('/tickets/{ticket}/assignment', [TicketController::class, 'printAssignment'])
+            ->name('tickets.print_assignment');
     });
 
     // 4. GROUP SUPERUSER ONLY

@@ -81,6 +81,17 @@
                             {{ $ticket->assigned_at ? $ticket->assigned_at->diffForHumans() : '-' }}</p>
                     </div>
                 </div>
+
+                {{-- Tombol Download Surat Tugas --}}
+                @if ($isAdminOrSuper || auth()->id() === $ticket->assigned_to)
+                    <div class="mt-4 pt-3 border-t border-border-light dark:border-border-dark/50">
+                        <a href="{{ route('tickets.print_assignment', $ticket->uuid) }}" target="_blank"
+                            class="flex items-center justify-center gap-2 w-full py-2 px-3 text-xs font-medium text-text-light dark:text-text-dark bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors">
+                            <span class="material-icons-round text-sm">print</span>
+                            Unduh Surat Tugas
+                        </a>
+                    </div>
+                @endif
             @else
                 <div class="text-sm text-muted-light italic">Belum ada petugas</div>
             @endif
@@ -256,7 +267,7 @@
             {{-- Created At --}}
             <div class="relative pl-4 border-l-2 border-border-light dark:border-border-dark">
                 <div
-                    class="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-white dark:ring-surface-dark">
+                    class="absolute -left-1.25 top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-white dark:ring-surface-dark">
                 </div>
                 <p class="text-xs text-muted-light mb-0.5">Dibuat</p>
                 <p class="text-sm font-medium text-text-light dark:text-text-dark">
@@ -268,7 +279,7 @@
             @if ($ticket->assigned_at)
                 <div class="relative pl-4 border-l-2 border-border-light dark:border-border-dark">
                     <div
-                        class="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full bg-yellow-500 ring-2 ring-white dark:ring-surface-dark">
+                        class="absolute -left-1.25 top-1 w-2.5 h-2.5 rounded-full bg-yellow-500 ring-2 ring-white dark:ring-surface-dark">
                     </div>
                     <p class="text-xs text-muted-light mb-0.5">Ditugaskan</p>
                     <p class="text-sm font-medium text-text-light dark:text-text-dark">
@@ -281,7 +292,7 @@
             @if ($ticket->closed_at)
                 <div class="relative pl-4 border-l-2 border-transparent">
                     <div
-                        class="absolute -left-[5px] top-1 w-2.5 h-2.5 rounded-full {{ $ticket->status === TicketStatus::DONE ? 'bg-emerald-500' : 'bg-red-500' }} ring-2 ring-white dark:ring-surface-dark">
+                        class="absolute -left-1.25 top-1 w-2.5 h-2.5 rounded-full {{ $ticket->status === TicketStatus::DONE ? 'bg-emerald-500' : 'bg-red-500' }} ring-2 ring-white dark:ring-surface-dark">
                     </div>
                     <p class="text-xs text-muted-light mb-0.5">
                         {{ $ticket->status === TicketStatus::DONE ? 'Selesai' : 'Ditolak' }}

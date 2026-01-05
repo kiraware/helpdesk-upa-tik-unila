@@ -13,7 +13,7 @@ class DivisionSeeder extends Seeder
     public function run(): void
     {
         $divisions = [
-            'Pusdatin',
+            'Pusat Data dan Informasi',
             'PSI',
             'INF',
             'PPSI',

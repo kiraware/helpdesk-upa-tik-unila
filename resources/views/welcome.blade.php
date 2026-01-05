@@ -83,19 +83,26 @@
                     <h3 class="text-2xl lg:text-3xl font-bold text-text-light dark:text-text-dark mb-3">Cek Status Tiket
                     </h3>
                     <p class="text-muted-light dark:text-muted-dark mb-8 leading-relaxed text-lg">
-                        Sudah mengirimkan laporan? Masukkan nomor tiket Anda untuk melihat progress.
+                        Sudah mengirimkan laporan? Masukkan kode tiket Anda untuk melihat progress.
                     </p>
 
                     {{-- Form Pencarian Tiket --}}
-                    <div class="mt-auto relative" x-data="{ isMobile: window.innerWidth < 640 }"
+                    <div class="mt-auto relative" x-data="{
+                        code: '',
+                        isMobile: window.innerWidth < 640,
+                        submit() {
+                            if (this.code) {
+                                window.location.href = '{{ url('/tracking') }}/' + this.code;
+                            }
+                        }
+                    }"
                         @resize.window="isMobile = window.innerWidth < 640">
 
-                        <input type="text" id="ticketInput"
-                            class="w-full pl-5 pr-14 py-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all text-text-light dark:text-text-dark shadow-sm text-sm md:text-base placeholder-gray-400"
-                            :placeholder="isMobile ? '(Contoh: TIK-20231227-1234)' : 'Nomor Tiket (Contoh: TIK-20231227-1234)'"
-                            onkeypress="if(event.key === 'Enter') checkTicket()">
+                        <input type="text" x-model="code" @keydown.enter.prevent="submit()"
+                            class="w-full pl-5 pr-14 py-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all text-text-light dark:text-text-dark shadow-sm text-sm md:text-base placeholder-gray-400 uppercase placeholder:normal-case"
+                            :placeholder="isMobile ? '(Contoh: TIK-20231227-1234)' : 'Kode Tiket (Contoh: TIK-20231227-1234)'" />
 
-                        <button onclick="checkTicket()"
+                        <button type="button" @click="submit()"
                             class="absolute right-2 top-2 bottom-2 bg-brand hover:bg-brand-hover text-white rounded-lg transition-colors flex items-center justify-center aspect-square shadow-sm group">
                             <span
                                 class="material-icons-round group-hover:translate-x-1 transition-transform">arrow_forward</span>
@@ -120,7 +127,7 @@
                     </div>
                     <h4 class="text-xl font-bold text-text-light dark:text-text-dark mb-3">Layanan Helpdesk</h4>
                     <p class="text-sm text-muted-light dark:text-muted-dark">
-                        Kami melayani permasalahan Email Unila, WiFi, SIAKAD, dan SSO.
+                        Kami melayani permasalahan Email Unila, Jaringan Internet, Siakadu, SSO, dan Lainnya.
                     </p>
                 </div>
 
@@ -162,20 +169,4 @@
             </div>
         </div>
     </section>
-
-    <script>
-        function checkTicket() {
-            const input = document.getElementById('ticketInput');
-            const code = input.value.trim();
-
-            if (!code) {
-                // Bisa diganti dengan toast library Anda jika mau
-                alert('Mohon masukkan nomor tiket!');
-                return;
-            }
-
-            // Redirect ke route tracking: /tracking/{code}
-            window.location.href = "{{ url('/tracking') }}/" + encodeURIComponent(code);
-        }
-    </script>
 </x-layouts.guest>

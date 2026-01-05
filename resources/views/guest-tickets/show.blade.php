@@ -4,13 +4,6 @@
         class="min-h-screen bg-background-light dark:bg-background-dark py-8 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
         <div class="max-w-7xl mx-auto w-full">
 
-            {{-- Tombol Kembali --}}
-            <a href="{{ route('guest.tracking.index') }}"
-                class="inline-flex items-center text-sm text-muted-light hover:text-secondary mb-6 transition-colors">
-                <span class="material-icons-round mr-1 text-base">arrow_back</span>
-                Cari Tiket Lain
-            </a>
-
             {{-- HEADER SECTION --}}
             <x-tickets.show.header :ticket="$ticket" />
 
@@ -28,18 +21,25 @@
 
                     {{-- 3. Reply Form --}}
                     @php
+                        // Logika Status Tiket
                         $isClosed = in_array($ticket->status, [
                             \App\Enums\TicketStatus::DONE,
                             \App\Enums\TicketStatus::REJECT,
                         ]);
 
+                        // Logika Nama & Avatar
                         if (auth()->check()) {
                             $responderName = auth()->user()->name;
                         } else {
                             $responderName = $ticket->guestDetail->full_name ?? 'Guest';
                         }
-
                         $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($responderName);
+
+                        // KONFIGURASI FILE
+                        $maxSizeKp = 5120; // 5MB dalam KB
+                        $acceptedMimes =
+                            'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
+                        $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
                     @endphp
 
                     @if (!$isClosed)
@@ -72,12 +72,14 @@
 
                                             <input id="x_message_guest" type="hidden" name="message">
 
+                                            {{-- Update: Tambahkan data-max-size & data-accept --}}
                                             <trix-editor input="x_message_guest"
                                                 data-upload-url="{{ route('guest.comments.upload.editor.attachments') }}"
+                                                data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
                                                 class="prose dark:prose-invert max-w-none
                                                        text-text-light dark:text-text-dark
-                                                       bg-transparent min-h-[100px] outline-none"
-                                                placeholder="Tulis balasan anda... (Drag & drop gambar atau file di sini)"></trix-editor>
+                                                       bg-transparent min-h-25 outline-none"
+                                                placeholder="Tulis balasan anda..."></trix-editor>
                                         </div>
 
                                         {{-- FOOTER --}}
@@ -111,9 +113,23 @@
                                         </div>
                                     </div>
 
-                                    <p class="text-xs text-muted-light mt-2 ml-1">
-                                        * Anda dapat menyisipkan gambar atau file langsung ke dalam editor.
-                                    </p>
+                                    {{-- Update: Informasi File dengan Layout Baru --}}
+                                    <div class="flex items-start gap-2 mt-2 ml-1">
+                                        <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
+
+                                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                                            <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
+                                                Sisipkan file atau gambar dengan cara <span
+                                                    class="text-blue-600 dark:text-blue-400 font-bold">Drag &
+                                                    Drop</span> ke kolom editor.
+                                            </p>
+                                            <p>
+                                                Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
+                                                Format: {{ $readableFormat }}.
+                                            </p>
+                                        </div>
+                                    </div>
+
                                 </form>
                             </div>
                         </div>

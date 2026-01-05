@@ -1,28 +1,6 @@
-@props(['type' => 'success', 'message'])
+@props(['type' => 'success', 'message' => ''])
 
-@php
-    // Tentukan warna dan icon berdasarkan tipe
-    $isSuccess = $type === 'success';
-
-    $colors = $isSuccess
-        ? [
-            'bg_icon' => 'bg-emerald-100 dark:bg-emerald-900/30',
-            'text_icon' => 'text-emerald-600 dark:text-emerald-400',
-            'progress_bg' => 'bg-emerald-200 dark:bg-emerald-900',
-            'progress_fill' => 'bg-emerald-500',
-        ]
-        : [
-            'bg_icon' => 'bg-red-100 dark:bg-red-900/30',
-            'text_icon' => 'text-red-600 dark:text-red-400',
-            'progress_bg' => 'bg-red-200 dark:bg-red-900',
-            'progress_fill' => 'bg-red-500',
-        ];
-
-    $icon = $isSuccess ? 'check_circle' : 'error_outline';
-    $title = $isSuccess ? 'Berhasil' : 'Gagal';
-@endphp
-
-<div x-data="toast" x-show="visible" x-transition:enter="transition ease-out duration-300"
+<div x-data="toast('{{ $message }}', '{{ $type }}')" x-show="visible" x-cloak x-transition:enter="transition ease-out duration-300"
     x-transition:enter-start="opacity-0 translate-y-2 sm:translate-x-full sm:translate-y-0"
     x-transition:enter-end="opacity-100 translate-y-0 sm:translate-x-0"
     x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100"
@@ -32,21 +10,18 @@
     <div
         class="relative flex overflow-hidden bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl">
 
-        {{-- Icon --}}
-        <div class="flex items-center justify-center w-12 shrink-0 {{ $colors['bg_icon'] }}">
-            <span class="material-icons-round {{ $colors['text_icon'] }}">
-                {{ $icon }}
+        {{-- Icon Section --}}
+        <div class="flex items-center justify-center w-12 shrink-0 transition-colors duration-300"
+            :class="theme.bg_icon">
+            <span class="material-icons-round transition-colors duration-300" :class="theme.text_icon"
+                x-text="theme.icon">
             </span>
         </div>
 
-        {{-- Content --}}
+        {{-- Content Section --}}
         <div class="flex-1 px-3 py-3 min-w-0">
-            <p class="text-sm font-semibold text-text-light dark:text-text-dark">
-                {{ $title }}
-            </p>
-            <p class="text-sm text-muted-light dark:text-muted-dark wrap-break-word">
-                {{ $message }}
-            </p>
+            <p class="text-sm font-semibold text-text-light dark:text-text-dark" x-text="theme.title"></p>
+            <p class="text-sm text-muted-light dark:text-muted-dark wrap-break-word" x-text="message"></p>
         </div>
 
         {{-- Close Button --}}
@@ -55,9 +30,11 @@
             <span class="material-icons-round text-base">close</span>
         </button>
 
-        {{-- Progress bar --}}
-        <div class="absolute bottom-0 left-0 h-1 w-full {{ $colors['progress_bg'] }}">
-            <div class="h-full {{ $colors['progress_fill'] }}" :style="`width: ${progress}%`"></div>
+        {{-- Progress Bar --}}
+        <div class="absolute bottom-0 left-0 h-1 w-full transition-colors duration-300" :class="theme.progress_bg">
+            <div class="h-full transition-colors duration-300" :class="theme.progress_fill"
+                :style="`width: ${progress}%`">
+            </div>
         </div>
 
     </div>

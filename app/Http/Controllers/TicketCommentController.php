@@ -55,7 +55,7 @@ class TicketCommentController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip,rar'],
+            'file' => ['required', 'file', 'max:5120', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
         ]);
 
         if ($request->hasFile('file')) {

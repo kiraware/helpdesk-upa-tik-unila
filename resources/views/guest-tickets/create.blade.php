@@ -1,7 +1,9 @@
 <x-layouts.guest title="Formulir Buat Tiket">
 
     {{-- Container Utama --}}
-    <div class="px-4 sm:px-0 sm:mx-auto sm:w-full sm:max-w-4xl my-4 sm:my-8">
+    {{-- Tambahkan x-data untuk deteksi mobile agar placeholder bisa dinamis --}}
+    <div class="px-4 sm:px-0 sm:mx-auto sm:w-full sm:max-w-4xl my-4 sm:my-8" x-data="{ isMobile: window.innerWidth < 640 }"
+        @resize.window="isMobile = window.innerWidth < 640">
 
         {{-- Header Halaman --}}
         <div class="text-center mb-8">
@@ -20,14 +22,6 @@
         {{-- Form Container --}}
         <div
             class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
-
-            @if (session('success'))
-                <div
-                    class="p-4 bg-emerald-50 border-b border-emerald-100 text-emerald-700 text-center font-medium flex items-center justify-center gap-2">
-                    <span class="material-icons-round text-xl">check_circle</span>
-                    {{ session('success') }}
-                </div>
-            @endif
 
             <form id="ticketForm" action="{{ route('guest.tickets.store') }}" method="POST"
                 enctype="multipart/form-data">
@@ -51,7 +45,7 @@
                                 Nama Lengkap <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="full_name" value="{{ old('full_name') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400"
+                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Sesuai kartu identitas">
                             @error('full_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -64,20 +58,20 @@
                                 Email Aktif <span class="text-red-500">*</span>
                             </label>
                             <input type="email" name="email" value="{{ old('email') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400"
+                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="nama@email.com">
                             @error('email')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
-                        {{-- Identity Number --}}
+                        {{-- Identity Number (DIPERBAIKI: Placeholder Dinamis) --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Nomor Identitas <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="identity_number" value="{{ old('identity_number') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400"
+                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Nomor KTM / NIP / NIK / SK Pengangkatan">
                             @error('identity_number')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
@@ -114,7 +108,7 @@
                         {{-- Upload Foto Identitas --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Foto KTM / ID Card / KTP / SK Pengangkatan <span class="text-red-500">*</span>
+                                Foto Kartu Identitas <span class="text-red-500">*</span>
                             </label>
                             <div class="relative group">
                                 <input type="file" name="photo_identity" id="photo_identity" accept="image/*"
@@ -123,13 +117,12 @@
                                 <label for="photo_identity"
                                     class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all">
 
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-blue-500 transition-colors"
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-blue-500 transition-colors px-4 text-center"
                                         id="label-identity">
                                         <span class="material-icons-round text-5xl mb-3">badge</span>
-                                        <p class="text-sm font-medium text-center">Klik untuk upload foto kartu
-                                            identitas</p>
-                                        <p class="text-xs text-center text-slate-400 mt-1">
-                                            Pastikan data pada kartu identitas terlihat jelas
+                                        <p class="text-sm font-medium">Klik untuk upload foto</p>
+                                        <p class="text-xs text-slate-400 mt-1">
+                                            KTM / ID Card / KTP / SK Pengangkatan harus terlihat jelas
                                         </p>
                                     </div>
 
@@ -145,7 +138,7 @@
                         {{-- Upload Foto Selfie --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Selfie dengan KTM / ID Card / KTP / SK Pengangkatan <span class="text-red-500">*</span>
+                                Selfie dengan Kartu Identitas <span class="text-red-500">*</span>
                             </label>
                             <div class="relative group">
                                 <input type="file" name="photo_selfie" id="photo_selfie" accept="image/*"
@@ -154,13 +147,11 @@
                                 <label for="photo_selfie"
                                     class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all">
 
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-blue-500 transition-colors"
+                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-blue-500 transition-colors px-4 text-center"
                                         id="label-selfie">
                                         <span class="material-icons-round text-5xl mb-3">camera_front</span>
-                                        <p class="text-sm font-medium text-center">Klik untuk upload foto selfie beserta
-                                            kartu identitas</p>
-                                        <p class="text-xs text-center text-slate-400 mt-1">Pastikan wajah dan kartu
-                                            identias terlihat jelas</p>
+                                        <p class="text-sm font-medium">Klik untuk upload selfie</p>
+                                        <p class="text-xs text-slate-400 mt-1">Wajah & kartu harus jelas</p>
                                     </div>
 
                                     <img id="preview-selfie" class="hidden h-full w-full object-contain rounded-xl p-2">
@@ -188,8 +179,8 @@
                                 Judul Laporan <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="title" value="{{ old('title') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400"
-                                placeholder="Contoh: Internet Lab Komputer Mati">
+                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
+                                placeholder="Contoh: Lupa Password SSO">
                             @error('title')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -303,24 +294,51 @@
 
                     {{-- Editor --}}
                     <div>
+                        @php
+                            // KONFIGURASI FILE
+                            $maxSizeKp = 5120; // 5MB dalam KB
+                            $acceptedMimes =
+                                'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
+                            $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+                        @endphp
+
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 pl-1">
                             Deskripsi Detail & Lampiran <span class="text-red-500">*</span>
                         </label>
 
                         <div id="editor-container"
                             class="border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+
                             <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/30">
                                 <input id="x_description" type="hidden" name="description"
                                     value="{{ old('description') }}">
+
+                                {{-- Update: Tambahkan data-max-size & data-accept --}}
                                 <trix-editor input="x_description"
                                     data-upload-url="{{ route('guest.upload.editor.trix') }}"
-                                    class="min-h-[200px] prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
-                                    placeholder="Jelaskan kronologi dan detail masalah Anda... (Drag & drop gambar atau file di sini)"></trix-editor>
+                                    data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
+                                    class="min-h-50 prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
+                                    placeholder="Jelaskan kronologi dan detail masalah Anda..."></trix-editor>
                             </div>
                         </div>
-                        <p class="text-xs text-slate-500 mt-2 ml-1">
-                            * Anda dapat menyisipkan gambar atau file langsung ke dalam editor.
-                        </p>
+
+                        {{-- Update: Informasi File dengan Layout Baru --}}
+                        <div class="flex items-start gap-2 mt-2 ml-1">
+                            <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
+
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
+                                <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
+                                    Sisipkan file atau gambar dengan cara <span
+                                        class="text-blue-600 dark:text-blue-400 font-bold">Drag & Drop</span> ke kolom
+                                    editor.
+                                </p>
+                                <p>
+                                    Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
+                                    Format: {{ $readableFormat }}.
+                                </p>
+                            </div>
+                        </div>
+
                         @error('description')
                             <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                         @enderror
@@ -361,8 +379,7 @@
 
     {{-- Script Preview & Validasi --}}
     <script>
-        // PERUBAHAN: Fungsi Callback Turnstile
-        // Fungsi ini harus berada di Global Scope (diluar DOMContentLoaded jika widget me-render cepat)
+        // Fungsi Callback Turnstile
         function enableSubmitButton() {
             const btn = document.getElementById('submitButton');
             if (btn) {
