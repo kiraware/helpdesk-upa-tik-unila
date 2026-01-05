@@ -17,8 +17,9 @@
                 </p>
             </div>
 
-            {{-- Form Area dengan Alpine.js --}}
-            <div x-data="{ code: '' }" class="space-y-4 md:space-y-6">
+            {{-- Form Area Standard --}}
+            <form action="{{ route('guest.tracking.search') }}" method="POST" class="space-y-4 md:space-y-6">
+                @csrf
 
                 {{-- Input Field --}}
                 <div>
@@ -27,9 +28,8 @@
                         Kode Tiket
                     </label>
                     <div class="relative group">
-                        <input type="text" id="ticket-code" x-model="code"
-                            @keydown.enter.prevent="if(code) window.location.href = '/tracking/' + code"
-                            placeholder="Contoh: TIK-20231227-1234"
+                        <input type="text" id="ticket-code" name="ticket_code" required
+                            value="{{ old('ticket_code') }}" placeholder="Contoh: TIK-20231227-1234"
                             class="w-full px-4 py-3 md:py-3.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-border-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#1d4ed8] focus:border-transparent outline-none transition-all duration-200 uppercase placeholder:normal-case text-sm md:text-base" />
 
                         {{-- Icon Search --}}
@@ -44,7 +44,7 @@
                 </div>
 
                 {{-- Action Button --}}
-                <button type="button" @click="if(code) window.location.href = '/tracking/' + code"
+                <button type="submit"
                     class="w-full bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-semibold py-3 md:py-3.5 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 transform active:scale-[0.98] flex justify-center items-center gap-2 group text-sm md:text-base">
                     <span>Cek Status</span>
                     <svg class="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none"
@@ -53,7 +53,7 @@
                             d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
                     </svg>
                 </button>
-            </div>
+            </form>
 
         </div>
     </div>

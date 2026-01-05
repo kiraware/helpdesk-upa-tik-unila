@@ -64,6 +64,7 @@ Route::get('/test-login/{role?}', function (?string $role = null) {
 
 Route::controller(GuestTicketController::class)->group(function () {
     Route::get('/tracking', 'index')->name('guest.tracking.index');
+    Route::post('/tracking/search', 'search')->name('guest.tracking.search');
     Route::get('/create-ticket', 'create')->name('guest.tickets.create');
     Route::post('/create-ticket', 'store')->name('guest.tickets.store');
     Route::get('/tracking/{ticket:ticket_code}', 'show')->name('guest.tracking.show');
