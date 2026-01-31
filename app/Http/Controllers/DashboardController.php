@@ -14,7 +14,7 @@ class DashboardController extends Controller
         $user = auth()->user();
 
         // 1. Logic untuk SUPERUSER (Overview Menyeluruh)
-        if ($user->role === UserRole::SUPERUSER->value) {
+        if ($user->role === UserRole::SUPERUSER) {
             $stats = [
                 'total' => Ticket::count(),
                 'waiting' => Ticket::where('status', TicketStatus::WAITING)->count(),
@@ -38,7 +38,7 @@ class DashboardController extends Controller
         }
 
         // 2. Logic untuk ADMIN (Fokus Operasional / Penugasan)
-        if ($user->role === UserRole::ADMIN->value) {
+        if ($user->role === UserRole::ADMIN) {
             $stats = [
                 'unassigned' => Ticket::whereNull('assigned_to')->count(),
                 'my_tasks' => Ticket::where('assigned_to', $user->id)
@@ -47,12 +47,16 @@ class DashboardController extends Controller
             ];
 
             // Tiket yang butuh perhatian (Belum ada petugas atau prioritas tinggi)
-            $priorityTickets = Ticket::with(['user', 'service'])
+            $priorityTickets = Ticket::with(['user', 'service', 'guestDetail'])
                 ->where(function ($q) {
                     $q->whereNull('assigned_to')
                         ->orWhere('status', TicketStatus::WAITING);
                 })
-                ->orderByRaw("FIELD(priority, 'high', 'medium', 'low')")
+                ->orderByRaw("CASE priority 
+                    WHEN 'high' THEN 1 
+                    WHEN 'medium' THEN 2 
+                    WHEN 'low' THEN 3 
+                    ELSE 4 END")
                 ->latest()
                 ->take(10)
                 ->get();
