@@ -84,7 +84,8 @@ Route::middleware(['auth'])->group(function () {
 
     // 2. TICKETS (Semua Role butuh akses tiket)
     // User: Create & View Own. Admin/Super: View All & Manage.
-    Route::resource('tickets', TicketController::class);
+    Route::patch('/tickets/{ticket}/title', [TicketController::class, 'updateTitle'])->name('tickets.update_title');
+    Route::resource('tickets', TicketController::class)->except(['update']);
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])
         ->name('tickets.comments.store');
