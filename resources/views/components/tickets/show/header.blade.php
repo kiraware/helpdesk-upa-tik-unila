@@ -59,9 +59,9 @@
 
         {{-- Title & Meta --}}
         <div class="flex-1 min-w-0 w-full">
-            <form id="update-title-form" action="{{ route('tickets.update', $ticket->uuid) }}" method="POST"
+            <form id="update-title-form" action="{{ route('tickets.update_title', $ticket->uuid) }}" method="POST"
                 class="min-w-0 w-full">
-                @csrf @method('PUT')
+                @csrf @method('PATCH')
                 <div class="mb-2 min-h-10 flex items-center w-full">
                     <h1 x-show="!isEditing"
                         class="text-2xl sm:text-3xl font-bold text-text-light dark:text-text-dark leading-tight break-all wrap-break-word whitespace-normal w-full">

@@ -162,7 +162,7 @@ class TicketController extends Controller
             ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
     }
 
-    public function update(Request $request, Ticket $ticket)
+    public function updateTitle(Request $request, Ticket $ticket)
     {
         $validated = $request->validate(['title' => ['required', 'string', 'max:100']]);
 
