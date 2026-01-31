@@ -56,8 +56,7 @@ Route::get('/test-login/{role?}', function (?string $role = null) {
         // Regenerate session ID (security best practice, meski testing)
         request()->session()->regenerate();
 
-        return redirect()->route('dashboard')
-            ->with('success', "Berhasil login testing sebagai: <b>{$user->name}</b> ({$role})");
+        return redirect()->route('dashboard');
     }
 
     return "User dengan role '{$role}' tidak ditemukan di database. Silakan jalankan seeder.";
