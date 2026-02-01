@@ -85,7 +85,7 @@
                         Syarat Khusus Unit Kerja / Kegiatan
                     </h3>
                     <p class="text-sm text-yellow-700 dark:text-yellow-400 mb-3 leading-relaxed">
-                        Wajib membuat <strong>Surat Permohonan Email Resmi</strong> ditujukan kepada Kepala UPT TIK
+                        Wajib membuat <strong>Surat Permohonan Email Resmi</strong> ditujukan kepada Kepala UPA TIK
                         Unila, berisi:
                     </p>
                     <ul
@@ -219,7 +219,7 @@
                         <h4 class="font-bold text-red-800 dark:text-red-400 text-base">Lupa Username SSO?</h4>
                         <p class="text-sm text-red-700 dark:text-red-300 mt-1 leading-relaxed">
                             Layanan ini <strong>TIDAK BISA ONLINE</strong>. Anda wajib datang (Onsite) ke <strong>Gedung
-                                UPT TIK Unila Lantai 1</strong> dengan membawa seluruh persyaratan fisik di atas.
+                                UPA TIK Unila Lantai 1</strong> dengan membawa seluruh persyaratan fisik di atas.
                         </p>
                     </div>
                 </div>
