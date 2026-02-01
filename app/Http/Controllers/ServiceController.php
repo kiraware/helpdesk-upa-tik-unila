@@ -17,7 +17,7 @@ class ServiceController extends Controller
             ->when($request->status !== null && $request->status !== '', function ($query) use ($request) {
                 $query->where('is_active', $request->status);
             })
-            ->latest()
+            ->orderBy('name', 'asc')
             ->paginate(10)
             ->withQueryString();
 

@@ -1,7 +1,7 @@
-<x-layouts.dashboard title="Admin Dashboard">
+<x-layouts.dashboard title="Dashboard">
     <div class="space-y-6">
         {{-- SECTION 1: Stats Grid --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
             {{-- Card: Belum Ditugaskan --}}
             <div
                 class="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-6 rounded-xl flex items-center justify-between">
@@ -38,7 +38,7 @@
             </div>
 
             {{-- List Container --}}
-            <div
+            <div id="ticket-container"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                 <div class="divide-y divide-border-light dark:divide-border-dark">
                     @forelse($priorityTickets as $ticket)
@@ -57,3 +57,21 @@
         </div>
     </div>
 </x-layouts.dashboard>
+
+<script>
+    setInterval(() => {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newList = doc.getElementById('ticket-container');
+                if (newList) document.getElementById('ticket-container').innerHTML = newList.innerHTML;
+
+                const newStats = doc.getElementById('stats-container');
+                if (newStats) document.getElementById('stats-container').innerHTML = newStats.innerHTML;
+            })
+            .catch(err => console.error('Gagal refresh:', err));
+    }, 10000);
+</script>

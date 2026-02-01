@@ -31,7 +31,7 @@ class DashboardController extends Controller
             // Statistik per layanan (Service)
             $serviceStats = Service::withCount('tickets')
                 ->orderByDesc('tickets_count')
-                ->take(4)
+                ->take(5)
                 ->get();
 
             return view('dashboard.superuser', compact('stats', 'recentTickets', 'serviceStats'));

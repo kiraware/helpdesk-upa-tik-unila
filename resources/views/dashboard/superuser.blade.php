@@ -1,4 +1,4 @@
-<x-layouts.dashboard title="Superuser Overview">
+<x-layouts.dashboard title="Dashboard">
     <div class="space-y-6">
         {{-- HEADER --}}
         <div>
@@ -9,7 +9,7 @@
         </div>
 
         {{-- STATS GRID --}}
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {{-- Card 1: Total --}}
             <div
                 class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark">
@@ -80,7 +80,7 @@
                 </div>
 
                 {{-- List Container --}}
-                <div
+                <div id="ticket-container"
                     class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                     @forelse ($recentTickets as $ticket)
                         <x-tickets.index.item :ticket="$ticket" />
@@ -93,7 +93,7 @@
             </div>
 
             {{-- SECTION: LAYANAN TERPOPULER --}}
-            <div
+            <div id="services-container"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 h-fit">
                 <h2 class="font-semibold text-text-light dark:text-text-dark mb-4">Layanan Terpopuler</h2>
                 <div class="space-y-5">
@@ -123,3 +123,25 @@
         </div>
     </div>
 </x-layouts.dashboard>
+
+<script>
+    setInterval(() => {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newList = doc.getElementById('ticket-container');
+                if (newList) document.getElementById('ticket-container').innerHTML = newList.innerHTML;
+
+                const newStats = doc.getElementById('stats-container');
+                if (newStats) document.getElementById('stats-container').innerHTML = newStats.innerHTML;
+
+                const newServices = doc.getElementById('services-container');
+                if (newServices) document.getElementById('services-container').innerHTML = newServices
+                    .innerHTML;
+            })
+            .catch(err => console.error('Gagal refresh:', err));
+    }, 10000);
+</script>

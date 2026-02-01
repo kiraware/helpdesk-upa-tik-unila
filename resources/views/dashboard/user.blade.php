@@ -1,4 +1,4 @@
-<x-layouts.dashboard title="Dashboard Saya">
+<x-layouts.dashboard title="Dashboard">
     <div class="space-y-8">
         {{-- SECTION 1: Header Gradient --}}
         <div
@@ -15,7 +15,7 @@
         </div>
 
         {{-- SECTION 2: Statistik --}}
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div id="stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div
                 class="p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm">
                 <p class="text-sm text-muted-light dark:text-muted-dark mb-1">Tiket Aktif</p>
@@ -28,16 +28,14 @@
             </div>
         </div>
 
-        {{-- SECTION 3: Riwayat Terkini (Updated) --}}
+        {{-- SECTION 3: Riwayat Terkini --}}
         <div>
             <h2 class="text-lg font-semibold text-text-light dark:text-text-dark mb-4">Riwayat Terkini</h2>
 
             {{-- Container List --}}
-            <div
+            <div id="ticket-container"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                 @forelse($myRecentTickets as $ticket)
-                    {{-- Menggunakan komponen Item yang sudah ada --}}
-                    {{-- Komponen ini otomatis menangani Dark Mode & Logika Role --}}
                     <x-tickets.index.item :ticket="$ticket" />
                 @empty
                     {{-- Empty State --}}
@@ -56,3 +54,20 @@
         </div>
     </div>
 </x-layouts.dashboard>
+
+<script>
+    setInterval(() => {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newList = doc.getElementById('ticket-container');
+                if (newList) document.getElementById('ticket-container').innerHTML = newList.innerHTML;
+
+                const newStats = doc.getElementById('stats-container');
+                if (newStats) document.getElementById('stats-container').innerHTML = newStats.innerHTML;
+            });
+    }, 10000);
+</script>
