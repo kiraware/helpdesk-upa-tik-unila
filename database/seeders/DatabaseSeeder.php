@@ -14,6 +14,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             // --- MASTER DATA ---
             DivisionSeeder::class,
+            DepartmentSeeder::class,
             ServiceSeeder::class,
 
             // --- USERS ---

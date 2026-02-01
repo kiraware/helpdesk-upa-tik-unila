@@ -148,7 +148,7 @@
                    : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
                 <span
                     class="material-icons-round mr-3 {{ request()->routeIs('departments.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
-                    business
+                    apartment
                 </span>
                 Departemen
             </a>

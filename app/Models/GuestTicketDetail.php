@@ -19,6 +19,7 @@ class GuestTicketDetail extends Model
         'full_name',
         'email',
         'identity_number',
+        'department_id',
         'entity_type',
         'photo_identity_path',
         'photo_selfie_path',
@@ -27,6 +28,11 @@ class GuestTicketDetail extends Model
     protected $casts = [
         'entity_type' => IdentityType::class,
     ];
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
 
     public function ticket(): BelongsTo
     {

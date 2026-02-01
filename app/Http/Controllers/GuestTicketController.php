@@ -6,6 +6,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Models\Department;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Rules\ValidTurnstile;
@@ -110,7 +111,9 @@ class GuestTicketController extends Controller
             ->orderBy('name')
             ->get();
 
-        return view('guest-tickets.create', compact('services'));
+        $departments = Department::orderBy('name')->get();
+
+        return view('guest-tickets.create', compact('services', 'departments'));
     }
 
     public function store(Request $request)
@@ -120,6 +123,7 @@ class GuestTicketController extends Controller
             'full_name' => 'required|string|max:100',
             'email' => 'required|email|max:100',
             'identity_number' => 'required|string|max:50',
+            'department_id' => 'required|exists:departments,id',
             'entity_type' => ['required', new Enum(IdentityType::class)],
             'photo_identity' => 'required|image|max:5120',
             'photo_selfie' => 'required|image|max:5120',
@@ -155,6 +159,7 @@ class GuestTicketController extends Controller
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
                 'identity_number' => $validated['identity_number'],
+                'department_id' => $validated['department_id'],
                 'entity_type' => $validated['entity_type'],
                 'photo_identity_path' => $identityPath,
                 'photo_selfie_path' => $selfiePath,

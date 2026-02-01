@@ -11,7 +11,7 @@
             </p>
         </div>
 
-        <button type="button" onclick="openAddDepartemenonModal()"
+        <button type="button" onclick="openAddDepartmentModal()"
             class="flex items-center justify-center px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             <span class="material-icons-round text-sm mr-2">add</span>
             Tambah Departemen
@@ -70,42 +70,42 @@
     {{-- Script Modal Logic --}}
     <script>
         // Modal Tambah
-        function openAddDepartemenonModal() {
-            document.getElementById('addDepartemenonModal').classList.remove('hidden');
+        function openAddDepartmentModal() {
+            document.getElementById('addDepartmentModal').classList.remove('hidden');
         }
 
-        function closeAddDepartemenonModal() {
-            document.getElementById('addDepartemenonModal').classList.add('hidden');
+        function closeAddDepartmentModal() {
+            document.getElementById('addDepartmentModal').classList.add('hidden');
         }
 
         // Modal Edit
-        function openEditDepartemenonModal(button) {
+        function openEditDepartmentModal(button) {
             const {
                 id,
                 name
             } = button.dataset;
             document.getElementById('edit_name').value = name;
-            document.getElementById('editDepartemenonForm').action = `/departments/${id}`;
-            document.getElementById('editDepartemenonModal').classList.remove('hidden');
+            document.getElementById('editDepartmentForm').action = `/departments/${id}`;
+            document.getElementById('editDepartmentModal').classList.remove('hidden');
         }
 
-        function closeEditDepartemenonModal() {
-            document.getElementById('editDepartemenonModal').classList.add('hidden');
+        function closeEditDepartmentModal() {
+            document.getElementById('editDepartmentModal').classList.add('hidden');
         }
 
         // Modal Hapus
-        function openDeleteDepartemenonModal(button) {
+        function openDeleteDepartmentModal(button) {
             const {
                 id,
                 name
             } = button.dataset;
-            document.getElementById('deleteDepartemenonName').textContent = `"${name}"`;
-            document.getElementById('deleteDepartemenonForm').action = `/departments/${id}`;
-            document.getElementById('deleteDepartemenonModal').classList.remove('hidden');
+            document.getElementById('deleteDepartmentName').textContent = `"${name}"`;
+            document.getElementById('deleteDepartmentForm').action = `/departments/${id}`;
+            document.getElementById('deleteDepartmentModal').classList.remove('hidden');
         }
 
-        function closeDeleteDepartemenonModal() {
-            document.getElementById('deleteDepartemenonModal').classList.add('hidden');
+        function closeDeleteDepartmentModal() {
+            document.getElementById('deleteDepartmentModal').classList.add('hidden');
         }
     </script>
 
@@ -113,7 +113,7 @@
     @if ($errors->any())
         <script>
             document.addEventListener('DOMContentLoaded', () => {
-                openAddDepartemenonModal();
+                openAddDepartmentModal();
             });
         </script>
     @endif

@@ -184,8 +184,17 @@
                     <div>
                         <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Status</p>
                         <p
+                            class="text-text-light dark:text-text-dark font-medium break-all wrap-break-word whitespace-normal max-w-full capitalize">
+                            {{ $ticket->guestDetail->entity_type->value }}
+                        </p>
+                    </div>
+
+                    {{-- Fakultas / Unit Kerja --}}
+                    <div>
+                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">Fakultas / Unit Kerja</p>
+                        <p
                             class="text-text-light dark:text-text-dark font-medium break-all wrap-break-word whitespace-normal max-w-full">
-                            {{ strtoupper($ticket->guestDetail->entity_type->value) }}
+                            {{ $ticket->guestDetail->department->name ?? '-' }}
                         </p>
                     </div>
                 </div>

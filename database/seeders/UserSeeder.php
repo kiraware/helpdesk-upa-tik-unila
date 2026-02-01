@@ -24,13 +24,13 @@ class UserSeeder extends Seeder
             'identity_number' => '000000001',
         ]);
 
-        // 2. Buat Akun Staff Helpdesk (Pusdatin)
-        // Pastikan DivisionSeeder dijalankan DULUAN agar divisi 'Pusdatin' ada
-        $pusdatin = Division::where('name', 'Pusdatin')->first();
+        // 2. Buat Akun Staff Helpdesk (Pusat Data dan Informasi)
+        // Pastikan DivisionSeeder dijalankan DULUAN agar divisi 'Pusat Data dan Informasi' ada
+        $pusdatin = Division::where('name', 'Pusat Data dan Informasi')->first();
 
         if ($pusdatin) {
             User::create([
-                'name' => 'Staff Pusdatin',
+                'name' => 'Staff Pusat Data dan Informasi',
                 'username_sso' => 'staff.pusdatin',
                 'email' => 'helpdesk@unila.ac.id',
                 'password' => Hash::make('password'),
