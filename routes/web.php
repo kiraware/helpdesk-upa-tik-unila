@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\GuestTicketCommentController;
 use App\Http\Controllers\GuestTicketController;
@@ -100,6 +101,7 @@ Route::middleware(['auth'])->group(function () {
         // Master Data
         Route::resource('services', ServiceController::class)->except(['show']);
         Route::resource('divisions', DivisionController::class)->except(['show']);
+        Route::resource('departments', DepartmentController::class)->except(['show']);
 
         // Assign Ticket Logic
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])

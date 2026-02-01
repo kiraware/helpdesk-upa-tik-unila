@@ -140,6 +140,18 @@
                 </span>
                 Divisi
             </a>
+
+            <a href="{{ route('departments.index') }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
+               {{ request()->routeIs('departments.*')
+                   ? 'bg-secondary text-white'
+                   : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+                <span
+                    class="material-icons-round mr-3 {{ request()->routeIs('departments.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
+                    apartment
+                </span>
+                Departemen
+            </a>
         @endif
 
         {{-- 4. SUPERUSER ONLY --}}

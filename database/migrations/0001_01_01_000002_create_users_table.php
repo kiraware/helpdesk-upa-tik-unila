@@ -28,6 +28,10 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('divisions')
                 ->nullOnDelete();
+            $table->foreignId('department_id')
+                ->nullable()
+                ->constrained('departments')
+                ->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

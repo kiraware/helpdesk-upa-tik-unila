@@ -65,7 +65,7 @@
                             @enderror
                         </div>
 
-                        {{-- Identity Number (DIPERBAIKI: Placeholder Dinamis) --}}
+                        {{-- Identity Number --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Nomor Identitas <span class="text-red-500">*</span>
@@ -74,6 +74,59 @@
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Nomor KTM / NIP / NIK / SK Pengangkatan">
                             @error('identity_number')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        {{-- Fakultas / Unit Kerja --}}
+                        <div x-data='{
+                            open: false,
+                            selected: "{{ old('department_id') }}",
+                            listDepartment: @json($departments->keyBy('id')->map->name)
+                        }'
+                            class="relative">
+
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                Asal Fakultas / Unit Kerja <span class="text-red-500">*</span>
+                            </label>
+
+                            {{-- Input Hidden untuk Form Submission --}}
+                            <input type="hidden" name="department_id" :value="selected" required>
+
+                            {{-- Button Trigger --}}
+                            <button type="button" @click="open = !open"
+                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+
+                                <span class="flex items-center gap-2 truncate">
+                                    <span class="material-icons-round text-base text-slate-400">apartment</span>
+                                    <span
+                                        x-text="selected && listDepartment[selected] ? listDepartment[selected] : 'Pilih Fakultas / Unit Kerja...'"></span>
+                                </span>
+
+                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
+                                    :class="open ? 'rotate-180' : ''">expand_more</span>
+                            </button>
+
+                            {{-- Dropdown Menu --}}
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
+                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
+
+                                <div class="max-h-60 overflow-y-auto">
+                                    @foreach ($departments as $dept)
+                                        <button type="button" @click="selected='{{ $dept->id }}'; open=false"
+                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ old('department_id') == $dept->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">
+                                            {{ $dept->name }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            @error('department_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -154,7 +207,8 @@
                                         <p class="text-xs text-slate-400 mt-1">Wajah & kartu harus jelas</p>
                                     </div>
 
-                                    <img id="preview-selfie" class="hidden h-full w-full object-contain rounded-xl p-2">
+                                    <img id="preview-selfie"
+                                        class="hidden h-full w-full object-contain rounded-xl p-2">
                                 </label>
                             </div>
                             @error('photo_selfie')
@@ -313,7 +367,6 @@
                                 <input id="x_description" type="hidden" name="description"
                                     value="{{ old('description') }}">
 
-                                {{-- Update: Tambahkan data-max-size & data-accept --}}
                                 <trix-editor input="x_description"
                                     data-upload-url="{{ route('guest.upload.editor.trix') }}"
                                     data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
@@ -322,7 +375,6 @@
                             </div>
                         </div>
 
-                        {{-- Update: Informasi File dengan Layout Baru --}}
                         <div class="flex items-start gap-2 mt-2 ml-1">
                             <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
 

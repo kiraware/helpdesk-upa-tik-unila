@@ -21,6 +21,10 @@ return new class extends Migration
             $table->string('full_name', 50);
             $table->string('email');
             $table->string('identity_number', 32);
+            $table->foreignId('department_id')
+                ->nullable()
+                ->constrained('departments')
+                ->nullOnDelete();
             $table->enum('entity_type', array_column(IdentityType::cases(), 'value'));
             $table->string('photo_identity_path');
             $table->string('photo_selfie_path');

@@ -66,6 +66,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relasi: User milik satu Departemen
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    /**
      * Relasi: Tiket yang DIBUAT oleh user ini
      */
     public function tickets(): HasMany
