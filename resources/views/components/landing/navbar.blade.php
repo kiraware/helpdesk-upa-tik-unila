@@ -23,7 +23,7 @@
             <nav class="hidden md:flex items-center gap-4">
 
                 {{-- 1. FAQ --}}
-                <a href="#faq"
+                <a href="{{ route('faq') }}"
                     class="text-sm font-medium text-text-light dark:text-text-dark hover:text-brand transition-colors px-3 py-2">
                     FAQ
                 </a>
@@ -139,7 +139,7 @@
         style="display: none;">
         <div class="px-4 py-4 space-y-3">
 
-            <a href="#faq"
+            <a href="{{ route('faq') }}"
                 class="block text-sm font-medium text-text-light dark:text-text-dark py-2 border-b border-border-light dark:border-border-dark">FAQ</a>
 
             @guest
