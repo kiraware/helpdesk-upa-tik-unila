@@ -17,7 +17,7 @@
     <x-tickets.index.filter :admins="$admins" :services="$services" />
 
     {{-- Ticket List Container --}}
-    <div
+    <div id="ticket-list-area"
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
 
         @forelse ($tickets as $ticket)
@@ -38,3 +38,25 @@
     </div>
 
 </x-layouts.dashboard>
+
+<script>
+    // Cek agar tidak refresh saat user sedang mengetik di search bar
+    let isUserActive = false;
+    document.addEventListener('input', () => {
+        isUserActive = true;
+        setTimeout(() => isUserActive = false, 15000);
+    });
+
+    setInterval(() => {
+        if (!isUserActive) { // Hanya refresh jika user tidak sedang mengetik
+            fetch(window.location.href)
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const newContent = doc.getElementById('ticket-list-area').innerHTML;
+                    document.getElementById('ticket-list-area').innerHTML = newContent;
+                });
+        }
+    }, 10000);
+</script>

@@ -14,7 +14,7 @@ class DivisionController extends Controller
             ->when($request->q, function ($query, $q) {
                 $query->where('name', 'like', "%{$q}%");
             })
-            ->latest()
+            ->orderBy('name', 'asc')
             ->paginate(10)
             ->withQueryString();
 
