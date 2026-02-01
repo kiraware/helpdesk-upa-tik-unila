@@ -18,6 +18,8 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::view('/faq', 'faq')->name('faq');
+
 // --- TESTING ONLY ---
 Route::get('/test-login/{role?}', function (?string $role = null) {
     // 1. Jika Role tidak diisi, Tampilkan Pilihan Menu
