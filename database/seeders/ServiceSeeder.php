@@ -20,6 +20,8 @@ class ServiceSeeder extends Seeder
             'Website Down',
             'Sistem Informasi',
             'Siakadu',
+            'Hosting dan Domain',
+            'Tanda Tangan Elektronik',
             'Lainnya',
         ];
 
