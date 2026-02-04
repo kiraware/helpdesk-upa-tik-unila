@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class TicketSurvey extends Model
 {
@@ -13,12 +14,9 @@ class TicketSurvey extends Model
 
     protected $fillable = [
         'ticket_id',
-        'score_access',
-        'score_speed',
-        'score_solution',
-        'score_attitude',
-        'score_overall',
-        'feedback_comment',
+        'overall_rating',
+        'feedback',
+        'csi_score',
     ];
 
     public function ticket(): BelongsTo
@@ -26,19 +24,8 @@ class TicketSurvey extends Model
         return $this->belongsTo(Ticket::class);
     }
 
-    /**
-     * Accessor: Menghitung rata-rata skor individu secara otomatis
-     * Penggunaan: $survey->avg_score
-     */
-    public function getAvgScoreAttribute(): float
+    public function answers(): HasMany
     {
-        // Menghitung rata-rata dari 5 dimensi
-        return round((
-            $this->score_access +
-            $this->score_speed +
-            $this->score_solution +
-            $this->score_attitude +
-            $this->score_overall
-        ) / 5, 2);
+        return $this->hasMany(TicketSurveyAnswer::class);
     }
 }

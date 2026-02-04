@@ -13,24 +13,13 @@ return new class extends Migration
     {
         Schema::create('ticket_surveys', function (Blueprint $table) {
             $table->id();
-
-            // Relasi ke Tiket (One-to-One)
             $table->foreignId('ticket_id')
-                ->unique() // Penting: 1 Tiket = 1 Review
+                ->unique()
                 ->constrained('tickets')
                 ->cascadeOnDelete();
-
-            // Dimensi Penilaian (Skala 1-5)
-            // Sesuai PDF Kuesioner
-            $table->unsignedTinyInteger('score_access');   // Kemudahan Akses
-            $table->unsignedTinyInteger('score_speed');    // Kecepatan Respons
-            $table->unsignedTinyInteger('score_solution'); // Kualitas Solusi
-            $table->unsignedTinyInteger('score_attitude'); // Sikap Petugas
-            $table->unsignedTinyInteger('score_overall');  // Kepuasan Keseluruhan
-
-            // Kritik dan Saran
-            $table->text('feedback_comment')->nullable();
-
+            $table->unsignedTinyInteger('overall_rating'); // Bintang 1-5
+            $table->text('feedback')->nullable(); // Saran/Masukan
+            $table->decimal('csi_score', 5, 2)->nullable(); // Nilai kalkulasi (0-100)
             $table->timestamps();
         });
     }

@@ -11,6 +11,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\TicketCommentController;
 use App\Http\Controllers\TicketController;
+use App\Http\Controllers\TicketSurveyController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -88,6 +89,7 @@ Route::middleware(['auth'])->group(function () {
     // 2. TICKETS (Semua Role butuh akses tiket)
     // User: Create & View Own. Admin/Super: View All & Manage.
     Route::patch('/tickets/{ticket}/title', [TicketController::class, 'updateTitle'])->name('tickets.update_title');
+    Route::post('/tickets/{ticket}/survey', [TicketSurveyController::class, 'store'])->name('tickets.survey.store');
     Route::resource('tickets', TicketController::class)->except(['update']);
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])
