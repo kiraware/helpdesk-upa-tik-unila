@@ -8,9 +8,11 @@ use App\Models\Configuration;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
@@ -155,6 +157,15 @@ class TicketController extends Controller
             ]);
         });
 
+        $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
+
+        Notification::send($admins, new SystemNotification(
+            'Tiket Baru Masuk',
+            auth()->user()->name." membuat tiket baru: {$validated['title']}",
+            route('tickets.show', $ticket->uuid),
+            'info'
+        ));
+
         return redirect()->route('tickets.index')
             ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
     }
@@ -186,6 +197,15 @@ class TicketController extends Controller
             'assigned_at' => now(),
             'status' => TicketStatus::PROGRESS,
         ]);
+
+        if ($ticket->user) {
+            $ticket->user->notify(new SystemNotification(
+                'Tiket Sedang Diproses',
+                "Tiket #{$ticket->ticket_code} kini sedang ditangani oleh ".auth()->user()->name.'.',
+                route('tickets.show', $ticket->uuid),
+                'info'
+            ));
+        }
 
         return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
     }
@@ -225,6 +245,15 @@ class TicketController extends Controller
         });
 
         $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
+
+        if ($ticket->user) {
+            $ticket->user->notify(new SystemNotification(
+                "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
+                "Tiket Anda telah {$statusLabel} oleh {$user->name}. Silakan cek detailnya.",
+                route('tickets.show', $ticket->uuid),
+                $type
+            ));
+        }
 
         return back()->with('success', "Tiket berhasil {$statusLabel}.");
     }

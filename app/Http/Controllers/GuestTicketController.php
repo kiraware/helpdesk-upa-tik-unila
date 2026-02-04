@@ -9,9 +9,12 @@ use App\Enums\UserRole;
 use App\Models\Department;
 use App\Models\Service;
 use App\Models\Ticket;
+use App\Models\User;
+use App\Notifications\SystemNotification;
 use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
@@ -167,6 +170,15 @@ class GuestTicketController extends Controller
 
             return $newTicket;
         });
+
+        $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
+
+        Notification::send($admins, new SystemNotification(
+            'Tiket Baru (Tamu)',
+            "Tamu ({$validated['full_name']}) membuat tiket baru: {$validated['title']}",
+            route('tickets.show', $ticket->uuid),
+            'info'
+        ));
 
         return redirect()
             ->route('guest.tracking.show', $ticket->ticket_code)

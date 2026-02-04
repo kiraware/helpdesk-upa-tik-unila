@@ -5,8 +5,11 @@ namespace App\Http\Controllers;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\Ticket;
+use App\Models\User;
+use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class TicketCommentController extends Controller
@@ -45,6 +48,43 @@ class TicketCommentController extends Controller
                 ]);
             }
         });
+
+        $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
+
+        if ($isStaff) {
+            // A. STAFF MEMBALAS -> Notifikasi ke User Pemilik Tiket
+            if ($ticket->user && $ticket->user_id !== $user->id) {
+                $ticket->user->notify(new SystemNotification(
+                    'Balasan Baru pada Tiket',
+                    "{$user->name} membalas tiket #{$ticket->ticket_code}.",
+                    route('tickets.show', $ticket->uuid),
+                    'info'
+                ));
+            }
+        } else {
+            // B. USER MEMBALAS -> Notifikasi ke Petugas
+
+            if ($ticket->assigned_to) {
+                // Jika sudah ada petugas, kirim ke petugasnya saja
+                if ($ticket->assigned_to !== $user->id) {
+                    $ticket->assignee->notify(new SystemNotification(
+                        'Balasan User',
+                        "User membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
+                        route('tickets.show', $ticket->uuid),
+                        'info'
+                    ));
+                }
+            } else {
+                // Jika BELUM ada petugas (Unassigned), kirim ke SEMUA Admin
+                $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
+                Notification::send($admins, new SystemNotification(
+                    'Balasan User (Unassigned)',
+                    "User membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
+                    route('tickets.show', $ticket->uuid),
+                    'warning'
+                ));
+            }
+        }
 
         return back()->with('success', 'Komentar berhasil dikirim.');
     }
