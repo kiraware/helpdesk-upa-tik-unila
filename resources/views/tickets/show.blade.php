@@ -18,6 +18,9 @@
             {{-- 3. Reply Form --}}
             <x-tickets.show.reply-form :ticket="$ticket" />
 
+            {{-- 4. Survey Kepuasan --}}
+            <x-tickets.show.survey :ticket="$ticket" />
+
         </div>
 
         {{-- RIGHT COLUMN: Sidebar --}}

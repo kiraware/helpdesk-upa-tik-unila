@@ -32,6 +32,7 @@ class DatabaseSeeder extends Seeder
             // Attachment untuk Komentar (harus setelah TicketCommentSeeder)
             CommentAttachmentSeeder::class,
 
+            SurveyQuestionSeeder::class,
             TicketSurveySeeder::class,
 
             // --- DYNAMIC FORM SYSTEM ---

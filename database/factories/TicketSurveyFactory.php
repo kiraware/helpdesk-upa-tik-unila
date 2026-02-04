@@ -17,33 +17,24 @@ class TicketSurveyFactory extends Factory
      */
     public function definition(): array
     {
-        return [
-            'ticket_id' => Ticket::factory(),
+        $rating = fake()->numberBetween(3, 5);
 
-            // Generate angka antara 3-5 agar data terlihat "PUAS" (umumnya user memberi nilai baik)
-            // Sesekali beri nilai 1-2
-            'score_access' => fake()->numberBetween(3, 5),
-            'score_speed' => fake()->numberBetween(3, 5),
-            'score_solution' => fake()->numberBetween(2, 5),
-            'score_attitude' => fake()->numberBetween(4, 5),
-            'score_overall' => fake()->numberBetween(3, 5),
-
-            'feedback_comment' => fake()->optional(0.7)->sentence(10), // 70% ada komentar
+        $feedbacks = [
+            'Pelayanan sangat cepat dan ramah, terima kasih!',
+            'Sudah cukup baik, namun respon awal agak lambat.',
+            'Solusi tepat sasaran. Masalah saya selesai dalam sekejap.',
+            'Petugas sangat membantu menjelaskan teknisnya.',
+            'Sistem helpdesk mudah digunakan.',
+            'Terima kasih atas bantuannya.',
+            'Sangat memuaskan.',
+            'Perlu ditingkatkan lagi kecepatan penanganannya.',
         ];
-    }
 
-    /**
-     * State: Review Buruk (Untuk testing alert/evaluasi)
-     */
-    public function badReview(): static
-    {
-        return $this->state(fn (array $attributes) => [
-            'score_access' => fake()->numberBetween(1, 2),
-            'score_speed' => fake()->numberBetween(1, 2),
-            'score_solution' => fake()->numberBetween(1, 2),
-            'score_attitude' => fake()->numberBetween(1, 2),
-            'score_overall' => fake()->numberBetween(1, 2),
-            'feedback_comment' => 'Pelayanan sangat lambat dan tidak solutif.',
-        ]);
+        return [
+            'ticket_id' => Ticket::factory(), // Default, akan di-override di Seeder
+            'overall_rating' => $rating,
+            'feedback' => fake()->randomElement($feedbacks),
+            'csi_score' => 0, // Nanti dihitung ulang di Seeder agar akurat
+        ];
     }
 }
