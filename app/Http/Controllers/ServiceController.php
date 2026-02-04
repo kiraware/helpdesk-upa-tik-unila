@@ -12,7 +12,7 @@ class ServiceController extends Controller
     {
         $services = Service::query()
             ->when($request->q, function ($query, $q) {
-                $query->where('name', 'like', "%{$q}%");
+                $query->where('name', 'ilike', "%{$q}%");
             })
             ->when($request->status !== null && $request->status !== '', function ($query) use ($request) {
                 $query->where('is_active', $request->status);

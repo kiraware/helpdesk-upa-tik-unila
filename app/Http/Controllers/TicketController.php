@@ -21,7 +21,7 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderBy('name')
+            ->orderByRaw('LOWER(name) ASC')
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()
@@ -31,7 +31,6 @@ class TicketController extends Controller
                 'assignee',
                 'guestDetail',
             ])
-
             ->withCount('comments')
 
             // Jika user yang login role-nya 'user', batasi query hanya ke tiket miliknya.
@@ -40,16 +39,16 @@ class TicketController extends Controller
             })
 
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
-                $qq->where('ticket_code', 'like', "%{$request->q}%")
-                    ->orWhere('title', 'like', "%{$request->q}%")
-                    ->orWhere('description', 'like', "%{$request->q}%");
+                $qq->where('ticket_code', 'ilike', "%{$request->q}%")
+                    ->orWhere('title', 'ilike', "%{$request->q}%")
+                    ->orWhere('description', 'ilike', "%{$request->q}%");
             }))
 
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
 
             ->when($request->priority, fn ($q) => $q->where('priority', $request->priority))
 
-            ->when($request->service_id, fn ($q) => $q->where('service_id', $request->service_id))
+            ->when($request->service, fn ($q) => $q->where('service_id', $request->service))
 
             ->when($request->assigned_to, function ($q) use ($request) {
                 match ($request->assigned_to) {
@@ -82,7 +81,7 @@ class TicketController extends Controller
             ->withQueryString();
 
         $admins = User::whereIn('role', ['admin', 'superuser'])
-            ->orderBy('name')
+            ->orderByRaw('LOWER(name) ASC')
             ->get(['id', 'name']);
 
         return view('tickets.index', compact('tickets', 'admins', 'services'));
@@ -90,14 +89,12 @@ class TicketController extends Controller
 
     public function create()
     {
-        // Hanya 'user' yang boleh akses
         if (auth()->user()->role !== UserRole::USER) {
             abort(403, 'Hanya pengguna (User) yang dapat membuat tiket baru.');
         }
 
-        // Ambil data Service untuk dropdown
         $services = Service::where('is_active', true)
-            ->orderBy('name')
+            ->orderByRaw('LOWER(name) ASC')
             ->get();
 
         return view('tickets.create', compact('services'));
@@ -201,17 +198,14 @@ class TicketController extends Controller
     {
         $user = auth()->user();
 
-        // 1. Cek Permission (Hanya Admin/Superuser)
         if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
             abort(403, 'Anda tidak memiliki izin untuk menutup tiket.');
         }
 
-        // 2. Validasi Input Status (Hanya boleh DONE atau REJECT)
         $validated = $request->validate([
             'status' => ['required', new Enum(TicketStatus::class)],
         ]);
 
-        // Pastikan status yang dikirim valid untuk penutupan
         if (! in_array($validated['status'], [TicketStatus::DONE->value, TicketStatus::REJECT->value])) {
             return back()->with('error', 'Status tidak valid untuk penutupan tiket.');
         }
@@ -222,7 +216,6 @@ class TicketController extends Controller
                 'closed_at' => now(),
             ];
 
-            // 3. Auto-assign jika belum ada petugas
             if (is_null($ticket->assigned_to)) {
                 $updateData['assigned_to'] = $user->id;
                 $updateData['assigned_at'] = now();
@@ -236,21 +229,15 @@ class TicketController extends Controller
         return back()->with('success', "Tiket berhasil {$statusLabel}.");
     }
 
-    /**
-     * Generate PDF Surat Tugas
-     */
     public function printAssignment(Ticket $ticket)
     {
-        // 1. Cek Permission
         $user = auth()->user();
         $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-        // Hanya Admin/Superuser atau Petugas ybs yang boleh cetak
         if (! $isStaff && $ticket->assigned_to !== $user->id) {
             abort(403, 'Anda tidak memiliki izin untuk mencetak surat tugas ini.');
         }
 
-        // 2. Pastikan tiket sudah ada petugasnya
         if (! $ticket->assigned_to) {
             return back()->with('error', 'Tiket belum memiliki petugas.');
         }
@@ -262,7 +249,6 @@ class TicketController extends Controller
             'guestDetail',
         ]);
 
-        // 3. Data Kepala UPA TIK
         $config = Configuration::first();
         $kepalaUpa = [
             'name' => $config->upa_head_name,
@@ -270,11 +256,9 @@ class TicketController extends Controller
             'jabatan' => $config->upa_head_position,
         ];
 
-        // 4. Generate PDF
         $pdf = Pdf::loadView('tickets.pdf.assignment_letter', compact('ticket', 'kepalaUpa'))
             ->setPaper('a4', 'portrait');
 
-        // Stream (tampil di browser) atau Download
         return $pdf->stream('Surat_Tugas_'.$ticket->ticket_code.'.pdf');
     }
 }

@@ -12,7 +12,7 @@ class DivisionController extends Controller
     {
         $divisions = Division::query()
             ->when($request->q, function ($query, $q) {
-                $query->where('name', 'like', "%{$q}%");
+                $query->where('name', 'ilike', "%{$q}%");
             })
             ->orderBy('name', 'asc')
             ->paginate(10)
