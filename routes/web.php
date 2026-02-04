@@ -97,6 +97,16 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/comments/upload-editor-attachments', [TicketCommentController::class, 'storeEmbeddedFile'])
         ->name('comments.upload.editor.attachments');
 
+    // --- ROUTE NOTIFIKASI ---
+    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
+        ->name('notifications.index');
+
+    Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsReadAndRedirect'])
+        ->name('notifications.read');
+
+    Route::post('/notifications/mark-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])
+        ->name('notifications.markAll');
+
     // 3. GROUP ADMIN & SUPERUSER
     Route::middleware([
         'role:'.UserRole::ADMIN->value.','.UserRole::SUPERUSER->value,

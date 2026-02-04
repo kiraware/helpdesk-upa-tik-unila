@@ -43,6 +43,9 @@ class DatabaseSeeder extends Seeder
 
             // --- CONFIGURATION ---
             ConfigurationSeeder::class,
+
+            // --- NOTIFICATION SYSTEM ---
+            NotificationSeeder::class,
         ]);
     }
 }
