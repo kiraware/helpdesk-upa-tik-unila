@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Ticket;
+use App\Models\User;
 use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -23,6 +24,25 @@ class GuestTicketCommentController extends Controller
             'user_id' => null, // Guest
             'message' => $request->message,
         ]);
+
+        if ($ticket->assigned_to) {
+            // 1. Jika sudah ada petugas -> Kirim ke Petugas
+            $ticket->assignee->notify(new SystemNotification(
+                'Balasan Tamu',
+                "Tamu membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
+                route('tickets.show', $ticket->uuid),
+                'info'
+            ));
+        } else {
+            // 2. Jika belum ada petugas -> Kirim ke Semua Admin
+            $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
+            Notification::send($admins, new SystemNotification(
+                'Balasan Tamu (Unassigned)',
+                "Tamu membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
+                route('tickets.show', $ticket->uuid),
+                'warning'
+            ));
+        }
 
         return back()->with('success', 'Balasan berhasil dikirim.');
     }
