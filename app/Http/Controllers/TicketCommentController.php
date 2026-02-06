@@ -60,6 +60,14 @@ class TicketCommentController extends Controller
                     route('tickets.show', $ticket->uuid),
                     'info'
                 ));
+            } elseif ($ticket->guestDetail) {
+                Notification::route('mail', $ticket->guestDetail->email)
+                    ->notify(new SystemNotification(
+                        'Balasan Baru pada Tiket',
+                        "{$user->name} membalas tiket #{$ticket->ticket_code}.",
+                        route('guest.tracking.show', $ticket->ticket_code),
+                        'info'
+                    ));
             }
         } else {
             // B. USER MEMBALAS -> Notifikasi ke Petugas

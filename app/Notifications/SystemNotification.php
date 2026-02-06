@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -36,7 +37,13 @@ class SystemNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        // Jika yang dinotifikasi adalah User terdaftar, kirim ke Database (Lonceng)
+        if ($notifiable instanceof User) {
+            return ['database'];
+        }
+
+        // Jika Guest (AnonymousNotifiable), kirim via Email
+        return ['mail'];
     }
 
     /**
@@ -44,10 +51,24 @@ class SystemNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
-        return (new MailMessage)
-            ->line('The introduction to the notification.')
-            ->action('Notification Action', url('/'))
-            ->line('Thank you for using our application!');
+        $mail = (new MailMessage)
+            ->subject('[Helpdesk] '.$this->title)
+            ->greeting('Halo!')
+            ->line($this->message);
+
+        // Tambahkan warna tombol berdasarkan tipe
+        if ($this->type === 'success') {
+            $mail->success(); // Warna Hijau
+        } elseif ($this->type === 'error') {
+            $mail->error(); // Warna Merah
+        }
+
+        // Jika URL bukan '#'
+        if ($this->url && $this->url !== '#') {
+            $mail->action('Lihat Detail Tiket', $this->url);
+        }
+
+        return $mail->line('Terima kasih telah menggunakan layanan kami.');
     }
 
     /**
