@@ -146,7 +146,7 @@ class TicketController extends Controller
             'description' => 'required|string',
         ]);
 
-        DB::transaction(function () use ($validated) {
+        $ticket = DB::transaction(function () use ($validated) {
             $ticket = Ticket::create([
                 'user_id' => auth()->id(),
                 'service_id' => $validated['service_id'],
@@ -155,6 +155,8 @@ class TicketController extends Controller
                 'description' => $validated['description'],
                 'status' => TicketStatus::WAITING,
             ]);
+
+            return $ticket;
         });
 
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();

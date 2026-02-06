@@ -41,17 +41,18 @@
                        hover:bg-gray-100 dark:hover:bg-slate-800 transition-colors focus:outline-none">
                 <span class="material-icons-round">notifications</span>
 
-                @if ($unreadCount > 0)
-                    <span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
-                    </span>
-                @endif
+                <div id="notif-badge-container">
+                    @if ($unreadCount > 0)
+                        <span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                            <span
+                                class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                        </span>
+                    @endif
+                </div>
             </button>
 
             {{-- DROPDOWN NOTIFIKASI --}}
-            {{-- PERBAIKAN: Menggunakan 'fixed' pada mobile agar tidak tembus layar --}}
             <div x-show="notifOpen" x-transition x-cloak @click.outside="notifOpen = false"
                 class="fixed inset-x-4 top-20 w-auto
                        sm:absolute sm:inset-auto sm:right-0 sm:top-14 sm:w-96
@@ -60,63 +61,70 @@
                        bg-white/95 dark:bg-slate-800/95
                        backdrop-blur-md z-50">
 
-                <div
-                    class="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-slate-700">
-                    <h3 class="font-semibold text-text-light dark:text-slate-100">Notifikasi</h3>
-                    @if ($unreadCount > 0)
-                        <form action="{{ route('notifications.markAll') }}" method="POST">
-                            @csrf
-                            <button type="submit" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
-                                Tandai semua dibaca
-                            </button>
-                        </form>
-                    @endif
-                </div>
+                {{-- ID untuk target refresh Isi Dropdown (Header + List + Footer) --}}
+                <div id="notif-dropdown-content">
 
-                <div class="max-h-[300px] overflow-y-auto">
-                    @forelse($unreadNotifs as $notification)
-                        <a href="{{ route('notifications.read', $notification->id) }}"
-                            class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 border-b border-gray-100 dark:border-slate-700/50 transition-colors group">
-                            <div class="flex gap-3">
-                                <div class="mt-1 shrink-0">
-                                    @if ($notification->data['type'] == 'success')
-                                        <span
-                                            class="material-icons-round text-green-500 bg-green-100 dark:bg-green-900/30 rounded-full p-1 text-sm">check_circle</span>
-                                    @elseif($notification->data['type'] == 'error')
-                                        <span
-                                            class="material-icons-round text-red-500 bg-red-100 dark:bg-red-900/30 rounded-full p-1 text-sm">error</span>
-                                    @else
-                                        <span
-                                            class="material-icons-round text-blue-500 bg-blue-100 dark:bg-blue-900/30 rounded-full p-1 text-sm">info</span>
-                                    @endif
+                    {{-- Header Dropdown --}}
+                    <div
+                        class="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-slate-700">
+                        <h3 class="font-semibold text-text-light dark:text-slate-100">Notifikasi</h3>
+                        @if ($unreadCount > 0)
+                            <form action="{{ route('notifications.markAll') }}" method="POST">
+                                @csrf
+                                <button type="submit" class="text-xs text-blue-600 dark:text-blue-400 hover:underline">
+                                    Tandai semua dibaca
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+
+                    {{-- List Notifikasi --}}
+                    <div class="max-h-75 overflow-y-auto">
+                        @forelse($unreadNotifs as $notification)
+                            <a href="{{ route('notifications.read', $notification->id) }}"
+                                class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 border-b border-gray-100 dark:border-slate-700/50 transition-colors group">
+                                <div class="flex gap-3">
+                                    <div class="mt-1 shrink-0">
+                                        @if ($notification->data['type'] == 'success')
+                                            <span
+                                                class="material-icons-round text-green-500 bg-green-100 dark:bg-green-900/30 rounded-full p-1 text-sm">check_circle</span>
+                                        @elseif($notification->data['type'] == 'error')
+                                            <span
+                                                class="material-icons-round text-red-500 bg-red-100 dark:bg-red-900/30 rounded-full p-1 text-sm">error</span>
+                                        @else
+                                            <span
+                                                class="material-icons-round text-blue-500 bg-blue-100 dark:bg-blue-900/30 rounded-full p-1 text-sm">info</span>
+                                        @endif
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p
+                                            class="text-sm font-medium text-text-light dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
+                                            {{ $notification->data['title'] }}
+                                        </p>
+                                        <p class="text-xs text-muted-light dark:text-slate-400 mt-0.5 line-clamp-2">
+                                            {{ $notification->data['message'] }}
+                                        </p>
+                                        <p class="text-[10px] text-gray-400 mt-1">
+                                            {{ $notification->created_at->diffForHumans() }}
+                                        </p>
+                                    </div>
                                 </div>
-                                <div class="min-w-0">
-                                    <p
-                                        class="text-sm font-medium text-text-light dark:text-slate-200 group-hover:text-blue-600 dark:group-hover:text-blue-400 truncate">
-                                        {{ $notification->data['title'] }}
-                                    </p>
-                                    <p class="text-xs text-muted-light dark:text-slate-400 mt-0.5 line-clamp-2">
-                                        {{ $notification->data['message'] }}
-                                    </p>
-                                    <p class="text-[10px] text-gray-400 mt-1">
-                                        {{ $notification->created_at->diffForHumans() }}
-                                    </p>
-                                </div>
+                            </a>
+                        @empty
+                            <div class="py-8 text-center text-muted-light dark:text-slate-500">
+                                <span
+                                    class="material-icons-round text-4xl mb-2 text-gray-300 dark:text-slate-600">notifications_off</span>
+                                <p class="text-sm">Tidak ada notifikasi baru</p>
                             </div>
-                        </a>
-                    @empty
-                        <div class="py-8 text-center text-muted-light dark:text-slate-500">
-                            <span
-                                class="material-icons-round text-4xl mb-2 text-gray-300 dark:text-slate-600">notifications_off</span>
-                            <p class="text-sm">Tidak ada notifikasi baru</p>
-                        </div>
-                    @endforelse
-                </div>
+                        @endforelse
+                    </div>
 
-                <a href="{{ route('notifications.index') }}"
-                    class="block bg-gray-50 dark:bg-slate-700/30 py-2 text-center text-xs font-medium text-text-light dark:text-slate-300 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
-                    Lihat Semua Histori
-                </a>
+                    {{-- Footer Dropdown --}}
+                    <a href="{{ route('notifications.index') }}"
+                        class="block bg-gray-50 dark:bg-slate-700/30 py-2 text-center text-xs font-medium text-text-light dark:text-slate-300 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
+                        Lihat Semua Histori
+                    </a>
+                </div>
             </div>
         </div>
 
@@ -128,8 +136,7 @@
             <button @click="open = !open" class="flex items-center gap-3 focus:outline-none group max-w-full">
 
                 {{-- NAMA USER --}}
-                <div
-                    class="text-right hidden sm:block leading-tight min-w-0 sm:max-w-[120px] md:max-w-[150px] lg:max-w-[200px]">
+                <div class="text-right hidden sm:block leading-tight min-w-0 sm:max-w-30 md:max-w-37.5 lg:max-w-50">
                     <p class="text-sm font-medium text-text-light dark:text-slate-100 truncate"
                         title="{{ auth()->user()->name }}">
                         {{ auth()->user()->name }}
@@ -157,7 +164,7 @@
 
                 <div
                     class="block sm:hidden px-4 py-3 border-b border-border-light dark:border-slate-700 bg-gray-50/50 dark:bg-slate-700/30">
-                    <p class="text-sm font-medium text-text-light dark:text-white break-words">
+                    <p class="text-sm font-medium text-text-light dark:text-white wrap-break-word">
                         {{ auth()->user()->name }}
                     </p>
                     <span class="text-xs text-muted-light dark:text-slate-400 capitalize">
@@ -187,3 +194,27 @@
         </div>
     </div>
 </header>
+
+<script>
+    setInterval(() => {
+        fetch(window.location.href)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+
+                const newBadge = doc.getElementById('notif-badge-container');
+                const currentBadge = document.getElementById('notif-badge-container');
+                if (newBadge && currentBadge) {
+                    currentBadge.innerHTML = newBadge.innerHTML;
+                }
+
+                const newContent = doc.getElementById('notif-dropdown-content');
+                const currentContent = document.getElementById('notif-dropdown-content');
+                if (newContent && currentContent) {
+                    currentContent.innerHTML = newContent.innerHTML;
+                }
+            })
+            .catch(err => console.error('Gagal refresh notifikasi:', err));
+    }, 10000);
+</script>
