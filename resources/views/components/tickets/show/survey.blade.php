@@ -4,20 +4,39 @@
     $survey = $ticket->survey;
     $questions = \App\Models\SurveyQuestion::active()->get();
 
-    // 1. Cek apakah User sedang login
-    $user = auth()->user();
+    // 1. Ambil User yang sedang login (bisa null jika Guest)
+    $currentUser = auth()->user();
 
-    // 2. Cek apakah Role-nya adalah USER
-    $isUserRole = $user && $user->role === \App\Enums\UserRole::USER;
+    // 2. Cek apakah yang login adalah USER BIASA (Internal User)
+    // Jika ya, dia boleh mengisi jika tiket ini miliknya.
+    $isUserRole = $currentUser && $currentUser->role === \App\Enums\UserRole::USER;
+
+    // 3. Cek apakah yang login adalah STAFF (Admin/Superuser)
+    // Staff TIDAK BOLEH mengisi survei apapun.
+    $isStaffRole =
+        $currentUser && in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
+
+    // 4. Cek apakah ini Tiket Guest (User ID Null)
+    $isGuestTicket = is_null($ticket->user_id);
+
+    // 5. Validasi Pengisi Survei Guest:
+    // Form Guest hanya boleh muncul jika TIDAK ADA user yang login.
+    // (Asumsi: Guest mengakses via link publik tanpa login).
+    // Jika Admin login dan buka link guest, dia tidak boleh isi.
+    $guestCanFill = $isGuestTicket && !$currentUser;
 
     // DEFINISI STATUS SELESAI (DONE & REJECT)
     $finishedStatuses = [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT];
 
-    // 3. Gabungkan kondisi:
-    // - Tiket harus DONE atau REJECT
-    // - Survey belum pernah diisi (!survey)
-    // - Yang login harus role 'user' ($isUserRole)
-    $canFill = in_array($ticket->status, $finishedStatuses) && !$survey && $isUserRole;
+    // 6. GABUNGKAN KONDISI UTAMA ($canFill):
+    // - Tiket harus status SELESAI
+    // - Survey belum pernah diisi
+    // - DAN:
+    //    a. User Internal (Role User) Pemilik Tiket
+    //    b. ATAU Guest Asli (Tidak Login) pada Tiket Guest
+    // - DAN BUKAN Staff (Admin/Superuser)
+    $canFill =
+        in_array($ticket->status, $finishedStatuses) && !$survey && !$isStaffRole && ($isUserRole || $guestCanFill);
 
     // Warna untuk rating
     $getRatingColor = fn($score) => match (true) {
