@@ -122,9 +122,10 @@ class GuestTicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // 1. Validasi Data Diri (Wajib Upload Manual)
+            // 1. Validasi Data Diri
             'full_name' => 'required|string|max:100',
             'email' => 'required|email|max:100',
+            'phone' => 'required|string|max:20',
             'identity_number' => 'required|string|max:50',
             'department_id' => 'required|exists:departments,id',
             'entity_type' => ['required', new Enum(IdentityType::class)],
@@ -161,6 +162,7 @@ class GuestTicketController extends Controller
             $newTicket->guestDetail()->create([
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
+                'phone' => $validated['phone'],
                 'identity_number' => $validated['identity_number'],
                 'department_id' => $validated['department_id'],
                 'entity_type' => $validated['entity_type'],
@@ -171,14 +173,24 @@ class GuestTicketController extends Controller
             return $newTicket;
         });
 
+        // 1. Notifikasi ke Admin & Superuser
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
-
         Notification::send($admins, new SystemNotification(
             'Tiket Baru (Tamu)',
             "Tamu ({$validated['full_name']}) membuat tiket baru: {$validated['title']}",
             route('tickets.show', $ticket->uuid),
             'info'
         ));
+
+        // 2. Notifikasi ke Guest
+        Notification::route('mail', $validated['email'])
+            ->route('whatsapp', $validated['phone'])
+            ->notify(new SystemNotification(
+                'Tiket Berhasil Dibuat',
+                "Halo {$validated['full_name']}, laporan Anda telah kami terima dengan Kode Tiket: {$ticket->ticket_code}. Silakan pantau perkembangannya melalui link berikut.",
+                route('guest.tracking.show', $ticket->ticket_code),
+                'success'
+            ));
 
         return redirect()
             ->route('guest.tracking.show', $ticket->ticket_code)

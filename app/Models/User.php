@@ -23,6 +23,7 @@ class User extends Authenticatable
         'username_sso',
         'name',
         'email',
+        'phone',
         'password',
         'identity_number',
         'phone',
@@ -87,5 +88,10 @@ class User extends Authenticatable
     public function assignedTickets(): HasMany
     {
         return $this->hasMany(Ticket::class, 'assigned_to');
+    }
+
+    public function routeNotificationForWhatsapp($notification)
+    {
+        return $this->phone;
     }
 }

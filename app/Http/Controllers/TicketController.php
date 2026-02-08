@@ -200,13 +200,24 @@ class TicketController extends Controller
             'status' => TicketStatus::PROGRESS,
         ]);
 
+        $adminName = auth()->user()->name;
+
         if ($ticket->user) {
             $ticket->user->notify(new SystemNotification(
                 'Tiket Sedang Diproses',
-                "Tiket #{$ticket->ticket_code} kini sedang ditangani oleh ".auth()->user()->name.'.',
+                "Tiket #{$ticket->ticket_code} kini sedang ditangani oleh ".$adminName.'.',
                 route('tickets.show', $ticket->uuid),
                 'info'
             ));
+        } elseif ($ticket->guestDetail) {
+            Notification::route('mail', $ticket->guestDetail->email)
+                ->route('whatsapp', $ticket->guestDetail->phone)
+                ->notify(new SystemNotification(
+                    'Tiket Sedang Diproses',
+                    "Tiket Anda (#{$ticket->ticket_code}) kini sedang ditangani oleh staff kami ({$adminName}).",
+                    route('guest.tracking.show', $ticket->ticket_code),
+                    'info'
+                ));
         }
 
         return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
@@ -247,14 +258,24 @@ class TicketController extends Controller
         });
 
         $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
+        $type = $validated['status'] === TicketStatus::DONE->value ? 'success' : 'error';
 
         if ($ticket->user) {
             $ticket->user->notify(new SystemNotification(
                 "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
-                "Tiket Anda telah {$statusLabel} oleh {$user->name}. Silakan cek detailnya.",
+                "Tiket Anda telah {$statusLabel} oleh {$user->name}. Mohon luangkan waktu untuk mengisi survei kepuasan pada halaman detail tiket.",
                 route('tickets.show', $ticket->uuid),
                 $type
             ));
+        } elseif ($ticket->guestDetail) {
+            Notification::route('mail', $ticket->guestDetail->email)
+                ->route('whatsapp', $ticket->guestDetail->phone)
+                ->notify(new SystemNotification(
+                    "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
+                    "Tiket Anda telah {$statusLabel} oleh staff {$user->name}. Mohon luangkan waktu untuk mengisi survei kepuasan pada halaman detail tiket.",
+                    route('guest.tracking.show', $ticket->ticket_code),
+                    $type
+                ));
         }
 
         return back()->with('success', "Tiket berhasil {$statusLabel}.");

@@ -15,7 +15,7 @@
     // Logic Tombol "Ambil Tiket"
     $canTakeTicket = $isAdminOrSuper;
 
-    // Logic Menampilkan Data Sensitif (Email, ID, Foto)
+    // Logic Menampilkan Data Sensitif (Email, ID, Foto, Phone)
     // Jika tiket dibuat oleh Guest (user_id null), maka data sensitif HANYA boleh dilihat oleh Admin/Superuser.
     // User biasa atau Guest (public tracking) akan melihat data tersensor.
     $isGuestTicket = is_null($ticket->user_id);
@@ -36,7 +36,6 @@
         [$first, $last] = explode('@', $email);
         $len = strlen($first);
         $visible = floor($len / 2);
-        // Tampilkan maks 3 karakter awal, sisanya bintang
         $show = min(3, $visible);
         return substr($first, 0, $show) . str_repeat('*', 5) . '@' . $last;
     };
@@ -48,6 +47,16 @@
             return str_repeat('*', $len);
         }
         return str_repeat('*', $len - 4) . substr($id, -4);
+    };
+
+    // [BARU] Helper closure untuk sensor Phone
+    $maskPhone = function ($phone) {
+        $len = strlen($phone);
+        if ($len <= 4) {
+            return str_repeat('*', $len);
+        }
+        // Tampilkan 4 digit terakhir
+        return str_repeat('*', $len - 4) . substr($phone, -4);
     };
 @endphp
 
@@ -163,6 +172,28 @@
                                 {{ $ticket->guestDetail->email }}
                             @else
                                 {{ $maskEmail($ticket->guestDetail->email) }}
+                            @endif
+                        </p>
+                    </div>
+
+                    {{-- WhatsApp --}}
+                    <div>
+                        <p class="text-muted-light dark:text-muted-dark font-medium mb-0.5">WhatsApp</p>
+                        <p
+                            class="text-text-light dark:text-text-dark font-medium font-mono break-all wrap-break-word whitespace-normal max-w-full">
+                            @if ($showSensitiveData && !empty($ticket->guestDetail->phone))
+                                {{-- Jika Admin, Tampilkan Link WA --}}
+                                <a href="https://wa.me/{{ preg_replace('/^0/', '62', preg_replace('/[^0-9]/', '', $ticket->guestDetail->phone)) }}"
+                                    target="_blank"
+                                    class="text-green-600 dark:text-green-400 hover:underline flex items-center gap-1 w-fit">
+                                    {{ $ticket->guestDetail->phone }}
+                                    <span class="material-icons-round text-[12px]">open_in_new</span>
+                                </a>
+                            @elseif(!empty($ticket->guestDetail->phone))
+                                {{-- Jika Guest, Sensor --}}
+                                {{ $maskPhone($ticket->guestDetail->phone) }}
+                            @else
+                                -
                             @endif
                         </p>
                     </div>

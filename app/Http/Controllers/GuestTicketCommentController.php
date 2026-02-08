@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Ticket;
 use App\Models\User;
+use App\Notifications\SystemNotification;
 use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -29,7 +30,7 @@ class GuestTicketCommentController extends Controller
             // 1. Jika sudah ada petugas -> Kirim ke Petugas
             $ticket->assignee->notify(new SystemNotification(
                 'Balasan Tamu',
-                "Tamu membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
+                "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
                 route('tickets.show', $ticket->uuid),
                 'info'
             ));
@@ -38,7 +39,7 @@ class GuestTicketCommentController extends Controller
             $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
             Notification::send($admins, new SystemNotification(
                 'Balasan Tamu (Unassigned)',
-                "Tamu membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
+                "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
                 route('tickets.show', $ticket->uuid),
                 'warning'
             ));

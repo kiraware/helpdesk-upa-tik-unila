@@ -1,7 +1,6 @@
 <x-layouts.guest title="Formulir Buat Tiket">
 
     {{-- Container Utama --}}
-    {{-- Tambahkan x-data untuk deteksi mobile agar placeholder bisa dinamis --}}
     <div class="px-4 sm:px-0 sm:mx-auto sm:w-full sm:max-w-4xl my-4 sm:my-8" x-data="{ isMobile: window.innerWidth < 640 }"
         @resize.window="isMobile = window.innerWidth < 640">
 
@@ -65,6 +64,21 @@
                             @enderror
                         </div>
 
+                        {{-- [BARU] Nomor WhatsApp --}}
+                        <div>
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                Nomor WhatsApp <span class="text-red-500">*</span>
+                            </label>
+                            <input type="tel" name="phone" value="{{ old('phone') }}" required
+                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
+                                placeholder="Contoh: 081234567890" inputmode="numeric" pattern="[0-9]*">
+                            <p class="text-[10px] text-slate-500 mt-1">Nomor ini akan menerima notifikasi status tiket.
+                            </p>
+                            @error('phone')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         {{-- Identity Number --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
@@ -72,7 +86,7 @@
                             </label>
                             <input type="text" name="identity_number" value="{{ old('identity_number') }}" required
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                placeholder="Nomor KTM / NIP / NIK / SK Pengangkatan">
+                                placeholder="Nomor KTM / NIP / NIK / SK">
                             @error('identity_number')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -90,10 +104,8 @@
                                 Asal Fakultas / Unit Kerja <span class="text-red-500">*</span>
                             </label>
 
-                            {{-- Input Hidden untuk Form Submission --}}
                             <input type="hidden" name="department_id" :value="selected" required>
 
-                            {{-- Button Trigger --}}
                             <button type="button" @click="open = !open"
                                 class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
 

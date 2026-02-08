@@ -23,6 +23,7 @@ class GuestTicketDetailFactory extends Factory
             'ticket_id' => Ticket::factory()->guest(),
             'full_name' => fake()->name(),
             'email' => fake()->safeEmail(),
+            'phone' => fake()->phoneNumber(),
             'identity_number' => fake()->numerify('##########'),
             'department_id' => Department::inRandomOrder()->first()?->id ?? Department::factory(),
             'entity_type' => fake()->randomElement(IdentityType::cases()),
