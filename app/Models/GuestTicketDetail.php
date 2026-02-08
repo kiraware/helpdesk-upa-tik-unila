@@ -18,6 +18,7 @@ class GuestTicketDetail extends Model
         'ticket_id',
         'full_name',
         'email',
+        'phone',
         'identity_number',
         'department_id',
         'entity_type',
@@ -37,5 +38,10 @@ class GuestTicketDetail extends Model
     public function ticket(): BelongsTo
     {
         return $this->belongsTo(Ticket::class);
+    }
+
+    public function routeNotificationForWhatsapp($notification)
+    {
+        return $this->phone;
     }
 }

@@ -211,6 +211,7 @@ class TicketController extends Controller
             ));
         } elseif ($ticket->guestDetail) {
             Notification::route('mail', $ticket->guestDetail->email)
+                ->route('whatsapp', $ticket->guestDetail->phone)
                 ->notify(new SystemNotification(
                     'Tiket Sedang Diproses',
                     "Tiket Anda (#{$ticket->ticket_code}) kini sedang ditangani oleh staff kami ({$adminName}).",
@@ -257,6 +258,7 @@ class TicketController extends Controller
         });
 
         $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
+        $type = $validated['status'] === TicketStatus::DONE->value ? 'success' : 'error';
 
         if ($ticket->user) {
             $ticket->user->notify(new SystemNotification(
@@ -267,6 +269,7 @@ class TicketController extends Controller
             ));
         } elseif ($ticket->guestDetail) {
             Notification::route('mail', $ticket->guestDetail->email)
+                ->route('whatsapp', $ticket->guestDetail->phone)
                 ->notify(new SystemNotification(
                     "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
                     "Tiket Anda telah {$statusLabel} oleh staff {$user->name}. Mohon luangkan waktu untuk mengisi survei kepuasan pada halaman detail tiket.",

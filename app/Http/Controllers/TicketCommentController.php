@@ -62,6 +62,7 @@ class TicketCommentController extends Controller
                 ));
             } elseif ($ticket->guestDetail) {
                 Notification::route('mail', $ticket->guestDetail->email)
+                    ->route('whatsapp', $ticket->guestDetail->phone)
                     ->notify(new SystemNotification(
                         'Balasan Baru pada Tiket',
                         "{$user->name} membalas tiket #{$ticket->ticket_code}.",
@@ -77,7 +78,7 @@ class TicketCommentController extends Controller
                 if ($ticket->assigned_to !== $user->id) {
                     $ticket->assignee->notify(new SystemNotification(
                         'Balasan User',
-                        "User membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
+                        "{$user->name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
                         route('tickets.show', $ticket->uuid),
                         'info'
                     ));
@@ -87,7 +88,7 @@ class TicketCommentController extends Controller
                 $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
                 Notification::send($admins, new SystemNotification(
                     'Balasan User (Unassigned)',
-                    "User membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
+                    "{$user->name} membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
                     route('tickets.show', $ticket->uuid),
                     'warning'
                 ));

@@ -2,12 +2,15 @@
 
 namespace App\Notifications;
 
+use App\Channels\WhatsAppChannel;
 use App\Models\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class SystemNotification extends Notification
+class SystemNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -37,13 +40,39 @@ class SystemNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        // Jika yang dinotifikasi adalah User terdaftar, kirim ke Database (Lonceng)
+        $channels = [];
+
+        // KONDISI 1: Penerima adalah User Terdaftar (Admin/Staff/User)
         if ($notifiable instanceof User) {
-            return ['database'];
+            // 1. Sistem (Lonceng)
+            $channels[] = 'database';
+
+            // 2. Email (Jika punya email)
+            if (! empty($notifiable->email)) {
+                $channels[] = 'mail';
+            }
+
+            // 3. WhatsApp (Jika punya nomor HP)
+            if (! empty($notifiable->phone)) {
+                $channels[] = WhatsAppChannel::class;
+            }
+        }
+        // KONDISI 2: Penerima adalah Tamu / On-Demand Notification
+        elseif ($notifiable instanceof AnonymousNotifiable) {
+            // Tamu tidak punya akses login, jadi tidak pakai 'database'
+
+            // Cek apakah route mail diset
+            if (isset($notifiable->routes['mail'])) {
+                $channels[] = 'mail';
+            }
+
+            // Cek apakah route whatsapp diset
+            if (isset($notifiable->routes['whatsapp'])) {
+                $channels[] = WhatsAppChannel::class;
+            }
         }
 
-        // Jika Guest (AnonymousNotifiable), kirim via Email
-        return ['mail'];
+        return $channels;
     }
 
     /**
@@ -56,16 +85,14 @@ class SystemNotification extends Notification
             ->greeting('Halo!')
             ->line($this->message);
 
-        // Tambahkan warna tombol berdasarkan tipe
         if ($this->type === 'success') {
-            $mail->success(); // Warna Hijau
+            $mail->success();
         } elseif ($this->type === 'error') {
-            $mail->error(); // Warna Merah
+            $mail->error();
         }
 
-        // Jika URL bukan '#'
         if ($this->url && $this->url !== '#') {
-            $mail->action('Lihat Detail Tiket', $this->url);
+            $mail->action('Lihat Detail', $this->url);
         }
 
         return $mail->line('Terima kasih telah menggunakan layanan kami.');
@@ -84,5 +111,22 @@ class SystemNotification extends Notification
             'url' => $this->url,
             'type' => $this->type,
         ];
+    }
+
+    /**
+     * Get the WhatsApp representation of the notification.
+     */
+    public function toWhatsapp($notifiable)
+    {
+        $text = "*[Helpdesk] {$this->title}*\n\n";
+        $text .= "{$this->message}\n\n";
+
+        if ($this->url && $this->url !== '#') {
+            $text .= "Lihat detail: {$this->url}\n";
+        }
+
+        $text .= "\n_Pesan otomatis, jangan dibalas._";
+
+        return ['text' => $text];
     }
 }
