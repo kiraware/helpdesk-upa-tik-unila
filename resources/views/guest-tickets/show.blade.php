@@ -149,6 +149,8 @@
                         </div>
                     @endif
 
+                    {{-- 4. Survey Kepuasan --}}
+                    <x-tickets.show.survey :ticket="$ticket" />
                 </div>
 
                 {{-- RIGHT COLUMN: Sidebar --}}

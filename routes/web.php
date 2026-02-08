@@ -81,6 +81,8 @@ Route::controller(GuestTicketCommentController::class)->group(function () {
     Route::post('/guest/upload-editor-attachments', 'storeEmbeddedFile')->name('guest.comments.upload.editor.attachments');
 });
 
+Route::post('/tickets/{ticket}/survey', [TicketSurveyController::class, 'store'])->name('tickets.survey.store');
+
 Route::middleware(['auth'])->group(function () {
 
     // 1. DASHBOARD (Semua Role punya dashboard, logic tampilan diatur di Controller)
@@ -89,7 +91,6 @@ Route::middleware(['auth'])->group(function () {
     // 2. TICKETS (Semua Role butuh akses tiket)
     // User: Create & View Own. Admin/Super: View All & Manage.
     Route::patch('/tickets/{ticket}/title', [TicketController::class, 'updateTitle'])->name('tickets.update_title');
-    Route::post('/tickets/{ticket}/survey', [TicketSurveyController::class, 'store'])->name('tickets.survey.store');
     Route::resource('tickets', TicketController::class)->except(['update']);
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])
