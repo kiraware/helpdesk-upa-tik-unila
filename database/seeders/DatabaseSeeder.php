@@ -35,12 +35,6 @@ class DatabaseSeeder extends Seeder
             SurveyQuestionSeeder::class,
             TicketSurveySeeder::class,
 
-            // --- DYNAMIC FORM SYSTEM ---
-            FormSeeder::class,
-            FormQuestionSeeder::class,
-            FormSubmissionSeeder::class,
-            FormAnswerSeeder::class,
-
             // --- CONFIGURATION ---
             ConfigurationSeeder::class,
 
