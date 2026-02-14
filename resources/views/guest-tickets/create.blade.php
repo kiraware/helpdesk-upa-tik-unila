@@ -72,8 +72,6 @@
                             <input type="tel" name="phone" value="{{ old('phone') }}" required
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Contoh: 081234567890" inputmode="numeric" pattern="[0-9]*">
-                            <p class="text-[10px] text-slate-500 mt-1">Nomor ini akan menerima notifikasi status tiket.
-                            </p>
                             @error('phone')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
