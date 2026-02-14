@@ -45,7 +45,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {{-- Kartu 1: Total Tiket & Penyelesaian --}}
             <div
-                class="p-5 rounded-2xl bg-gradient-to-br from-blue-600 to-blue-800 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden group">
+                class="p-5 rounded-2xl bg-linear-to-br from-blue-600 to-blue-800 text-white shadow-xl shadow-blue-900/20 relative overflow-hidden group">
                 <div
                     class="absolute right-0 top-0 p-4 opacity-10 group-hover:scale-110 transition-transform duration-500">
                     <span class="material-icons-round text-6xl">analytics</span>
