@@ -64,18 +64,18 @@
                             @enderror
                         </div>
 
-                        {{-- [BARU] Nomor WhatsApp --}}
+                        {{-- Nomor WhatsApp --}}
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Nomor WhatsApp <span class="text-red-500">*</span>
+                            <label for="phone"
+                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                Nomor WhatsApp
                             </label>
-                            <input type="tel" name="phone" value="{{ old('phone') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                placeholder="Contoh: 081234567890" inputmode="numeric" pattern="[0-9]*">
-                            <p class="text-[10px] text-slate-500 mt-1">Nomor ini akan menerima notifikasi status tiket.
-                            </p>
+                            <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
+                                placeholder="Contoh: 081234567890 (Boleh dikosongkan)"
+                                class="block w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm"
+                                inputmode="numeric" pattern="[0-9]*">
                             @error('phone')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror
                         </div>
 

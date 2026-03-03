@@ -125,7 +125,7 @@ class GuestTicketController extends Controller
             // 1. Validasi Data Diri
             'full_name' => 'required|string|max:100',
             'email' => 'required|email|max:100',
-            'phone' => 'required|string|max:20',
+            'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
             'identity_number' => 'required|string|max:50',
             'department_id' => 'required|exists:departments,id',
             'entity_type' => ['required', new Enum(IdentityType::class)],
