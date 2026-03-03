@@ -183,6 +183,7 @@
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
                                         <img src="{{ $staff->avatar ? asset('storage/' . $staff->avatar) : 'https://ui-avatars.com/api/?name=' . urlencode($staff->name) }}"
+                                            alt="Avatar {{ $staff->name }}"
                                             class="w-10 h-10 rounded-full object-cover border-2 border-white dark:border-slate-700 shadow-sm">
                                         <div>
                                             <p class="font-bold text-text-light dark:text-text-dark">
@@ -250,7 +251,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-400">
+                                <td colspan="6" class="px-6 py-12 text-center text-gray-400">
                                     <span class="material-icons-round text-4xl mb-2 opacity-50">search_off</span>
                                     <p>Tidak ada data kinerja petugas pada periode ini.</p>
                                 </td>

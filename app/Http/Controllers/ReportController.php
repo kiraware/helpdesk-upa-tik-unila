@@ -13,7 +13,6 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Filter Waktu (Default: Awal Bulan ini s/d Hari ini)
         $startDate = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfMonth();
         $endDate = $request->end_date ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
