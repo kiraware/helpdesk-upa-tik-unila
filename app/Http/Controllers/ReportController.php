@@ -13,7 +13,7 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // ... (Bagian Filter & Statistik Global tetap sama seperti sebelumnya) ...
+        // 1. Filter Waktu (Default: Awal Bulan ini s/d Hari ini)
         $startDate = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfMonth();
         $endDate = $request->end_date ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
@@ -66,7 +66,7 @@ class ReportController extends Controller
             'done' => $stats['done'], 'reject' => $stats['reject'],
         ];
 
-        // --- KPI STAFF (UPDATE: Tambah Perhitungan Waktu per User) ---
+        // --- KPI STAFF ---
         $staffs = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
             ->with(['assignedTickets' => function ($q) use ($startDate, $endDate) {
                 $q->whereBetween('created_at', [$startDate, $endDate]);
