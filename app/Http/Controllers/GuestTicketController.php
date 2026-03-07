@@ -62,7 +62,7 @@ class GuestTicketController extends Controller
             if ($user->role === UserRole::USER) {
                 // Skenario 3: User adalah pemilik tiket
                 if ($ticket->user_id === $user->id) {
-                    return redirect()->route('tickets.show', $ticket->uuid);
+                    return redirect()->route('tickets.show', $ticket);
                 }
 
                 // Skenario 2 (Variant User Lain): User bukan pemilik tiket
@@ -71,7 +71,7 @@ class GuestTicketController extends Controller
 
             // Skenario 4: Admin/Superuser mencari tiket User
             if (in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
-                return redirect()->route('tickets.show', $ticket->uuid);
+                return redirect()->route('tickets.show', $ticket);
             }
 
         } else {
@@ -178,7 +178,7 @@ class GuestTicketController extends Controller
         Notification::send($admins, new SystemNotification(
             'Tiket Baru (Tamu)',
             "Tamu ({$validated['full_name']}) membuat tiket baru: {$validated['title']}",
-            route('tickets.show', $ticket->uuid),
+            route('tickets.show', $ticket),
             'info'
         ));
 

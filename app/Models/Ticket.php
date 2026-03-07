@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
-use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
 class Ticket extends Model
@@ -18,7 +17,6 @@ class Ticket extends Model
     use HasFactory;
 
     protected $fillable = [
-        'uuid',
         'ticket_code',
         'user_id',
         'service_id',
@@ -41,19 +39,18 @@ class Ticket extends Model
     protected static function booted(): void
     {
         static::creating(function (Ticket $ticket) {
-            if (empty($ticket->uuid)) {
-                $ticket->uuid = (string) Str::uuid();
-            }
-
             if (empty($ticket->ticket_code)) {
                 $ticket->ticket_code = 'TIK-'.now()->format('Ymd').'-'.mt_rand(1000, 9999);
             }
         });
     }
 
+    /**
+     * Use ticket_code as the identifier in the URL (Route Model Binding).
+     */
     public function getRouteKeyName(): string
     {
-        return 'uuid';
+        return 'ticket_code';
     }
 
     public function user(): BelongsTo

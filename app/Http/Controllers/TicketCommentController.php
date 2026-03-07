@@ -57,7 +57,7 @@ class TicketCommentController extends Controller
                 $ticket->user->notify(new SystemNotification(
                     'Balasan Baru pada Tiket',
                     "{$user->name} membalas tiket #{$ticket->ticket_code}.",
-                    route('tickets.show', $ticket->uuid),
+                    route('tickets.show', $ticket),
                     'info'
                 ));
             } elseif ($ticket->guestDetail) {
@@ -79,7 +79,7 @@ class TicketCommentController extends Controller
                     $ticket->assignee->notify(new SystemNotification(
                         'Balasan User',
                         "{$user->name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
-                        route('tickets.show', $ticket->uuid),
+                        route('tickets.show', $ticket),
                         'info'
                     ));
                 }
@@ -89,7 +89,7 @@ class TicketCommentController extends Controller
                 Notification::send($admins, new SystemNotification(
                     'Balasan User (Unassigned)',
                     "{$user->name} membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
-                    route('tickets.show', $ticket->uuid),
+                    route('tickets.show', $ticket),
                     'warning'
                 ));
             }

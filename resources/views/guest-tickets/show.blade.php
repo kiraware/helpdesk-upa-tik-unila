@@ -53,8 +53,7 @@
                             </div>
 
                             <div class="grow min-w-0">
-                                <form action="{{ route('guest.tickets.comments.store', $ticket->uuid) }}"
-                                    method="POST">
+                                <form action="{{ route('guest.tickets.comments.store', $ticket) }}" method="POST">
                                     @csrf
 
                                     {{-- Styling Container Form --}}
