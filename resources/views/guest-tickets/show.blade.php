@@ -90,8 +90,9 @@
                                             <div class="w-full sm:w-auto">
                                                 {{-- Widget Container --}}
                                                 <div class="cf-turnstile scale-90 sm:scale-100 origin-left"
-                                                    data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="auto"
-                                                    data-size="flexible" data-callback="enableSubmitButton"
+                                                    data-sitekey="{{ config('services.turnstile.key') }}"
+                                                    data-theme="auto" data-size="flexible"
+                                                    data-callback="enableSubmitButton"
                                                     data-expired-callback="disableSubmitButton"
                                                     data-error-callback="disableSubmitButton">
                                                 </div>
