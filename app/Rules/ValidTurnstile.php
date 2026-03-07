@@ -16,7 +16,7 @@ class ValidTurnstile implements ValidationRule
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
         $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-            'secret' => env('TURNSTILE_SECRET_KEY'),
+            'secret' => config('services.turnstile.secret'),
             'response' => $value,
             'remoteip' => request()->ip(),
         ]);

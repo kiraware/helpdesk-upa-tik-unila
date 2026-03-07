@@ -417,7 +417,7 @@
                         {{-- KIRI: Widget Captcha --}}
                         <div class="flex flex-col items-center sm:items-start w-full sm:w-auto">
                             <div class="cf-turnstile scale-90 sm:scale-100 origin-center sm:origin-top-left"
-                                data-sitekey="{{ env('TURNSTILE_SITE_KEY') }}" data-theme="auto"
+                                data-sitekey="{{ config('services.turnstile.key') }}" data-theme="auto"
                                 data-size="flexible" data-callback="enableSubmitButton"
                                 data-expired-callback="disableSubmitButton" data-error-callback="disableSubmitButton">
                             </div>
