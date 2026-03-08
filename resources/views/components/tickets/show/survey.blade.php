@@ -133,8 +133,8 @@
                     <p class="text-blue-100 text-sm mt-1">Bantu kami meningkatkan kualitas layanan Helpdesk UPA TIK.</p>
                 </div>
 
-                <form action="{{ route('tickets.survey.store', $ticket->uuid) }}" method="POST"
-                    @submit="return validate()" class="p-6 md:p-8 space-y-8">
+                <form action="{{ route('tickets.survey.store', $ticket) }}" method="POST" @submit="return validate()"
+                    class="p-6 md:p-8 space-y-8">
                     @csrf
 
                     {{-- 1. BINTANG UTAMA --}}

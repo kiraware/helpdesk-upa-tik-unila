@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
+use App\Enums\UserRole;
 use App\Models\Service;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -21,7 +22,10 @@ class TicketFactory extends Factory
     public function definition(): array
     {
         $service = Service::inRandomOrder()->first() ?? Service::factory()->create();
-        $user = User::inRandomOrder()->first() ?? User::factory()->create();
+
+        // Mencari User dengan role USER, atau buat baru jika kosong
+        $user = User::where('role', UserRole::USER)->inRandomOrder()->first()
+                ?? User::factory()->create();
 
         return [
             'user_id' => $user->id,
@@ -34,6 +38,8 @@ class TicketFactory extends Factory
             'title' => fake()->sentence(),
             'description' => fake()->paragraph(),
             'created_at' => fake()->dateTimeBetween('-1 month', 'now'),
+            'assigned_at' => null,
+            'closed_at' => null,
         ];
     }
 
@@ -43,11 +49,16 @@ class TicketFactory extends Factory
     public function closed(): static
     {
         return $this->state(function (array $attributes) {
+            $staff = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->inRandomOrder()->first()
+                     ?? User::factory()->admin()->create();
+
+            $assignedAt = fake()->dateTimeBetween('-1 month', '-1 week');
+
             return [
                 'status' => TicketStatus::DONE,
-                'assigned_to' => User::factory(), // Diambil staff dummy
-                'assigned_at' => fake()->dateTimeBetween('-1 month', '-1 week'),
-                'closed_at' => now(),
+                'assigned_to' => $staff->id,
+                'assigned_at' => $assignedAt,
+                'closed_at' => fake()->dateTimeBetween($assignedAt, 'now'),
             ];
         });
     }

@@ -22,30 +22,37 @@ class TicketSeeder extends Seeder
             return;
         }
 
-        // Ambil User Staff (misal admin Pusdatin yang dibuat di UserSeeder)
-        $staff = User::where('email', 'helpdesk@unila.ac.id')->first() ?? User::first();
+        // Ambil staff khusus (admin/superuser) untuk assigned_to
+        $staff = User::whereIn('role', ['admin', 'superuser'])->first() ?? User::first();
 
-        // 1. Buat 5 Tiket WAITING (Baru Masuk)
-        Ticket::factory(5)->create([
+        // 1. Tiket Baru (WAITING)
+        Ticket::factory(10)->create([
             'status' => TicketStatus::WAITING,
             'assigned_to' => null,
         ]);
 
-        // 2. Buat 3 Tiket PROGRESS (Sedang dikerjakan Staff)
-        Ticket::factory(3)->create([
+        // 2. Tiket Sedang Diproses (PROGRESS)
+        Ticket::factory(5)->create([
             'status' => TicketStatus::PROGRESS,
             'assigned_to' => $staff->id,
-            'assigned_at' => now()->subDays(1),
+            'assigned_at' => now()->subHours(5),
         ]);
 
-        // 3. Buat 5 Tiket DONE (Selesai)
-        Ticket::factory(5)->closed()->create([
+        // 3. Tiket Selesai (DONE)
+        Ticket::factory(10)->closed()->create([
             'assigned_to' => $staff->id,
         ]);
 
-        // 4. Buat 2 Tiket dari GUEST (Tanpa Login)
-        // Note: Idealnya diikuti dengan pembuatan GuestTicketDetail
-        $guestTickets = Ticket::factory(2)->guest()->create([
+        // 4. Tiket Ditolak (REJECT)
+        Ticket::factory(3)->create([
+            'status' => TicketStatus::REJECT,
+            'assigned_to' => $staff->id,
+            'assigned_at' => now()->subDays(2),
+            'closed_at' => now()->subDay(),
+        ]);
+
+        // 5. Tiket GUEST (Tanpa User ID)
+        Ticket::factory(4)->guest()->create([
             'status' => TicketStatus::WAITING,
         ]);
     }

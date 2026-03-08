@@ -33,7 +33,7 @@ class GuestTicketCommentController extends Controller
             $ticket->assignee->notify(new SystemNotification(
                 'Balasan Tamu',
                 "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
-                route('tickets.show', $ticket->uuid),
+                route('tickets.show', $ticket),
                 'info'
             ));
         } else {
@@ -42,7 +42,7 @@ class GuestTicketCommentController extends Controller
             Notification::send($admins, new SystemNotification(
                 'Balasan Tamu (Unassigned)',
                 "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
-                route('tickets.show', $ticket->uuid),
+                route('tickets.show', $ticket),
                 'warning'
             ));
         }

@@ -164,7 +164,7 @@ class TicketController extends Controller
         Notification::send($admins, new SystemNotification(
             'Tiket Baru Masuk',
             auth()->user()->name." membuat tiket baru: {$validated['title']}",
-            route('tickets.show', $ticket->uuid),
+            route('tickets.show', $ticket),
             'info'
         ));
 
@@ -178,7 +178,7 @@ class TicketController extends Controller
 
         $ticket->update(['title' => $validated['title']]);
 
-        return redirect()->route('tickets.show', $ticket->uuid)
+        return redirect()->route('tickets.show', $ticket->ticket_code)
             ->with('success', 'Judul tiket berhasil diperbarui.');
     }
 
@@ -206,7 +206,7 @@ class TicketController extends Controller
             $ticket->user->notify(new SystemNotification(
                 'Tiket Sedang Diproses',
                 "Tiket #{$ticket->ticket_code} kini sedang ditangani oleh ".$adminName.'.',
-                route('tickets.show', $ticket->uuid),
+                route('tickets.show', $ticket),
                 'info'
             ));
         } elseif ($ticket->guestDetail) {
@@ -264,7 +264,7 @@ class TicketController extends Controller
             $ticket->user->notify(new SystemNotification(
                 "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
                 "Tiket Anda telah {$statusLabel} oleh {$user->name}. Mohon luangkan waktu untuk mengisi survei kepuasan pada halaman detail tiket.",
-                route('tickets.show', $ticket->uuid),
+                route('tickets.show', $ticket),
                 $type
             ));
         } elseif ($ticket->guestDetail) {

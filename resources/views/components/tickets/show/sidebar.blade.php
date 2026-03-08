@@ -69,7 +69,7 @@
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Petugas</h3>
 
             @if (is_null($ticket->assigned_to) && !$isClosed && $canTakeTicket)
-                <form method="POST" action="{{ route('tickets.assign.me', $ticket->uuid) }}">
+                <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
                     @csrf
                     <button type="submit" class="text-xs text-secondary hover:underline">Ambil Tiket</button>
                 </form>
@@ -94,7 +94,7 @@
                 {{-- Tombol Download Surat Tugas --}}
                 @if ($isAdminOrSuper || auth()->id() === $ticket->assigned_to)
                     <div class="mt-4 pt-3 border-t border-border-light dark:border-border-dark/50">
-                        <a href="{{ route('tickets.print_assignment', $ticket->uuid) }}" target="_blank"
+                        <a href="{{ route('tickets.print_assignment', $ticket) }}" target="_blank"
                             class="flex items-center justify-center gap-2 w-full py-2 px-3 text-xs font-medium text-text-light dark:text-text-dark bg-white dark:bg-slate-700 border border-gray-200 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-600 hover:text-blue-600 transition-colors">
                             <span class="material-icons-round text-sm">print</span>
                             Unduh Surat Tugas

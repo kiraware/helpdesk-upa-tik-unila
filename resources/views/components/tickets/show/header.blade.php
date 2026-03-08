@@ -59,7 +59,7 @@
 
         {{-- Title & Meta --}}
         <div class="flex-1 min-w-0 w-full">
-            <form id="update-title-form" action="{{ route('tickets.update_title', $ticket->uuid) }}" method="POST"
+            <form id="update-title-form" action="{{ route('tickets.update_title', $ticket) }}" method="POST"
                 class="min-w-0 w-full">
                 @csrf @method('PATCH')
                 <div class="mb-2 min-h-10 flex items-center w-full">
@@ -130,7 +130,7 @@
                             class="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-50 overflow-hidden">
 
                             {{-- Option: Selesai --}}
-                            <form action="{{ route('tickets.close', $ticket->uuid) }}" method="POST">
+                            <form action="{{ route('tickets.close', $ticket) }}" method="POST">
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="status" value="done">
                                 <button type="submit"
@@ -143,7 +143,7 @@
                             <div class="border-t border-border-light dark:border-border-dark"></div>
 
                             {{-- Option: Tolak --}}
-                            <form action="{{ route('tickets.close', $ticket->uuid) }}" method="POST">
+                            <form action="{{ route('tickets.close', $ticket) }}" method="POST">
                                 @csrf @method('PATCH')
                                 <input type="hidden" name="status" value="reject">
                                 <button type="submit"
