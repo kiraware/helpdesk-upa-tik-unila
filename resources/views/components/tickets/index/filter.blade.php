@@ -2,6 +2,8 @@
 
 <form method="GET" action="{{ route('tickets.index') }}" class="mb-6 flex flex-col gap-3">
 
+    <button type="submit" class="hidden"></button>
+
     {{-- 1. DEFINISIKAN HIDDEN INPUTS UNTUK MENYIMPAN STATE --}}
     {{-- Ini kuncinya: Input ini akan menampung nilai yang dipilih agar ikut terkirim saat form disubmit --}}
     <input type="hidden" name="service" id="input-service" value="{{ request('service') }}">
@@ -142,9 +144,9 @@
     <div class="grid grid-cols-2 gap-3">
         {{-- Start Date --}}
         <div class="relative w-full">
-            <input type="text" name="start_date" value="{{ request('start_date') }}" onfocus="(this.type='date')"
-                onblur="(this.value ? this.type='date' : this.type='text')" placeholder="Tanggal Awal"
-                onchange="this.form.submit()"
+            <input type="text" name="start_date" value="{{ request('start_date') }}"
+                onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')"
+                placeholder="Tanggal Awal" onchange="this.form.submit()"
                 class="w-full px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm">
             <span
                 class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-base text-muted-light pointer-events-none">calendar_today</span>
