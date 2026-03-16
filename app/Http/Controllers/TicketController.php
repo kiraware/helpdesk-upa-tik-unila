@@ -168,7 +168,7 @@ class TicketController extends Controller
             'info'
         ));
 
-        return redirect()->route('tickets.index')
+        return redirect()->route('tickets.show', $ticket)
             ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
     }
 

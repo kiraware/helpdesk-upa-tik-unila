@@ -48,7 +48,7 @@ Route::get('/test-login/{role?}', function (?string $role = null) {
     }
 
     // 2. Jika Role diisi, Cari User dan Login
-    $user = \App\Models\User::where('role', $role)->first();
+    $user = \App\Models\User::where('role', $role)->orderBy('id')->first();
 
     if ($user) {
         // Logout user sebelumnya (opsional, untuk kebersihan sesi)

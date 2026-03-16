@@ -36,7 +36,7 @@
                         $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($responderName);
 
                         // KONFIGURASI FILE
-                        $maxSizeKp = 5120; // 5MB dalam KB
+                        $maxSizeKp = 2048; // 2MB dalam KB
                         $acceptedMimes =
                             'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
                         $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';

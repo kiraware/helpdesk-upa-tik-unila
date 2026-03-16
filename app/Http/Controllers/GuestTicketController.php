@@ -129,8 +129,8 @@ class GuestTicketController extends Controller
             'identity_number' => 'required|string|max:50',
             'department_id' => 'required|exists:departments,id',
             'entity_type' => ['required', new Enum(IdentityType::class)],
-            'photo_identity' => 'required|image|max:5120',
-            'photo_selfie' => 'required|image|max:5120',
+            'photo_identity' => 'required|image|max:2048',
+            'photo_selfie' => 'required|image|max:2048',
 
             // 2. Validasi Data Tiket
             'service_id' => [
@@ -199,7 +199,7 @@ class GuestTicketController extends Controller
 
     /**
      * Handle upload file dari Trix Editor untuk Guest.
-     * Menggunakan nama generik dan validasi 5MB.
+     * Menggunakan nama generik dan validasi 2MB.
      */
     public function storeEmbeddedFile(Request $request)
     {
@@ -207,7 +207,7 @@ class GuestTicketController extends Controller
             'file' => [
                 'required',
                 'file',
-                'max:5120', // Max 5MB
+                'max:2048', // Max 2MB
                 'mimes:jpg,jpeg,png,pdf,doc,docx,zip',
             ],
         ]);
