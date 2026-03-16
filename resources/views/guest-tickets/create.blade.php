@@ -362,7 +362,7 @@
                     <div>
                         @php
                             // KONFIGURASI FILE
-                            $maxSizeKp = 5120; // 5MB dalam KB
+                            $maxSizeKp = 2048; // 2MB dalam KB
                             $acceptedMimes =
                                 'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
                             $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
@@ -492,6 +492,27 @@
             const file = input.files[0];
 
             if (file) {
+                // 1. Definisikan batas maksimal (2 MB dalam bytes)
+                const maxSize = 2 * 1024 * 1024;
+
+                // 2. Cek apakah ukuran file melebihi batas
+                if (file.size > maxSize) {
+                    // Panggil Toast Alpine.js alih-alih menggunakan alert()
+                    window.dispatchEvent(new CustomEvent('notify', {
+                        detail: {
+                            message: 'Ukuran foto terlalu besar! Maksimal ukuran adalah 2 MB.',
+                            type: 'error'
+                        }
+                    }));
+
+                    // Reset input agar form tidak ter-submit dengan file raksasa ini
+                    input.value = '';
+                    preview.classList.add('hidden');
+                    label.classList.remove('hidden');
+                    return; // Hentikan eksekusi script
+                }
+
+                // 3. Jika file aman (< 2MB), tampilkan preview gambar
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;

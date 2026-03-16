@@ -4,8 +4,8 @@ export function initTrixAttachmentUpload() {
         const editor = event.target;
 
         // Ambil konfigurasi dari data attributes
-        // Default ke 5MB jika tidak ada setting
-        const maxFileSize = (editor.dataset.maxSize || 5120) * 1024; // Convert KB to Bytes
+        // Default ke 2MB jika tidak ada setting
+        const maxFileSize = (editor.dataset.maxSize || 2048) * 1024; // Convert KB to Bytes
         const allowedTypes = (editor.dataset.accept || "*").split(",");
 
         const file = event.file;
