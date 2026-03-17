@@ -15,11 +15,17 @@ class ValidTurnstile implements ValidationRule
      */
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        $response = Http::asForm()->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
-            'secret' => config('services.turnstile.secret'),
-            'response' => $value,
-            'remoteip' => request()->ip(),
-        ]);
+        $response = Http::withOptions([
+            'curl' => [
+                CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4,
+            ],
+        ])
+            ->asForm()
+            ->post('https://challenges.cloudflare.com/turnstile/v0/siteverify', [
+                'secret' => config('services.turnstile.secret'),
+                'response' => $value,
+                'remoteip' => request()->ip(),
+            ]);
 
         if (! $response->json('success')) {
             $fail('Verifikasi keamanan gagal. Silakan coba lagi.');

@@ -7,6 +7,7 @@ use App\Enums\UserRole;
 use App\Models\Configuration;
 use App\Models\Service;
 use App\Models\Ticket;
+use App\Models\TicketAttachment;
 use App\Models\User;
 use App\Notifications\SystemNotification;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -158,6 +159,14 @@ class TicketController extends Controller
 
             return $ticket;
         });
+
+        $unassignedAttachments = TicketAttachment::whereNull('ticket_id')->get();
+
+        foreach ($unassignedAttachments as $attachment) {
+            if (str_contains($ticket->description, $attachment->url)) {
+                $attachment->update(['ticket_id' => $ticket->id]);
+            }
+        }
 
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
 
@@ -312,5 +321,31 @@ class TicketController extends Controller
             ->setPaper('a4', 'portrait');
 
         return $pdf->stream('Surat_Tugas_'.$ticket->ticket_code.'.pdf');
+    }
+
+    public function storeEmbeddedFile(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
+        ]);
+
+        if ($request->hasFile('file')) {
+            $file = $request->file('file');
+            $path = $file->store('ticket-attachments', 'public');
+
+            $attachment = TicketAttachment::create([
+                'ticket_id' => null,
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime_type' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
+
+            return response()->json([
+                'url' => $attachment->url,
+            ]);
+        }
+
+        return response()->json(['error' => 'No file uploaded'], 400);
     }
 }

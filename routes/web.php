@@ -73,12 +73,12 @@ Route::controller(GuestTicketController::class)->group(function () {
     Route::post('/create-ticket', 'store')->name('guest.tickets.store');
     Route::get('/tracking/{ticket:ticket_code}', 'show')->name('guest.tracking.show');
 
-    Route::post('/guest/upload-trix', 'storeEmbeddedFile')->name('guest.upload.editor.trix');
+    Route::post('/guest/tickets/upload-attachment', 'storeEmbeddedFile')->name('guest.tickets.upload.attachment');
 });
 
 Route::controller(GuestTicketCommentController::class)->group(function () {
     Route::post('/guest-tickets/{ticket}/comments', 'store')->name('guest.tickets.comments.store');
-    Route::post('/guest/upload-editor-attachments', 'storeEmbeddedFile')->name('guest.comments.upload.editor.attachments');
+    Route::post('/guest/comments/upload-attachment', 'storeEmbeddedFile')->name('guest.comments.upload.attachments');
 });
 
 Route::post('/tickets/{ticket}/survey', [TicketSurveyController::class, 'store'])->name('tickets.survey.store');
@@ -90,13 +90,15 @@ Route::middleware(['auth'])->group(function () {
 
     // 2. TICKETS (Semua Role butuh akses tiket)
     // User: Create & View Own. Admin/Super: View All & Manage.
+    Route::post('/tickets/upload-attachment', [TicketController::class, 'storeEmbeddedFile'])
+        ->name('tickets.upload.attachment');
     Route::patch('/tickets/{ticket}/title', [TicketController::class, 'updateTitle'])->name('tickets.update_title');
     Route::resource('tickets', TicketController::class)->except(['update']);
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])
         ->name('tickets.comments.store');
-    Route::post('/comments/upload-editor-attachments', [TicketCommentController::class, 'storeEmbeddedFile'])
-        ->name('comments.upload.editor.attachments');
+    Route::post('/comments/upload-attachments', [TicketCommentController::class, 'storeEmbeddedFile'])
+        ->name('comments.upload.attachments');
 
     // --- ROUTE NOTIFIKASI ---
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])

@@ -9,13 +9,13 @@ use App\Enums\UserRole;
 use App\Models\Department;
 use App\Models\Service;
 use App\Models\Ticket;
+use App\Models\TicketAttachment;
 use App\Models\User;
 use App\Notifications\SystemNotification;
 use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
@@ -173,6 +173,14 @@ class GuestTicketController extends Controller
             return $newTicket;
         });
 
+        $unassignedAttachments = TicketAttachment::whereNull('ticket_id')->get();
+
+        foreach ($unassignedAttachments as $attachment) {
+            if (str_contains($ticket->description, $attachment->url)) {
+                $attachment->update(['ticket_id' => $ticket->id]);
+            }
+        }
+
         // 1. Notifikasi ke Admin & Superuser
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
         Notification::send($admins, new SystemNotification(
@@ -204,22 +212,23 @@ class GuestTicketController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:2048', // Max 2MB
-                'mimes:jpg,jpeg,png,pdf,doc,docx,zip',
-            ],
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
+            $path = $file->store('ticket-attachments', 'public');
 
-            // Simpan di folder guest-editor-files
-            $path = $file->store('guest-editor-files', 'public');
+            $attachment = TicketAttachment::create([
+                'ticket_id' => null,
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime_type' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
 
             return response()->json([
-                'url' => Storage::url($path),
+                'url' => $attachment->url,
             ]);
         }
 

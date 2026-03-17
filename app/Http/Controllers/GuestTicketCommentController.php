@@ -3,13 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Models\CommentAttachment;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\SystemNotification;
 use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Storage;
 
 class GuestTicketCommentController extends Controller
 {
@@ -23,10 +23,18 @@ class GuestTicketCommentController extends Controller
             'cf-turnstile-response' => ['required', new ValidTurnstile],
         ]);
 
-        $ticket->comments()->create([
+        $comment = $ticket->comments()->create([
             'user_id' => null, // Guest
             'message' => $request->message,
         ]);
+
+        $unassignedAttachments = CommentAttachment::whereNull('ticket_comment_id')->get();
+
+        foreach ($unassignedAttachments as $attachment) {
+            if (str_contains($comment->message, $attachment->url)) {
+                $attachment->update(['ticket_comment_id' => $comment->id]);
+            }
+        }
 
         if ($ticket->assigned_to) {
             // 1. Jika sudah ada petugas -> Kirim ke Petugas
@@ -56,22 +64,23 @@ class GuestTicketCommentController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => [
-                'required',
-                'file',
-                'max:2048', // Limit 2MB
-                'mimes:jpg,jpeg,png,pdf,doc,docx,zip',
-            ],
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
+            $path = $file->store('comment-attachments', 'public');
 
-            // Kita simpan di folder terpisah agar mudah dimanage jika perlu dibersihkan
-            $path = $file->store('guest-trix-attachments', 'public');
+            $attachment = CommentAttachment::create([
+                'ticket_comment_id' => null,
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime_type' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
 
             return response()->json([
-                'url' => Storage::url($path),
+                'url' => $attachment->url,
             ]);
         }
 

@@ -14,8 +14,9 @@ return new class extends Migration
         Schema::create('comment_attachments', function (Blueprint $table) {
             $table->id();
             $table->foreignId('ticket_comment_id')
+                ->nullable()
                 ->constrained('ticket_comments')
-                ->cascadeOnDelete();
+                ->nullOnDelete();
             $table->string('name');
             $table->string('path');
             $table->string('mime_type')->nullable();
