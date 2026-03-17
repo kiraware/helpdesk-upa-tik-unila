@@ -24,7 +24,7 @@
 
             <input id="x_description" type="hidden" name="description" value="{{ old('description') }}">
 
-            <trix-editor input="x_description" data-upload-url="{{ route('comments.upload.editor.attachments') }}"
+            <trix-editor input="x_description" data-upload-url="{{ route('tickets.upload.attachment') }}"
                 data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
                 class="
                 prose dark:prose-invert max-w-none

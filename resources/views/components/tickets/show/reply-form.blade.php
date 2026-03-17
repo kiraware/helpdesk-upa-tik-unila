@@ -41,8 +41,7 @@
 
                         <input id="x_message" type="hidden" name="message">
 
-                        <trix-editor input="x_message"
-                            data-upload-url="{{ route('comments.upload.editor.attachments') }}"
+                        <trix-editor input="x_message" data-upload-url="{{ route('comments.upload.attachments') }}"
                             data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
                             class="prose dark:prose-invert max-w-none
                                    text-text-light dark:text-text-dark

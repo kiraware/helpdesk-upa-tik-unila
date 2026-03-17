@@ -4,13 +4,13 @@ namespace App\Http\Controllers;
 
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Models\CommentAttachment;
 use App\Models\Ticket;
 use App\Models\User;
 use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Illuminate\Support\Facades\Storage;
 
 class TicketCommentController extends Controller
 {
@@ -32,10 +32,18 @@ class TicketCommentController extends Controller
 
         DB::transaction(function () use ($request, $ticket, $user) {
             // 2. Simpan Komentar (User ID pasti ada)
-            $ticket->comments()->create([
+            $comment = $ticket->comments()->create([
                 'user_id' => $user->id,
                 'message' => $request->message,
             ]);
+
+            $unassignedAttachments = CommentAttachment::whereNull('ticket_comment_id')->get();
+
+            foreach ($unassignedAttachments as $attachment) {
+                if (str_contains($comment->message, $attachment->url)) {
+                    $attachment->update(['ticket_comment_id' => $comment->id]);
+                }
+            }
 
             $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
@@ -108,9 +116,20 @@ class TicketCommentController extends Controller
         ]);
 
         if ($request->hasFile('file')) {
-            $path = $request->file('file')->store('trix-attachments', 'public');
+            $file = $request->file('file');
+            $path = $file->store('comment-attachments', 'public');
 
-            return response()->json(['url' => Storage::url($path)]);
+            $attachment = CommentAttachment::create([
+                'ticket_comment_id' => null,
+                'name' => $file->getClientOriginalName(),
+                'path' => $path,
+                'mime_type' => $file->getClientMimeType(),
+                'size' => $file->getSize(),
+            ]);
+
+            return response()->json([
+                'url' => $attachment->url,
+            ]);
         }
 
         return response()->json(['error' => 'No file uploaded'], 400);
