@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\CommentAttachment;
 use App\Models\Ticket;
@@ -23,6 +24,14 @@ class GuestTicketCommentController extends Controller
             'cf-turnstile-response' => ['required', new ValidTurnstile],
         ]);
 
+        // 1. KEAMANAN: Cek Status Tiket
+        // Guest HANYA bisa membalas jika tiket berstatus Waiting atau Progress
+        abort_if(
+            ! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS]),
+            403,
+            'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).'
+        );
+
         $comment = $ticket->comments()->create([
             'user_id' => null, // Guest
             'message' => $request->message,
@@ -37,7 +46,7 @@ class GuestTicketCommentController extends Controller
         }
 
         if ($ticket->assigned_to) {
-            // 1. Jika sudah ada petugas -> Kirim ke Petugas
+            // 2. Jika sudah ada petugas -> Kirim ke Petugas
             $ticket->assignee->notify(new SystemNotification(
                 'Balasan Tamu',
                 "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
@@ -45,7 +54,7 @@ class GuestTicketCommentController extends Controller
                 'info'
             ));
         } else {
-            // 2. Jika belum ada petugas -> Kirim ke Semua Admin
+            // 3. Jika belum ada petugas -> Kirim ke Semua Admin
             $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
             Notification::send($admins, new SystemNotification(
                 'Balasan Tamu (Unassigned)',

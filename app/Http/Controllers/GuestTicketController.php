@@ -38,14 +38,14 @@ class GuestTicketController extends Controller
             'ticket_code' => 'required|string',
         ]);
 
-        $code = $request->ticket_code;
+        $code = strtoupper($request->ticket_code);
         $user = auth()->user();
 
         $ticket = Ticket::where('ticket_code', $code)->first();
 
         // Skenario 1: Tiket tidak ditemukan di sistem
         if (! $ticket) {
-            return back()->with('error', 'Tiket tidak ditemukan dengan kode tersebut.');
+            return back()->withInput()->with('error', 'Tiket tidak ditemukan dengan kode tersebut.');
         }
 
         // Cek apakah Tiket dibuat oleh User (Internal) atau Guest
@@ -55,7 +55,7 @@ class GuestTicketController extends Controller
             // Jika yang mencari adalah Guest (tidak login)
             if (! $user) {
                 // Skenario 2 (Variant Guest): Anggap tidak ada demi privasi
-                return back()->with('error', 'Tiket tidak ditemukan.');
+                return back()->withInput()->with('error', 'Tiket tidak ditemukan.');
             }
 
             // Jika role USER
@@ -66,7 +66,7 @@ class GuestTicketController extends Controller
                 }
 
                 // Skenario 2 (Variant User Lain): User bukan pemilik tiket
-                return back()->with('error', 'Tiket tidak ditemukan.');
+                return back()->withInput()->with('error', 'Tiket tidak ditemukan.');
             }
 
             // Skenario 4: Admin/Superuser mencari tiket User
@@ -82,7 +82,7 @@ class GuestTicketController extends Controller
             return redirect()->route('guest.tracking.show', $ticket->ticket_code);
         }
 
-        return back()->with('error', 'Akses ditolak.');
+        return back()->withInput()->with('error', 'Akses ditolak.');
     }
 
     /**

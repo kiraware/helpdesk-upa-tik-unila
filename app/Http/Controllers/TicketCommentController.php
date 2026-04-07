@@ -21,9 +21,17 @@ class TicketCommentController extends Controller
     {
         $request->validate(['message' => 'required|string']);
 
+        // 1. KEAMANAN: Cek Status Tiket
+        // Komentar HANYA bisa dikirim jika tiket berstatus Waiting atau Progress
+        abort_if(
+            ! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS]),
+            403,
+            'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).'
+        );
+
         $user = $request->user();
 
-        // 1. KEAMANAN: Cek Otorisasi
+        // 2. KEAMANAN: Cek Otorisasi
         // Jika user adalah 'USER' biasa (bukan Admin/Superuser),
         // dia HANYA boleh komen di tiket miliknya sendiri.
         if ($user->role === UserRole::USER && $ticket->user_id !== $user->id) {
@@ -31,7 +39,7 @@ class TicketCommentController extends Controller
         }
 
         DB::transaction(function () use ($request, $ticket, $user) {
-            // 2. Simpan Komentar (User ID pasti ada)
+            // 3. Simpan Komentar (User ID pasti ada)
             $comment = $ticket->comments()->create([
                 'user_id' => $user->id,
                 'message' => $request->message,
@@ -80,7 +88,6 @@ class TicketCommentController extends Controller
             }
         } else {
             // B. USER MEMBALAS -> Notifikasi ke Petugas
-
             if ($ticket->assigned_to) {
                 // Jika sudah ada petugas, kirim ke petugasnya saja
                 if ($ticket->assigned_to !== $user->id) {

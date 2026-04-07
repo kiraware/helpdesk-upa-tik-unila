@@ -30,6 +30,7 @@
                     <div class="relative group">
                         <input type="text" id="ticket-code" name="ticket_code" required
                             value="{{ old('ticket_code') }}" placeholder="Contoh: TIK-20231227-1234"
+                            oninput="this.value = this.value.toUpperCase()"
                             class="w-full px-4 py-3 md:py-3.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-border-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#1d4ed8] focus:border-transparent outline-none transition-all duration-200 uppercase placeholder:normal-case text-sm md:text-base" />
 
                         {{-- Icon Search --}}
