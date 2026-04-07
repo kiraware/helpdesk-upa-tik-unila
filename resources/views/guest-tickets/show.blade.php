@@ -71,7 +71,6 @@
 
                                             <input id="x_message_guest" type="hidden" name="message">
 
-                                            {{-- Update: Tambahkan data-max-size & data-accept --}}
                                             <trix-editor input="x_message_guest"
                                                 data-upload-url="{{ route('guest.comments.upload.attachments') }}"
                                                 data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
@@ -113,7 +112,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- Update: Informasi File dengan Layout Baru --}}
                                     <div class="flex items-start gap-2 mt-2 ml-1">
                                         <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
 

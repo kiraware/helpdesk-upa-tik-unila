@@ -81,17 +81,17 @@
                     </div>
 
                     {{-- Kanan: Detail & Feedback --}}
-                    <div class="flex-1 w-full space-y-6">
+                    <div class="flex-1 w-full space-y-6 min-w-0">
                         <div>
                             <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Detail Penilaian</h4>
                             <div class="space-y-4">
                                 @foreach ($survey->answers as $ans)
                                     <div>
-                                        <div class="flex justify-between text-sm mb-1">
+                                        <div class="flex justify-between items-start text-sm mb-1">
                                             <span
-                                                class="text-muted-light dark:text-muted-dark">{{ $ans->question->question }}</span>
+                                                class="text-muted-light dark:text-muted-dark pr-4">{{ $ans->question->question }}</span>
                                             <span
-                                                class="font-bold {{ $getRatingColor($ans->score) }}">{{ $ans->score }}/5</span>
+                                                class="font-bold {{ $getRatingColor($ans->score) }} shrink-0">{{ $ans->score }}/5</span>
                                         </div>
                                         <div
                                             class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
@@ -107,7 +107,8 @@
                             class="bg-gray-50 dark:bg-slate-800/50 p-4 rounded-xl border border-border-light dark:border-border-dark">
                             <p class="text-xs font-bold text-muted-light dark:text-muted-dark uppercase mb-1">Masukan &
                                 Saran</p>
-                            <p class="text-text-light dark:text-text-dark italic">"{{ $survey->feedback }}"</p>
+                            <p class="text-text-light dark:text-text-dark italic break-all">"{{ $survey->feedback }}"
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -128,7 +129,7 @@
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-secondary/20 dark:border-secondary/20 overflow-hidden relative">
 
                 {{-- Header Dekorasi --}}
-                <div class="bg-gradient-to-r from-secondary to-blue-600 p-6 text-white text-center">
+                <div class="bg-linear-to-r from-secondary to-blue-600 p-6 text-white text-center">
                     <h3 class="text-xl font-bold">Bagaimana Pelayanan Kami?</h3>
                     <p class="text-blue-100 text-sm mt-1">Bantu kami meningkatkan kualitas layanan Helpdesk UPA TIK.</p>
                 </div>
@@ -200,13 +201,22 @@
                     </div>
 
                     {{-- 3. FEEDBACK TEXT --}}
-                    <div>
+                    <div x-data="{ count: 0, max: 255 }">
                         <label for="feedback" class="block text-sm font-bold text-text-light dark:text-text-dark mb-2">
                             Masukan & Saran <span class="text-red-500">*</span>
                         </label>
-                        <textarea name="feedback" id="feedback" rows="3" required
+
+                        <textarea name="feedback" id="feedback" rows="4" required maxlength="255"
+                            @input="count = $event.target.value.length"
                             class="w-full rounded-xl border-border-light dark:border-border-dark bg-white dark:bg-slate-800 text-text-light dark:text-text-dark focus:ring-secondary focus:border-secondary placeholder-muted-light text-sm p-4 shadow-sm"
                             placeholder="Apa yang bisa kami tingkatkan lagi?"></textarea>
+
+                        {{-- Info karakter --}}
+                        <div class="flex justify-end items-center mt-1 text-xs">
+                            <p class="text-muted-light dark:text-muted-dark">
+                                <span x-text="count"></span>/<span x-text="max"></span>
+                            </p>
+                        </div>
                     </div>
 
                     {{-- SUBMIT BUTTON --}}

@@ -18,7 +18,7 @@ return new class extends Migration
                 ->constrained('tickets')
                 ->cascadeOnDelete();
             $table->unsignedTinyInteger('overall_rating'); // Bintang 1-5
-            $table->text('feedback')->nullable(); // Saran/Masukan
+            $table->string('feedback')->nullable(); // Saran/Masukan
             $table->decimal('csi_score', 5, 2)->nullable(); // Nilai kalkulasi (0-100)
             $table->timestamps();
         });

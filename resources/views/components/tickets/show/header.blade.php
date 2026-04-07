@@ -37,18 +37,22 @@
     // Logic Edit Title
     $canEditTitle = false;
     if (!$isClosed && $currentUser) {
-        if ($currentUser->role === \App\Enums\UserRole::USER) {
-            $canEditTitle = !$isGuestTicket;
-        } else {
-            $canEditTitle = true;
-        }
+        // Cek apakah user yang login adalah pembuat tiket
+        $isOwner = $currentUser->id === $ticket->user_id;
+
+        // Cek apakah user yang login memiliki role Admin atau Superuser
+        $isStaff = in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
+
+        // Bisa edit jika dia pemilik tiket ATAU dia adalah staff (Admin/Superuser)
+        $canEditTitle = $isOwner || $isStaff;
     }
 
-    // Logic Close Ticket (Hanya Staff)
+    // Logic Close Ticket (Hanya Staff yang di-assign atau jika tiket belum ada petugasnya)
     $canCloseTicket =
         $currentUser &&
         in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]) &&
-        !$isClosed;
+        !$isClosed &&
+        ($ticket->assigned_to === $currentUser->id || is_null($ticket->assigned_to));
 @endphp
 
 <div class="border-b border-border-light dark:border-border-dark pb-6 mb-6" x-data="{

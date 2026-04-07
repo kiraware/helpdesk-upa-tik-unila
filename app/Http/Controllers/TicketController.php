@@ -183,6 +183,22 @@ class TicketController extends Controller
 
     public function updateTitle(Request $request, Ticket $ticket)
     {
+        $user = auth()->user();
+
+        // 1. Cek status tiket
+        $isClosed = in_array($ticket->status, [TicketStatus::DONE, TicketStatus::REJECT]);
+
+        // 2. Cek apakah pembuat tiket
+        $isOwner = $user->id === $ticket->user_id;
+
+        // 3. Cek apakah memiliki role Admin/Superuser
+        $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
+
+        // Tolak jika tiket sudah ditutup ATAU (bukan owner dan bukan staff)
+        if ($isClosed || (! $isOwner && ! $isStaff)) {
+            abort(403, 'Anda tidak memiliki izin untuk mengedit judul tiket ini.');
+        }
+
         $validated = $request->validate(['title' => ['required', 'string', 'max:100']]);
 
         $ticket->update(['title' => $validated['title']]);
@@ -240,8 +256,14 @@ class TicketController extends Controller
     {
         $user = auth()->user();
 
+        // 1. Cek apakah user adalah staff (Admin / Superuser)
         if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
             abort(403, 'Anda tidak memiliki izin untuk menutup tiket.');
+        }
+
+        // 2. Cek apakah tiket sudah di-assign ke orang lain
+        if (! is_null($ticket->assigned_to) && $ticket->assigned_to !== $user->id) {
+            abort(403, 'Anda tidak dapat menutup tiket yang sedang ditugaskan kepada staff lain.');
         }
 
         $validated = $request->validate([
