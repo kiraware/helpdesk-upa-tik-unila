@@ -24,20 +24,61 @@
                             class="pl-10 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5">
                     </div>
                 </div>
-                {{-- Status --}}
+
+                {{-- Status Aktif Utama --}}
                 <div class="flex items-center justify-between">
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Status Aktif</label>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">Aktifkan atau nonaktifkan layanan.</span>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Layanan beroperasi secara
+                            keseluruhan.</span>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
                         <input type="hidden" name="is_active" value="0">
                         <input type="checkbox" name="is_active" value="1" id="edit_is_active" class="sr-only peer">
                         <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500">
+                        </div>
+                    </label>
+                </div>
+
+                <hr class="border-gray-200 dark:border-gray-700">
+
+                {{-- Tampil di Tamu --}}
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Akses Pengguna Tamu
+                            (Guest)</label>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Muncul di form pembuatan tiket
+                            publik.</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="hidden" name="show_to_guest" value="0">
+                        <input type="checkbox" name="show_to_guest" value="1" id="edit_show_to_guest"
+                            class="sr-only peer">
+                        <div
                             class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
                         </div>
                     </label>
                 </div>
+
+                {{-- Tampil di Internal User --}}
+                <div class="flex items-center justify-between">
+                    <div class="flex flex-col">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Akses Pengguna Login
+                            (User)</label>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Muncul di form pembuatan tiket
+                            internal.</span>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="hidden" name="show_to_user" value="0">
+                        <input type="checkbox" name="show_to_user" value="1" id="edit_show_to_user"
+                            class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-600 peer-checked:after:translate-x-full after:absolute after:top-0.5 after:left-0.5 after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-secondary">
+                        </div>
+                    </label>
+                </div>
+
             </div>
             <div
                 class="px-6 py-4 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">

@@ -11,7 +11,23 @@
         {{ $service->name }}
     </td>
 
-    {{-- Status --}}
+    {{-- Aksesibilitas (Baru) --}}
+    <td class="px-6 py-4 text-sm space-y-1 sm:space-y-0 sm:space-x-1">
+        @if ($service->show_to_guest)
+            <span
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400">
+                Tamu
+            </span>
+        @endif
+        @if ($service->show_to_user)
+            <span
+                class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-400">
+                User
+            </span>
+        @endif
+    </td>
+
+    {{-- Status Aktif Utama --}}
     <td class="px-6 py-4 text-sm">
         @if ($service->is_active)
             <span
@@ -30,15 +46,16 @@
     <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
         <div
             class="flex items-center justify-end space-x-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-            {{-- Edit Button (Memanggil JS di index) --}}
+            {{-- Edit Button --}}
             <button type="button" onclick="openEditServiceModal(this)" data-id="{{ $service->id }}"
                 data-name="{{ $service->name }}" data-active="{{ $service->is_active ? 1 : 0 }}"
+                data-guest="{{ $service->show_to_guest ? 1 : 0 }}" data-user="{{ $service->show_to_user ? 1 : 0 }}"
                 class="p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors"
                 title="Ubah">
                 <span class="material-icons-round text-lg">edit</span>
             </button>
 
-            {{-- Hapus Button (Memanggil JS di index) --}}
+            {{-- Hapus Button --}}
             <button type="button" onclick="openDeleteServiceModal(this)" data-id="{{ $service->id }}"
                 data-name="{{ $service->name }}"
                 class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"

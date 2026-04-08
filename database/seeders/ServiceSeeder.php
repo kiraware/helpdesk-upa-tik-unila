@@ -12,10 +12,13 @@ class ServiceSeeder extends Seeder
      */
     public function run(): void
     {
-        $services = [
+        $guestServices = [
             'Lupa Password SSO',
             'Registrasi SSO',
             'Email Resmi Unila',
+        ];
+
+        $userServices = [
             'Jaringan Internet',
             'Website Down',
             'Sistem Informasi',
@@ -25,10 +28,27 @@ class ServiceSeeder extends Seeder
             'Lainnya',
         ];
 
-        foreach ($services as $serviceName) {
+        // Seed untuk guest
+        foreach ($guestServices as $serviceName) {
             Service::firstOrCreate(
                 ['name' => $serviceName],
-                ['is_active' => true]
+                [
+                    'is_active' => true,
+                    'show_to_guest' => true,
+                    'show_to_user' => false,
+                ]
+            );
+        }
+
+        // Seed untuk user
+        foreach ($userServices as $serviceName) {
+            Service::firstOrCreate(
+                ['name' => $serviceName],
+                [
+                    'is_active' => true,
+                    'show_to_guest' => false,
+                    'show_to_user' => true,
+                ]
             );
         }
     }

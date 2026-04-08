@@ -27,32 +27,41 @@
         <div class="overflow-x-auto">
             <table class="w-full border-collapse">
                 <thead>
-                    <tr class="bg-gray-50 dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark">
+                    <tr
+                        class="bg-gray-50 dark:bg-slate-800/50 border-b border-border-light dark:border-border-dark text-left">
                         <th
-                            class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase tracking-wider w-16">
+                            class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider w-16">
                             No</th>
                         <th
-                            class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase tracking-wider">
+                            class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider">
                             Nama Layanan</th>
+                        {{-- TH Baru --}}
                         <th
-                            class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase tracking-wider w-32">
+                            class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider w-32">
+                            Aksesibilitas</th>
+                        <th
+                            class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider w-32">
                             Status</th>
                         <th
-                            class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase tracking-wider text-right w-32">
+                            class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider text-right w-24">
                             Aksi</th>
                     </tr>
                 </thead>
-
                 <tbody class="divide-y divide-border-light dark:divide-border-dark">
-                    @forelse ($services as $service)
-                        {{-- Component: Item Tabel --}}
-                        {{-- Kita kirim perhitungan nomor urut ke component agar rapi --}}
-                        <x-services.item :service="$service" :number="$loop->iteration + ($services->currentPage() - 1) * $services->perPage()" />
+                    @forelse ($services as $index => $service)
+                        <x-services.item :service="$service" :number="$services->firstItem() + $index" />
                     @empty
                         <tr>
-                            <td colspan="4"
-                                class="px-6 py-10 text-center text-sm text-muted-light dark:text-muted-dark">
-                                Belum ada data layanan.
+                            <td colspan="5" class="px-6 py-12 text-center">
+                                <div
+                                    class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 dark:bg-slate-800 mb-4">
+                                    <span
+                                        class="material-icons-round text-2xl text-muted-light dark:text-muted-dark">inbox</span>
+                                </div>
+                                <h3 class="text-sm font-medium text-text-light dark:text-text-dark mb-1">Tidak ada
+                                    layanan</h3>
+                                <p class="text-sm text-muted-light dark:text-muted-dark">Belum ada layanan yang
+                                    ditambahkan atau tidak sesuai filter.</p>
                             </td>
                         </tr>
                     @endforelse
@@ -61,25 +70,30 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="px-6 py-4 bg-gray-50 dark:bg-slate-800/50 border-t border-border-light dark:border-border-dark">
-            {{ $services->links() }}
-        </div>
+        @if ($services->hasPages())
+            <div class="px-6 py-4 border-t border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
+                {{ $services->links() }}
+            </div>
+        @endif
     </div>
 
-    {{-- Components: Modals --}}
+    {{-- Modals --}}
     <x-services.modal-add />
     <x-services.modal-edit />
     <x-services.modal-delete />
 
-    {{-- Script Modal Logic (Tetap Disini) --}}
     <script>
         // Modal Tambah
         function openAddServiceModal() {
-            document.getElementById('addServiceModal').classList.remove('hidden');
+            const modal = document.getElementById('addServiceModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeAddServiceModal() {
-            document.getElementById('addServiceModal').classList.add('hidden');
+            const modal = document.getElementById('addServiceModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         // Modal Edit
@@ -87,16 +101,27 @@
             const {
                 id,
                 name,
-                active
+                active,
+                guest,
+                user
             } = button.dataset;
+
             document.getElementById('edit_name').value = name;
             document.getElementById('edit_is_active').checked = active == 1;
+            document.getElementById('edit_show_to_guest').checked = guest == 1;
+            document.getElementById('edit_show_to_user').checked = user == 1;
+
             document.getElementById('editServiceForm').action = `/services/${id}`;
-            document.getElementById('editServiceModal').classList.remove('hidden');
+
+            const modal = document.getElementById('editServiceModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeEditServiceModal() {
-            document.getElementById('editServiceModal').classList.add('hidden');
+            const modal = document.getElementById('editServiceModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
 
         // Modal Hapus
@@ -107,20 +132,23 @@
             } = button.dataset;
             document.getElementById('deleteServiceName').textContent = `"${name}"`;
             document.getElementById('deleteServiceForm').action = `/services/${id}`;
-            document.getElementById('deleteServiceModal').classList.remove('hidden');
+
+            const modal = document.getElementById('deleteServiceModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
         }
 
         function closeDeleteServiceModal() {
-            document.getElementById('deleteServiceModal').classList.add('hidden');
+            const modal = document.getElementById('deleteServiceModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
         }
-    </script>
 
-    @if ($errors->any())
-        <script>
+        // Auto-open Add Modal jika ada validasi error
+        @if ($errors->any())
             document.addEventListener('DOMContentLoaded', () => {
                 openAddServiceModal();
             });
-        </script>
-    @endif
-
+        @endif
+    </script>
 </x-layouts.dashboard>

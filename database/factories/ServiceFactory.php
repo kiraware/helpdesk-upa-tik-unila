@@ -19,6 +19,8 @@ class ServiceFactory extends Factory
         return [
             'name' => $this->faker->unique()->word(),
             'is_active' => true,
+            'show_to_guest' => true,
+            'show_to_user' => true,
         ];
     }
 }
