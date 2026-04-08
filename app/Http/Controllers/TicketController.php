@@ -97,6 +97,7 @@ class TicketController extends Controller
         }
 
         $services = Service::where('is_active', true)
+            ->where('show_to_user', true)
             ->orderByRaw('LOWER(name) ASC')
             ->get();
 
@@ -138,7 +139,7 @@ class TicketController extends Controller
             'service_id' => [
                 'required',
                 Rule::exists('services', 'id')->where(function ($query) {
-                    return $query->where('is_active', true);
+                    return $query->where('is_active', true)->where('show_to_user', true);
                 }),
             ],
             'priority' => ['required', new Enum(\App\Enums\TicketPriority::class)],

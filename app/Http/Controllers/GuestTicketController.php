@@ -109,6 +109,7 @@ class GuestTicketController extends Controller
     public function create()
     {
         $services = Service::where('is_active', true)
+            ->where('show_to_guest', true)
             ->orderBy('name')
             ->get();
 
@@ -133,7 +134,9 @@ class GuestTicketController extends Controller
             // 2. Validasi Data Tiket
             'service_id' => [
                 'required',
-                Rule::exists('services', 'id')->where('is_active', true),
+                Rule::exists('services', 'id')->where(function ($query) {
+                    return $query->where('is_active', true)->where('show_to_guest', true);
+                }),
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
             'title' => 'required|string|max:100',

@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('name', 50)->unique();
             $table->boolean('is_active')->default(true);
+            $table->boolean('show_to_guest')->default(true);
+            $table->boolean('show_to_user')->default(true);
             $table->timestamps();
         });
     }

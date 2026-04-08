@@ -16,10 +16,14 @@ class Service extends Model
     protected $fillable = [
         'name',
         'is_active',
+        'show_to_guest',
+        'show_to_user',
     ];
 
     protected $casts = [
         'is_active' => 'boolean',
+        'show_to_guest' => 'boolean',
+        'show_to_user' => 'boolean',
     ];
 
     public function tickets(): HasMany

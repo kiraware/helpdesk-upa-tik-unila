@@ -17,6 +17,12 @@ class ServiceController extends Controller
             ->when($request->status !== null && $request->status !== '', function ($query) use ($request) {
                 $query->where('is_active', $request->status);
             })
+            ->when($request->guest !== null && $request->guest !== '', function ($query) use ($request) {
+                $query->where('show_to_guest', $request->guest);
+            })
+            ->when($request->user !== null && $request->user !== '', function ($query) use ($request) {
+                $query->where('show_to_user', $request->user);
+            })
             ->orderBy('name', 'asc')
             ->paginate(10)
             ->withQueryString();
@@ -29,12 +35,11 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:50|unique:services',
             'is_active' => 'required|boolean',
+            'show_to_guest' => 'required|boolean',
+            'show_to_user' => 'required|boolean',
         ]);
 
-        Service::create([
-            'name' => $validated['name'],
-            'is_active' => $validated['is_active'],
-        ]);
+        Service::create($validated);
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil ditambahkan.');
     }
@@ -44,12 +49,11 @@ class ServiceController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:50', Rule::unique('services')->ignore($service->id)],
             'is_active' => 'required|boolean',
+            'show_to_guest' => 'required|boolean',
+            'show_to_user' => 'required|boolean',
         ]);
 
-        $service->update([
-            'name' => $validated['name'],
-            'is_active' => $validated['is_active'],
-        ]);
+        $service->update($validated);
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil diperbarui.');
     }
