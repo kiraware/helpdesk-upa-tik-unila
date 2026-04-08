@@ -33,7 +33,7 @@ class CheckRole
             return $next($request);
         }
 
-        // 4. Jika tidak cocok, tampilkan error 403 (Forbidden)
-        abort(403, 'Anda tidak memiliki akses ke halaman ini.');
+        // 4. Jika tidak cocok, redirect ke beranda dengan pesan error
+        return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
     }
 }

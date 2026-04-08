@@ -92,7 +92,7 @@
                         <div class="relative">
                             <input type="text" name="ticket_code" required
                                 class="w-full pl-5 pr-14 py-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all text-text-light dark:text-text-dark shadow-sm text-sm md:text-base placeholder-gray-400 uppercase placeholder:normal-case"
-                                placeholder="Kode Tiket (Contoh: TIK-20231227-1234)" value="{{ old('ticket_code') }}" />
+                                placeholder="Kode Tiket (Contoh: A7B9K2)" value="{{ old('ticket_code') }}" />
 
                             <button type="submit"
                                 class="absolute right-2 top-2 bottom-2 bg-brand hover:bg-brand-hover text-white rounded-lg transition-colors flex items-center justify-center aspect-square shadow-sm group">

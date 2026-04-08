@@ -93,7 +93,7 @@ class TicketController extends Controller
     public function create()
     {
         if (auth()->user()->role !== UserRole::USER) {
-            abort(403, 'Hanya pengguna (User) yang dapat membuat tiket baru.');
+            return redirect()->route('tickets.index')->with('error', 'Hanya pengguna (User) yang dapat membuat tiket baru.');
         }
 
         $services = Service::where('is_active', true)
@@ -108,9 +108,8 @@ class TicketController extends Controller
         // Mencegah User A mengakses URL tiket milik User B secara manual
         $user = auth()->user();
         if ($user->role === UserRole::USER) {
-            // Jika tiket ini bukan punya dia, tampilkan 403 Forbidden
             if ($ticket->user_id !== $user->id) {
-                abort(403, 'Anda tidak memiliki akses ke tiket ini.');
+                return redirect()->route('tickets.index')->with('error', 'Anda tidak memiliki akses ke tiket ini.');
             }
         }
 
@@ -132,7 +131,7 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         if (auth()->user()->role !== UserRole::USER) {
-            abort(403, 'Unauthorized action.');
+            return redirect()->route('tickets.index')->with('error', 'Tindakan tidak diizinkan.');
         }
 
         $validated = $request->validate([
@@ -196,7 +195,7 @@ class TicketController extends Controller
 
         // Tolak jika tiket sudah ditutup ATAU (bukan owner dan bukan staff)
         if ($isClosed || (! $isOwner && ! $isStaff)) {
-            abort(403, 'Anda tidak memiliki izin untuk mengedit judul tiket ini.');
+            return back()->with('error', 'Anda tidak memiliki izin untuk mengedit judul tiket ini.');
         }
 
         $validated = $request->validate(['title' => ['required', 'string', 'max:100']]);
@@ -211,7 +210,7 @@ class TicketController extends Controller
     {
         // Pastikan User Biasa tidak bisa mengakses fungsi ini
         if (auth()->user()->role === \App\Enums\UserRole::USER) {
-            abort(403, 'Anda tidak memiliki izin untuk mengambil tiket ini.');
+            return back()->with('error', 'Anda tidak memiliki izin untuk mengambil tiket ini.');
         }
 
         // Cegah overwrite jika sudah ada petugas
@@ -258,12 +257,12 @@ class TicketController extends Controller
 
         // 1. Cek apakah user adalah staff (Admin / Superuser)
         if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
-            abort(403, 'Anda tidak memiliki izin untuk menutup tiket.');
+            return back()->with('error', 'Anda tidak memiliki izin untuk menutup tiket.');
         }
 
         // 2. Cek apakah tiket sudah di-assign ke orang lain
         if (! is_null($ticket->assigned_to) && $ticket->assigned_to !== $user->id) {
-            abort(403, 'Anda tidak dapat menutup tiket yang sedang ditugaskan kepada staff lain.');
+            return back()->with('error', 'Anda tidak dapat menutup tiket yang sedang ditugaskan kepada staff lain.');
         }
 
         $validated = $request->validate([
@@ -318,7 +317,7 @@ class TicketController extends Controller
         $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
         if (! $isStaff && $ticket->assigned_to !== $user->id) {
-            abort(403, 'Anda tidak memiliki izin untuk mencetak surat tugas ini.');
+            return back()->with('error', 'Anda tidak memiliki izin untuk mencetak surat tugas ini.');
         }
 
         if (! $ticket->assigned_to) {

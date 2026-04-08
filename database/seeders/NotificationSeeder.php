@@ -26,7 +26,7 @@ class NotificationSeeder extends Seeder
 
             $user->notify(new SystemNotification(
                 'Tiket Baru Masuk',
-                'Ada tiket baru #TIK-2024001 dari Divisi Keuangan yang butuh penanganan.',
+                'Ada tiket baru #A7B9K2 dari Divisi Keuangan yang butuh penanganan.',
                 route('tickets.index'),
                 'info'
             ));

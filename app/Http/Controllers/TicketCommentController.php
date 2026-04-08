@@ -23,11 +23,9 @@ class TicketCommentController extends Controller
 
         // 1. KEAMANAN: Cek Status Tiket
         // Komentar HANYA bisa dikirim jika tiket berstatus Waiting atau Progress
-        abort_if(
-            ! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS]),
-            403,
-            'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).'
-        );
+        if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
+            return back()->with('error', 'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).');
+        }
 
         $user = $request->user();
 
@@ -35,7 +33,7 @@ class TicketCommentController extends Controller
         // Jika user adalah 'USER' biasa (bukan Admin/Superuser),
         // dia HANYA boleh komen di tiket miliknya sendiri.
         if ($user->role === UserRole::USER && $ticket->user_id !== $user->id) {
-            abort(403, 'Anda tidak memiliki akses ke tiket ini.');
+            return back()->with('error', 'Anda tidak memiliki akses ke tiket ini.');
         }
 
         DB::transaction(function () use ($request, $ticket, $user) {

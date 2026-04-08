@@ -91,10 +91,8 @@ class GuestTicketController extends Controller
     public function show(Request $request, Ticket $ticket)
     {
         // Security Check: Pastikan tiket ini memang tiket Guest (tidak punya user_id)
-        // Atau jika ingin user biasa juga bisa ditracking, hapus pengecekan ini.
-        // Disini kita asumsikan tracking publik hanya untuk tiket guest demi privasi user internal.
         if ($ticket->user_id) {
-            abort(403, 'Tiket ini terdaftar sebagai tiket user internal. Silakan login untuk melihat.');
+            return redirect('/')->with('error', 'Tiket ini terdaftar sebagai tiket user internal. Silakan login untuk melihat.');
         }
 
         $ticket->load([
