@@ -13,23 +13,21 @@ class TicketSurveyController extends Controller
     public function store(Request $request, Ticket $ticket)
     {
         // 1. Validasi Keberadaan Survei: Pastikan tiket ini belum pernah dinilai
-        abort_if(
-            $ticket->survey()->exists(),
-            403,
-            'Survei untuk tiket ini sudah pernah diisi sebelumnya.'
-        );
+        if ($ticket->survey()->exists()) {
+            return back()->with('error', 'Survei untuk tiket ini sudah pernah diisi sebelumnya.');
+        }
 
         // 2. Validasi Keamanan (Status Tiket)
-        abort_if(
-            ! in_array($ticket->status, [TicketStatus::DONE, TicketStatus::REJECT]),
-            403,
-            'Survei hanya dapat diisi untuk tiket yang sudah selesai atau ditolak.'
-        );
+        if (! in_array($ticket->status, [TicketStatus::DONE, TicketStatus::REJECT])) {
+            return back()->with('error', 'Survei hanya dapat diisi untuk tiket yang sudah selesai atau ditolak.');
+        }
 
         // 3. Cek otorisasi (Owner / Guest)
         $isOwner = auth()->check() && auth()->id() === $ticket->user_id;
-        $isGuest = ! $ticket->user_id; // Asumsi validasi akses guest sudah di middleware/route binding
-        abort_if(! $isOwner && ! $isGuest, 403, 'Unauthorized');
+        $isGuest = ! $ticket->user_id;
+        if (! $isOwner && ! $isGuest) {
+            return back()->with('error', 'Anda tidak memiliki akses untuk mengisi survei ini.');
+        }
 
         // 4. Validasi Input
         $questions = SurveyQuestion::active()->get();
@@ -46,7 +44,7 @@ class TicketSurveyController extends Controller
         $validated = $request->validate($rules);
 
         DB::transaction(function () use ($ticket, $validated) {
-            // Hitung CSI Score (Rata-rata jawaban pertanyaan spesifik dikali 20 untuk skala 100)
+            // Hitung CSI Score
             $totalScore = collect($validated['answers'])->sum();
             $maxScore = count($validated['answers']) * 5;
             $csiScore = ($totalScore / $maxScore) * 100;

@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 
 class Ticket extends Model
@@ -40,9 +41,25 @@ class Ticket extends Model
     {
         static::creating(function (Ticket $ticket) {
             if (empty($ticket->ticket_code)) {
-                $ticket->ticket_code = 'TIK-'.now()->format('Ymd').'-'.mt_rand(1000, 9999);
+                $ticket->ticket_code = self::generateUniqueTicketCode();
             }
         });
+    }
+
+    /**
+     * Generate 6 karakter Alfanumerik acak yang unik
+     */
+    private static function generateUniqueTicketCode(): string
+    {
+        do {
+            $code = strtoupper(Str::random(6));
+
+            // Cek apakah kode ini sudah ada di database
+            $exists = self::where('ticket_code', $code)->exists();
+
+        } while ($exists);
+
+        return $code;
     }
 
     /**

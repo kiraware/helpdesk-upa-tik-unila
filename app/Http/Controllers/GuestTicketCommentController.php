@@ -26,11 +26,9 @@ class GuestTicketCommentController extends Controller
 
         // 1. KEAMANAN: Cek Status Tiket
         // Guest HANYA bisa membalas jika tiket berstatus Waiting atau Progress
-        abort_if(
-            ! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS]),
-            403,
-            'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).'
-        );
+        if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
+            return back()->with('error', 'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).');
+        }
 
         $comment = $ticket->comments()->create([
             'user_id' => null, // Guest
