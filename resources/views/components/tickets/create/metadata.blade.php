@@ -3,20 +3,6 @@
 <div
     class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-        {{-- Judul Tiket --}}
-        <div class="md:col-span-2">
-            <label for="title" class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
-                Judul Laporan <span class="text-red-500">*</span>
-            </label>
-            <input type="text" id="title" name="title" value="{{ old('title') }}" required
-                placeholder="Contoh: Internet di Gedung A Lantai 2 Mati Total"
-                class="w-full px-4 py-2.5 rounded-lg border border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800 text-text-light dark:text-text-dark focus:ring-1 focus:ring-secondary focus:border-secondary transition-colors placeholder:text-sm shadow-sm">
-            @error('title')
-                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-        </div>
-
         {{-- Layanan (Custom Dropdown) --}}
         <div>
             <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">

@@ -236,11 +236,6 @@
                 @endif
             </td>
         </tr>
-
-        <tr>
-            <td class="bg-gray">Judul Tiket</td>
-            <td>{{ $ticket->title }}</td>
-        </tr>
     </table>
 
     <div class="justify">

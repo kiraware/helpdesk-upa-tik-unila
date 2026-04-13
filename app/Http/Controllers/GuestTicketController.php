@@ -139,7 +139,6 @@ class GuestTicketController extends Controller
                 }),
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
-            'title' => 'required|string|max:100',
             'description' => 'required|string',
             'cf-turnstile-response' => ['required', new ValidTurnstile],
         ]);
@@ -150,7 +149,6 @@ class GuestTicketController extends Controller
                 'user_id' => null, // Guest
                 'service_id' => $validated['service_id'],
                 'priority' => $validated['priority'],
-                'title' => $validated['title'],
                 'description' => $validated['description'],
                 'status' => TicketStatus::WAITING,
             ]);
@@ -186,7 +184,7 @@ class GuestTicketController extends Controller
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
         Notification::send($admins, new SystemNotification(
             'Tiket Baru (Tamu)',
-            "Tamu ({$validated['full_name']}) membuat tiket baru: {$validated['title']}",
+            "Tamu ({$validated['full_name']}) membuat tiket baru: {$ticket->ticket_code}",
             route('tickets.show', $ticket),
             'info'
         ));

@@ -43,7 +43,6 @@ class TicketController extends Controller
 
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
                 $qq->where('ticket_code', 'ilike', "%{$request->q}%")
-                    ->orWhere('title', 'ilike', "%{$request->q}%")
                     ->orWhere('description', 'ilike', "%{$request->q}%");
             }))
 
@@ -143,7 +142,6 @@ class TicketController extends Controller
                 }),
             ],
             'priority' => ['required', new Enum(\App\Enums\TicketPriority::class)],
-            'title' => 'required|string|max:100',
             'description' => 'required|string',
         ]);
 
@@ -152,7 +150,6 @@ class TicketController extends Controller
                 'user_id' => auth()->id(),
                 'service_id' => $validated['service_id'],
                 'priority' => $validated['priority'],
-                'title' => $validated['title'],
                 'description' => $validated['description'],
                 'status' => TicketStatus::WAITING,
             ]);
@@ -172,39 +169,13 @@ class TicketController extends Controller
 
         Notification::send($admins, new SystemNotification(
             'Tiket Baru Masuk',
-            auth()->user()->name." membuat tiket baru: {$validated['title']}",
+            auth()->user()->name." membuat tiket baru: {$ticket->ticket_code}.",
             route('tickets.show', $ticket),
             'info'
         ));
 
         return redirect()->route('tickets.show', $ticket)
             ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
-    }
-
-    public function updateTitle(Request $request, Ticket $ticket)
-    {
-        $user = auth()->user();
-
-        // 1. Cek status tiket
-        $isClosed = in_array($ticket->status, [TicketStatus::DONE, TicketStatus::REJECT]);
-
-        // 2. Cek apakah pembuat tiket
-        $isOwner = $user->id === $ticket->user_id;
-
-        // 3. Cek apakah memiliki role Admin/Superuser
-        $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
-
-        // Tolak jika tiket sudah ditutup ATAU (bukan owner dan bukan staff)
-        if ($isClosed || (! $isOwner && ! $isStaff)) {
-            return back()->with('error', 'Anda tidak memiliki izin untuk mengedit judul tiket ini.');
-        }
-
-        $validated = $request->validate(['title' => ['required', 'string', 'max:100']]);
-
-        $ticket->update(['title' => $validated['title']]);
-
-        return redirect()->route('tickets.show', $ticket->ticket_code)
-            ->with('success', 'Judul tiket berhasil diperbarui.');
     }
 
     public function assignMe(Ticket $ticket)

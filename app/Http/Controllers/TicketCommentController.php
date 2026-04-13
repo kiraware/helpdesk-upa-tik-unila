@@ -85,9 +85,8 @@ class TicketCommentController extends Controller
                     ));
             }
         } else {
-            // B. USER MEMBALAS -> Notifikasi ke Petugas
+            // B. USER MEMBALAS -> Notifikasi ke Petugas (HANYA JIKA ADA PETUGAS)
             if ($ticket->assigned_to) {
-                // Jika sudah ada petugas, kirim ke petugasnya saja
                 if ($ticket->assigned_to !== $user->id) {
                     $ticket->assignee->notify(new SystemNotification(
                         'Balasan User',
@@ -96,16 +95,8 @@ class TicketCommentController extends Controller
                         'info'
                     ));
                 }
-            } else {
-                // Jika BELUM ada petugas (Unassigned), kirim ke SEMUA Admin
-                $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
-                Notification::send($admins, new SystemNotification(
-                    'Balasan User (Unassigned)',
-                    "{$user->name} membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
-                    route('tickets.show', $ticket),
-                    'warning'
-                ));
             }
+            // Blok ELSE untuk notifikasi "Balasan User (Unassigned)" ke admin dihapus di sini
         }
 
         return back()->with('success', 'Komentar berhasil dikirim.');

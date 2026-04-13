@@ -239,19 +239,6 @@
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Judul --}}
-                        <div class="md:col-span-2">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Judul Laporan <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" name="title" value="{{ old('title') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                placeholder="Contoh: Lupa Password SSO">
-                            @error('title')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
                         {{-- Service --}}
                         <div x-data='{
                             open: false,
