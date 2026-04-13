@@ -92,7 +92,6 @@ Route::middleware(['auth'])->group(function () {
     // User: Create & View Own. Admin/Super: View All & Manage.
     Route::post('/tickets/upload-attachment', [TicketController::class, 'storeEmbeddedFile'])
         ->name('tickets.upload.attachment');
-    Route::patch('/tickets/{ticket}/title', [TicketController::class, 'updateTitle'])->name('tickets.update_title');
     Route::resource('tickets', TicketController::class)->except(['update']);
 
     Route::post('/tickets/{ticket}/comments', [TicketCommentController::class, 'store'])

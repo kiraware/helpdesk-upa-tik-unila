@@ -3,14 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TicketStatus;
-use App\Enums\UserRole;
 use App\Models\CommentAttachment;
 use App\Models\Ticket;
-use App\Models\User;
 use App\Notifications\SystemNotification;
 use App\Rules\ValidTurnstile;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Notification;
 
 class GuestTicketCommentController extends Controller
 {
@@ -43,24 +40,16 @@ class GuestTicketCommentController extends Controller
             }
         }
 
+        // 2. Jika sudah ada petugas -> Kirim ke Petugas
         if ($ticket->assigned_to) {
-            // 2. Jika sudah ada petugas -> Kirim ke Petugas
             $ticket->assignee->notify(new SystemNotification(
                 'Balasan Tamu',
                 "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
                 route('tickets.show', $ticket),
                 'info'
             ));
-        } else {
-            // 3. Jika belum ada petugas -> Kirim ke Semua Admin
-            $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
-            Notification::send($admins, new SystemNotification(
-                'Balasan Tamu (Unassigned)',
-                "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code}. Belum ada petugas.",
-                route('tickets.show', $ticket),
-                'warning'
-            ));
         }
+        // Blok ELSE untuk notifikasi "Balasan Tamu (Unassigned)" ke admin dihapus di sini
 
         return back()->with('success', 'Balasan berhasil dikirim.');
     }

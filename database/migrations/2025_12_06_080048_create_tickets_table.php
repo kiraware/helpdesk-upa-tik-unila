@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->string('ticket_code')->unique();
+            $table->string('ticket_code', 6)->unique();
             $table->foreignId('user_id')
                 ->nullable()
                 ->constrained('users')
@@ -30,7 +30,6 @@ return new class extends Migration
             $table->enum('priority', array_column(TicketPriority::cases(), 'value'));
             $table->enum('status', array_column(TicketStatus::cases(), 'value'))
                 ->default(TicketStatus::WAITING->value);
-            $table->string('title', 100);
             $table->text('description');
             $table->timestamp('assigned_at')->nullable();
             $table->timestamp('closed_at')->nullable();

@@ -47,7 +47,7 @@
                                 {{-- Content Wrapper: min-w-0 penting untuk truncate --}}
                                 <div class="flex-1 min-w-0">
                                     <div class="flex flex-row items-center justify-between gap-2 mb-1">
-                                        {{-- Title: Truncate agar tidak menabrak tanggal --}}
+                                        {{-- Title --}}
                                         <p
                                             class="text-sm font-semibold text-text-light dark:text-slate-200 truncate pr-2">
                                             {{ $notification->data['title'] }}

@@ -5,7 +5,7 @@
     <section class="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
         <div class="absolute inset-0 z-0 pointer-events-none">
             <div
-                class="absolute top-0 right-0 w-3/4 h-full bg-gradient-to-l from-blue-50 to-transparent dark:from-blue-900/10 opacity-60">
+                class="absolute top-0 right-0 w-3/4 h-full bg-linear-to-l from-blue-50 to-transparent dark:from-blue-900/10 opacity-60">
             </div>
         </div>
 

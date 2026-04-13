@@ -8,7 +8,7 @@
 
         <div class="space-y-6">
 
-            {{-- Metadata Form (Title, Service, Priority) --}}
+            {{-- Metadata Form (Service, Priority) --}}
             <x-tickets.create.metadata :services="$services" />
 
             {{-- Description Editor & Submit Button --}}
