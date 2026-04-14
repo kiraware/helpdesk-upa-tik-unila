@@ -169,7 +169,7 @@ class TicketController extends Controller
 
         Notification::send($admins, new SystemNotification(
             'Tiket Baru Masuk',
-            auth()->user()->name." membuat tiket baru: {$ticket->ticket_code}.",
+            auth()->user()->name." membuat tiket baru: #{$ticket->ticket_code}.",
             route('tickets.show', $ticket),
             'info'
         ));
