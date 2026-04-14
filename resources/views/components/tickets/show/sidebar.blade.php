@@ -1,4 +1,4 @@
-@props(['ticket'])
+@props(['ticket', 'services'])
 
 @php
     use Illuminate\Support\Str;
@@ -33,6 +33,8 @@
             }
         }
     }
+
+    $canEditService = $canEditPriority;
 
     $prioColor = match ($ticket->priority) {
         TicketPriority::HIGH => 'text-red-600',
@@ -130,12 +132,57 @@
         </div>
         <div class="p-4 space-y-4">
             {{-- Layanan --}}
-            <div>
-                <p class="text-xs text-muted-light mb-1">Layanan</p>
+            <div x-data="{ openService: false }" class="relative">
+                <div class="flex justify-between items-center gap-2 mb-1">
+                    <p class="text-xs text-muted-light">Layanan</p>
+
+                    @if ($canEditService)
+                        <button @click="openService = !openService" type="button"
+                            class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center justify-center p-0.5 rounded hover:bg-gray-200 dark:hover:bg-slate-700"
+                            title="Ubah Layanan">
+                            <span class="material-icons-round text-[14px]">settings</span>
+                        </button>
+                    @endif
+                </div>
+
+                {{-- Current Service --}}
                 <span
                     class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
                     {{ $ticket->service->name }}
                 </span>
+
+                {{-- Dropdown --}}
+                @if ($canEditService)
+                    <div x-show="openService" @click.outside="openService = false" x-transition
+                        class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto"
+                        style="display: none;">
+
+                        <form method="POST" action="{{ route('tickets.update_service', $ticket) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            @foreach ($services as $index => $service)
+                                <button type="submit" name="service_id" value="{{ $service->id }}"
+                                    class="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors
+                        {{ $ticket->service_id === $service->id ? 'bg-gray-50 dark:bg-slate-700/50 font-semibold' : '' }}">
+
+                                    <span class="truncate">{{ $service->name }}</span>
+
+                                    @if ($ticket->service_id === $service->id)
+                                        <span
+                                            class="material-icons-round text-[14px] ml-auto text-blue-600 dark:text-blue-400">
+                                            check
+                                        </span>
+                                    @endif
+                                </button>
+
+                                @if ($index < count($services) - 1)
+                                    <div class="border-t border-border-light dark:border-border-dark"></div>
+                                @endif
+                            @endforeach
+                        </form>
+                    </div>
+                @endif
             </div>
 
             {{-- Prioritas --}}
@@ -143,7 +190,6 @@
                 <div class="flex justify-between items-center gap-2 mb-1">
                     <p class="text-xs text-muted-light">Prioritas</p>
 
-                    {{-- Ikon Gear Muncul Jika Kondisi Logic Terpenuhi --}}
                     @if ($canEditPriority)
                         <button @click="openPriority = !openPriority" type="button"
                             class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors focus:outline-none flex items-center justify-center p-0.5 rounded hover:bg-gray-200 dark:hover:bg-slate-700"
