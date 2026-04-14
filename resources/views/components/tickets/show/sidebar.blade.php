@@ -1,4 +1,4 @@
-@props(['ticket'])
+@props(['ticket', 'services'])
 
 @php
     use Illuminate\Support\Str;
@@ -20,6 +20,21 @@
     // User biasa atau Guest (public tracking) akan melihat data tersensor.
     $isGuestTicket = is_null($ticket->user_id);
     $showSensitiveData = !$isGuestTicket || $isAdminOrSuper;
+
+    $canEditPriority = false;
+
+    // Cek apakah status memenuhi syarat
+    if (in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
+        if ($currentUser->role === UserRole::SUPERUSER) {
+            $canEditPriority = true;
+        } elseif ($currentUser->role === UserRole::ADMIN) {
+            if (is_null($ticket->assigned_to) || $ticket->assigned_to === $currentUser->id) {
+                $canEditPriority = true;
+            }
+        }
+    }
+
+    $canEditService = $canEditPriority;
 
     $prioColor = match ($ticket->priority) {
         TicketPriority::HIGH => 'text-red-600',
@@ -109,24 +124,123 @@
 
     {{-- INFO --}}
     <div
-        class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
-        <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
+        class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm">
+        {{-- Catatan: 'overflow-hidden' dihapus dari wrapper atas dan diganti dengan 'rounded-t-xl' di bawah agar dropdown tidak terpotong --}}
+        <div
+            class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50 rounded-t-xl">
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Informasi</h3>
         </div>
         <div class="p-4 space-y-4">
-            <div>
-                <p class="text-xs text-muted-light mb-1">Layanan</p>
+            {{-- Layanan --}}
+            <div x-data="{ openService: false }" class="relative">
+                <div class="flex justify-between items-center gap-2 mb-1">
+                    <p class="text-xs text-muted-light">Layanan</p>
+
+                    @if ($canEditService)
+                        <button @click="openService = !openService" type="button"
+                            class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors flex items-center justify-center p-0.5 rounded hover:bg-gray-200 dark:hover:bg-slate-700"
+                            title="Ubah Layanan">
+                            <span class="material-icons-round text-[14px]">settings</span>
+                        </button>
+                    @endif
+                </div>
+
+                {{-- Current Service --}}
                 <span
                     class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-indigo-50 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
                     {{ $ticket->service->name }}
                 </span>
+
+                {{-- Dropdown --}}
+                @if ($canEditService)
+                    <div x-show="openService" @click.outside="openService = false" x-transition
+                        class="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-50 overflow-hidden max-h-60 overflow-y-auto"
+                        style="display: none;">
+
+                        <form method="POST" action="{{ route('tickets.update_service', $ticket) }}">
+                            @csrf
+                            @method('PATCH')
+
+                            @foreach ($services as $index => $service)
+                                <button type="submit" name="service_id" value="{{ $service->id }}"
+                                    class="w-full text-left px-4 py-2 text-sm flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors
+                        {{ $ticket->service_id === $service->id ? 'bg-gray-50 dark:bg-slate-700/50 font-semibold' : '' }}">
+
+                                    <span class="truncate">{{ $service->name }}</span>
+
+                                    @if ($ticket->service_id === $service->id)
+                                        <span
+                                            class="material-icons-round text-[14px] ml-auto text-blue-600 dark:text-blue-400">
+                                            check
+                                        </span>
+                                    @endif
+                                </button>
+
+                                @if ($index < count($services) - 1)
+                                    <div class="border-t border-border-light dark:border-border-dark"></div>
+                                @endif
+                            @endforeach
+                        </form>
+                    </div>
+                @endif
             </div>
-            <div>
-                <p class="text-xs text-muted-light mb-1">Prioritas</p>
+
+            {{-- Prioritas --}}
+            <div x-data="{ openPriority: false }" class="relative">
+                <div class="flex justify-between items-center gap-2 mb-1">
+                    <p class="text-xs text-muted-light">Prioritas</p>
+
+                    @if ($canEditPriority)
+                        <button @click="openPriority = !openPriority" type="button"
+                            class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors focus:outline-none flex items-center justify-center p-0.5 rounded hover:bg-gray-200 dark:hover:bg-slate-700"
+                            title="Ubah Prioritas">
+                            <span class="material-icons-round text-[14px]">settings</span>
+                        </button>
+                    @endif
+                </div>
+
                 <div class="flex items-center gap-1 text-sm font-medium {{ $prioColor }}">
                     <span class="material-icons-round text-base">flag</span>
                     {{ ucfirst($ticket->priority->value) }}
                 </div>
+
+                {{-- Dropdown Ubah Prioritas --}}
+                @if ($canEditPriority)
+                    <div x-show="openPriority" @click.outside="openPriority = false"
+                        x-transition:enter="transition ease-out duration-100"
+                        x-transition:enter-start="transform opacity-0 scale-95"
+                        x-transition:enter-end="transform opacity-100 scale-100"
+                        x-transition:leave="transition ease-in duration-75"
+                        x-transition:leave-start="transform opacity-100 scale-100"
+                        x-transition:leave-end="transform opacity-0 scale-95"
+                        class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-50 overflow-hidden"
+                        style="display: none;">
+
+                        <form method="POST" action="{{ route('tickets.update_priority', $ticket) }}">
+                            @csrf
+                            @method('PATCH')
+                            @foreach (\App\Enums\TicketPriority::cases() as $priority)
+                                <button type="submit" name="priority" value="{{ $priority->value }}"
+                                    class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ $ticket->priority === $priority ? 'bg-gray-50 dark:bg-slate-700/50 font-bold' : '' }}">
+
+                                    <span
+                                        class="material-icons-round text-[16px] 
+                                        @if ($priority === \App\Enums\TicketPriority::HIGH) text-red-600 
+                                        @elseif($priority === \App\Enums\TicketPriority::MEDIUM) text-yellow-600 
+                                        @else text-gray-600 dark:text-gray-400 @endif">
+                                        flag
+                                    </span>
+                                    {{ ucfirst($priority->value) }}
+
+                                    @if ($ticket->priority === $priority)
+                                        <span
+                                            class="material-icons-round text-[14px] ml-auto text-blue-600 dark:text-blue-400">check</span>
+                                    @endif
+                                </button>
+                            @endforeach
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

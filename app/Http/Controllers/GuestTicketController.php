@@ -184,7 +184,7 @@ class GuestTicketController extends Controller
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
         Notification::send($admins, new SystemNotification(
             'Tiket Baru (Tamu)',
-            "Tamu ({$validated['full_name']}) membuat tiket baru: {$ticket->ticket_code}",
+            "Tamu ({$validated['full_name']}) membuat tiket baru: #{$ticket->ticket_code}",
             route('tickets.show', $ticket),
             'info'
         ));

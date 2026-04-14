@@ -123,6 +123,14 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
             ->name('tickets.assign.me');
 
+        // Update Service Logic
+        Route::patch('/tickets/{ticket}/service', [TicketController::class, 'updateService'])
+            ->name('tickets.update_service');
+
+        // Update Priority Logic
+        Route::patch('/tickets/{ticket}/priority', [TicketController::class, 'updatePriority'])
+            ->name('tickets.update_priority');
+
         // Close Ticket Logic
         Route::patch('/tickets/{ticket}/close', [TicketController::class, 'close'])
             ->name('tickets.close');
