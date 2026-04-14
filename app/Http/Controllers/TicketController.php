@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\Configuration;
@@ -141,7 +142,7 @@ class TicketController extends Controller
                     return $query->where('is_active', true)->where('show_to_user', true);
                 }),
             ],
-            'priority' => ['required', new Enum(\App\Enums\TicketPriority::class)],
+            'priority' => ['required', new Enum(TicketPriority::class)],
             'description' => 'required|string',
         ]);
 
@@ -217,6 +218,49 @@ class TicketController extends Controller
         }
 
         return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
+    }
+
+    public function updatePriority(Request $request, Ticket $ticket)
+    {
+        $request->validate([
+            'priority' => ['required', Rule::enum(TicketPriority::class)],
+        ]);
+
+        $user = auth()->user();
+
+        // 1. Syarat: Status tiket masih waiting atau progress
+        if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
+            return back()->with('error', 'Prioritas tidak dapat diubah pada tiket yang sudah ditutup.');
+        }
+
+        // 2. Syarat Otorisasi & Auto-assign
+        $isSuperuser = $user->role === UserRole::SUPERUSER;
+        $isAdmin = $user->role === UserRole::ADMIN;
+
+        if ($isSuperuser) {
+            // Superuser bisa mengedit kapan saja.
+            // Jika belum ada petugas, otomatis jadikan dia petugas (opsional, tapi disarankan)
+            if (is_null($ticket->assigned_to)) {
+                $ticket->assigned_to = $user->id;
+                $ticket->assigned_at = now();
+            }
+        } elseif ($isAdmin) {
+            // Admin hanya bisa mengedit jika tiket belum ada petugasnya ATAU tiket miliknya
+            if (is_null($ticket->assigned_to)) {
+                $ticket->assigned_to = $user->id;
+                $ticket->assigned_at = now();
+            } elseif ($ticket->assigned_to !== $user->id) {
+                return back()->with('error', 'Anda tidak memiliki akses untuk mengubah prioritas tiket ini.');
+            }
+        } else {
+            return back()->with('error', 'Anda tidak memiliki hak akses.');
+        }
+
+        // Update priority
+        $ticket->priority = $request->priority;
+        $ticket->save();
+
+        return back()->with('success', 'Prioritas tiket berhasil diperbarui.');
     }
 
     /**
