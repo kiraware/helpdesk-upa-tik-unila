@@ -25,7 +25,7 @@
 
         {{-- RIGHT COLUMN: Sidebar --}}
         <div class="lg:col-span-1">
-            <x-tickets.show.sidebar :ticket="$ticket" :services="$services" />
+            <x-tickets.show.sidebar :ticket="$ticket" :admins="$admins" :services="$services" />
         </div>
 
     </div>
