@@ -1,4 +1,4 @@
-@props(['ticket', 'services'])
+@props(['ticket', 'admins', 'services'])
 
 @php
     use Illuminate\Support\Str;
@@ -22,11 +22,13 @@
     $showSensitiveData = !$isGuestTicket || $isAdminOrSuper;
 
     $canEditPriority = false;
+    $canEditAssignee = false;
 
     // Cek apakah status memenuhi syarat
     if (in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
         if ($currentUser->role === UserRole::SUPERUSER) {
             $canEditPriority = true;
+            $canEditAssignee = true;
         } elseif ($currentUser->role === UserRole::ADMIN) {
             if (is_null($ticket->assigned_to) || $ticket->assigned_to === $currentUser->id) {
                 $canEditPriority = true;
@@ -77,20 +79,32 @@
 
 <div class="space-y-6" x-data="{ showModal: false, modalImage: '' }">
     {{-- ASSIGNEE --}}
-    <div
-        class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
+    <div x-data="{ openAssignee: false }"
+        class="relative border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm">
+
         <div
-            class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center">
+            class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50 flex justify-between items-center rounded-t-xl">
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Petugas</h3>
 
-            @if (is_null($ticket->assigned_to) && !$isClosed && $canTakeTicket)
-                <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
-                    @csrf
-                    <button type="submit" class="text-xs text-secondary hover:underline">Ambil Tiket</button>
-                </form>
-            @endif
+            <div class="flex items-center gap-2">
+                {{-- Tombol Ambil Tiket --}}
+                @if (is_null($ticket->assigned_to) && !$isClosed && $canTakeTicket)
+                    <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
+                        @csrf
+                        <button type="submit" class="text-xs text-secondary hover:underline">Ambil Tiket</button>
+                    </form>
+                @endif
 
+                @if ($canEditAssignee)
+                    <button @click="openAssignee = !openAssignee" type="button"
+                        class="text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 transition-colors focus:outline-none flex items-center justify-center p-0.5 rounded hover:bg-gray-200 dark:hover:bg-slate-700"
+                        title="Ubah Petugas">
+                        <span class="material-icons-round text-[14px]">settings</span>
+                    </button>
+                @endif
+            </div>
         </div>
+
         <div class="p-4">
             @if ($ticket->assignee)
                 <div class="flex items-center gap-3">
@@ -118,6 +132,55 @@
                 @endif
             @else
                 <div class="text-sm text-muted-light italic">Belum ada petugas</div>
+            @endif
+
+            {{-- Dropdown Ubah Petugas (Muncul saat gear di-klik) --}}
+            @if ($canEditAssignee)
+                <div x-show="openAssignee" @click.outside="openAssignee = false"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="transform opacity-0 scale-95"
+                    x-transition:enter-end="transform opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="transform opacity-100 scale-100"
+                    x-transition:leave-end="transform opacity-0 scale-95"
+                    class="absolute right-0 top-12 mt-1 w-56 rounded-lg shadow-lg bg-white dark:bg-slate-800 ring-1 ring-black ring-opacity-5 dark:ring-border-dark z-50 py-1 max-h-60 overflow-y-auto"
+                    style="display: none;">
+
+                    <form method="POST" action="{{ route('tickets.update_assignee', $ticket) }}">
+                        @csrf
+                        @method('PATCH')
+
+                        {{-- Opsi: Kosongkan Petugas --}}
+                        <button type="submit" name="assigned_to" value=""
+                            class="w-full text-left px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ is_null($ticket->assigned_to) ? 'bg-red-50 dark:bg-slate-700/50 font-bold' : '' }}">
+                            <span class="material-icons-round text-[16px]">person_off</span>
+                            Kosongkan Petugas
+
+                            @if (is_null($ticket->assigned_to))
+                                <span class="material-icons-round text-[14px] ml-auto text-red-600">check</span>
+                            @endif
+                        </button>
+
+                        <div class="border-t border-border-light dark:border-border-dark my-1"></div>
+
+                        {{-- Loop Opsi: Admin/Superuser --}}
+                        @foreach ($admins as $admin)
+                            <button type="submit" name="assigned_to" value="{{ $admin->id }}"
+                                class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ $ticket->assigned_to === $admin->id ? 'bg-gray-50 dark:bg-slate-700/50 font-bold' : '' }}">
+
+                                <img src="{{ $admin->photo ?? $admin->avatar_path ? asset('storage/' . ($admin->photo ?? $admin->avatar_path)) : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) }}"
+                                    class="w-5 h-5 rounded-full object-cover">
+
+                                <span class="truncate">{{ $admin->name }}</span>
+
+                                @if ($ticket->assigned_to === $admin->id)
+                                    <span
+                                        class="material-icons-round text-[14px] ml-auto text-blue-600 dark:text-blue-400">check</span>
+                                @endif
+                            </button>
+                        @endforeach
+                    </form>
+                </div>
             @endif
         </div>
     </div>
@@ -251,7 +314,8 @@
             class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
 
             {{-- Header --}}
-            <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
+            <div
+                class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
                 <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">
                     Detail Pelapor
                 </h3>

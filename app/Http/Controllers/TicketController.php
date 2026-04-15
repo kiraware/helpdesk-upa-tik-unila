@@ -224,6 +224,66 @@ class TicketController extends Controller
         return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
     }
 
+    public function updateAssignee(Request $request, Ticket $ticket)
+    {
+        // Validasi input, pastikan user ID yang dikirim adalah admin/superuser
+        $request->validate([
+            'assigned_to' => [
+                'nullable',
+                Rule::exists('users', 'id')->whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value]),
+            ],
+        ]);
+
+        $user = auth()->user();
+
+        // Keamanan tambahan: Hanya Superuser yang boleh merubah petugas secara manual
+        if ($user->role !== UserRole::SUPERUSER) {
+            return back()->with('error', 'Hanya Superuser yang dapat merubah petugas secara manual.');
+        }
+
+        // Syarat: Status tiket masih waiting atau progress
+        if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
+            return back()->with('error', 'Petugas tidak dapat diubah pada tiket yang sudah ditutup.');
+        }
+
+        // Simpan ID petugas lama untuk pengecekan notifikasi
+        $oldAssigneeId = $ticket->assigned_to;
+
+        // Update data petugas
+        $ticket->assigned_to = $request->assigned_to;
+        $ticket->assigned_at = $request->assigned_to ? now() : null;
+
+        // Auto-update status
+        if (is_null($request->assigned_to) && $ticket->status === TicketStatus::PROGRESS) {
+            $ticket->status = TicketStatus::WAITING;
+        } elseif (! is_null($request->assigned_to) && $ticket->status === TicketStatus::WAITING) {
+            $ticket->status = TicketStatus::PROGRESS;
+        }
+
+        $ticket->save();
+
+        // Jika ada petugas baru yang di-assign, dan petugasnya berbeda dari yang sebelumnya
+        if ($request->assigned_to && $request->assigned_to != $oldAssigneeId) {
+
+            // Load relasi assignee (petugas) agar kita bisa mengirim notifikasi ke model User-nya
+            $ticket->load('assignee');
+
+            if ($ticket->assignee) {
+                // Jangan kirim notif jika superuser meng-assign dirinya sendiri
+                if ($ticket->assignee->id !== $user->id) {
+                    $ticket->assignee->notify(new SystemNotification(
+                        'Penugasan Tiket Baru',
+                        "Anda telah ditugaskan untuk menangani tiket #{$ticket->ticket_code} oleh {$user->name}.",
+                        route('tickets.show', $ticket),
+                        'info'
+                    ));
+                }
+            }
+        }
+
+        return back()->with('success', 'Petugas tiket berhasil diperbarui.');
+    }
+
     public function updateService(Request $request, Ticket $ticket)
     {
         $request->validate([
