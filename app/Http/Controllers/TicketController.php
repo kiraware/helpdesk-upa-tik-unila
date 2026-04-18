@@ -246,10 +246,12 @@ class TicketController extends Controller
             return back()->with('error', 'Petugas tidak dapat diubah pada tiket yang sudah ditutup.');
         }
 
-        // Simpan ID petugas lama untuk pengecekan notifikasi
-        $oldAssigneeId = $ticket->assigned_to;
+        // Jika nilai dari form sama dengan nilai di database, hentikan proses (skip update)
+        if ($ticket->assigned_to == $request->assigned_to) {
+            return back()->with('info', 'Tidak ada perubahan pada petugas tiket.');
+        }
 
-        // Update data petugas
+        // Update data petugas & timestamp HANYA jika ada perubahan
         $ticket->assigned_to = $request->assigned_to;
         $ticket->assigned_at = $request->assigned_to ? now() : null;
 
@@ -262,22 +264,17 @@ class TicketController extends Controller
 
         $ticket->save();
 
-        // Jika ada petugas baru yang di-assign, dan petugasnya berbeda dari yang sebelumnya
-        if ($request->assigned_to && $request->assigned_to != $oldAssigneeId) {
-
-            // Load relasi assignee (petugas) agar kita bisa mengirim notifikasi ke model User-nya
+        // Kirim notifikasi HANYA jika form tidak dikosongkan
+        if ($request->assigned_to) {
             $ticket->load('assignee');
 
-            if ($ticket->assignee) {
-                // Jangan kirim notif jika superuser meng-assign dirinya sendiri
-                if ($ticket->assignee->id !== $user->id) {
-                    $ticket->assignee->notify(new SystemNotification(
-                        'Penugasan Tiket Baru',
-                        "Anda telah ditugaskan untuk menangani tiket #{$ticket->ticket_code} oleh {$user->name}.",
-                        route('tickets.show', $ticket),
-                        'info'
-                    ));
-                }
+            if ($ticket->assignee && $ticket->assignee->id !== $user->id) {
+                $ticket->assignee->notify(new SystemNotification(
+                    'Penugasan Tiket Baru',
+                    "Anda telah ditugaskan untuk menangani tiket #{$ticket->ticket_code} oleh {$user->name}.",
+                    route('tickets.show', $ticket),
+                    'info'
+                ));
             }
         }
 

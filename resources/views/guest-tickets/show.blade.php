@@ -13,13 +13,16 @@
                 {{-- LEFT COLUMN: Discussion --}}
                 <div class="lg:col-span-3 space-y-8">
 
-                    {{-- 1. Initial Description --}}
+                    {{-- 1. Detail Pelapor --}}
+                    <x-tickets.show.guest-details :ticket="$ticket" />
+
+                    {{-- 2. Initial Description --}}
                     <x-tickets.show.description :ticket="$ticket" />
 
-                    {{-- 2. Comments --}}
+                    {{-- 3. Comments --}}
                     <x-tickets.show.comments :ticket="$ticket" />
 
-                    {{-- 3. Reply Form --}}
+                    {{-- 4. Reply Form --}}
                     @php
                         // Logika Status Tiket
                         $isClosed = in_array($ticket->status, [
@@ -147,13 +150,13 @@
                         </div>
                     @endif
 
-                    {{-- 4. Survey Kepuasan --}}
+                    {{-- 5. Survey Kepuasan --}}
                     <x-tickets.show.survey :ticket="$ticket" />
                 </div>
 
                 {{-- RIGHT COLUMN: Sidebar --}}
                 <div class="lg:col-span-1">
-                    <x-tickets.show.sidebar :ticket="$ticket" />
+                    <x-tickets.show.sidebar :ticket="$ticket" :admins="$admins" :services="$services" />
                 </div>
 
             </div>

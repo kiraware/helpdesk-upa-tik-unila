@@ -30,14 +30,21 @@
         }
 
         .header-text h3 {
-            font-size: 16pt;
+            font-size: 14pt;
             font-weight: normal;
             margin: 0;
             text-transform: uppercase;
         }
 
         .header-text h2 {
-            font-size: 18pt;
+            font-size: 14pt;
+            font-weight: normal;
+            margin: 2px 0;
+            text-transform: uppercase;
+        }
+
+        .header-text h4 {
+            font-size: 14pt;
             font-weight: bold;
             margin: 0;
             text-transform: uppercase;
@@ -162,11 +169,11 @@
             </td>
             <td width="85%" align="center">
                 <div class="header-text">
-                    <h3>KEMENTERIAN PENDIDIKAN DAN KEBUDAYAAN</h3>
-                    <h3>UPA TEKNOLOGI INFORMASI DAN KOMUNIKASI</h3>
-                    <h3>UNIVERSITAS LAMPUNG</h3>
+                    <h3>KEMENTERIAN PENDIDIKAN TINGGI, SAINS, DAN TEKNOLOGI</h3>
+                    <h2>UNIVERSITAS LAMPUNG</h2>
+                    <h4>UPA TEKNOLOGI INFORMASI DAN KOMUNIKASI</h4>
                     <p>Jalan Prof. Dr. Sumantri Brojonegoro No. 1 Bandar Lampung 35145</p>
-                    <p>Email: tik@kpa.unila.ac.id | Website: tik.unila.ac.id</p>
+                    <p>Email: tik@kpa.unila.ac.id | Website: https://tik.unila.ac.id</p>
                 </div>
             </td>
         </tr>
@@ -270,8 +277,8 @@
             <tr>
                 <td width="33%" align="center" style="font-weight: bold; background-color: #f0f0f0;">TTD Petugas</td>
                 <td width="34%" align="center" style="font-weight: bold; background-color: #f0f0f0;">TTD User</td>
-                <td width="33%" align="center" style="font-weight: bold; background-color: #f0f0f0;">TTD Kepala
-                    Divisi</td>
+                <td width="33%" align="center" style="font-weight: bold; background-color: #f0f0f0;">TTD Penanggung
+                    Jawab</td>
             </tr>
 
             {{-- Baris 2: Space Tanda Tangan --}}

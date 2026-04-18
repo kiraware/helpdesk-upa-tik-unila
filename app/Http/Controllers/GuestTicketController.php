@@ -103,7 +103,13 @@ class GuestTicketController extends Controller
             'comments.attachments',
         ]);
 
-        return view('guest-tickets.show', compact('ticket'));
+        $admins = User::whereIn('role', ['admin', 'superuser'])->get();
+
+        $services = Service::where('is_active', true)
+            ->orderByRaw('LOWER(name) ASC')
+            ->get(['id', 'name']);
+
+        return view('guest-tickets.show', compact('ticket', 'admins', 'services'));
     }
 
     public function create()
@@ -194,7 +200,7 @@ class GuestTicketController extends Controller
             ->route('whatsapp', $validated['phone'])
             ->notify(new SystemNotification(
                 'Tiket Berhasil Dibuat',
-                "Halo {$validated['full_name']}, laporan Anda telah kami terima dengan Kode Tiket: {$ticket->ticket_code}. Silakan pantau perkembangannya melalui link berikut.",
+                "Halo {$validated['full_name']}, laporan Anda telah kami terima dengan Kode Tiket: #{$ticket->ticket_code}. Silakan pantau perkembangannya melalui link berikut.",
                 route('guest.tracking.show', $ticket->ticket_code),
                 'success'
             ));

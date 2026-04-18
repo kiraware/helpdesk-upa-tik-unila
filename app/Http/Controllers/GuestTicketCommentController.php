@@ -28,7 +28,7 @@ class GuestTicketCommentController extends Controller
         }
 
         $comment = $ticket->comments()->create([
-            'user_id' => null, // Guest
+            'user_id' => auth()->id(),
             'message' => $request->message,
         ]);
 

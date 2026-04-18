@@ -9,16 +9,19 @@
         {{-- LEFT COLUMN: Discussion --}}
         <div class="lg:col-span-3 space-y-8">
 
-            {{-- 1. Initial Description --}}
+            {{-- 1. Detail Pelapor (Khusus Guest) --}}
+            <x-tickets.show.guest-details :ticket="$ticket" />
+
+            {{-- 2. Initial Description --}}
             <x-tickets.show.description :ticket="$ticket" />
 
-            {{-- 2. Comments --}}
+            {{-- 3. Comments --}}
             <x-tickets.show.comments :ticket="$ticket" />
 
-            {{-- 3. Reply Form --}}
+            {{-- 4. Reply Form --}}
             <x-tickets.show.reply-form :ticket="$ticket" />
 
-            {{-- 4. Survey Kepuasan --}}
+            {{-- 5. Survey Kepuasan --}}
             <x-tickets.show.survey :ticket="$ticket" />
 
         </div>

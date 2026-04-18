@@ -23,7 +23,6 @@ class User extends Authenticatable
         'username_sso',
         'name',
         'email',
-        'phone',
         'password',
         'identity_number',
         'phone',

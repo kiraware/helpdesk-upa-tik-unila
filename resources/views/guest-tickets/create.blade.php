@@ -148,7 +148,7 @@
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Status <span class="text-red-500">*</span>
                             </label>
-                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 @foreach (\App\Enums\IdentityType::cases() as $type)
                                     <label class="relative cursor-pointer group">
                                         <input type="radio" name="entity_type" value="{{ $type->value }}"

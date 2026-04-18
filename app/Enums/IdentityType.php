@@ -7,4 +7,5 @@ enum IdentityType: string
     case MAHASISWA = 'mahasiswa';
     case DOSEN = 'dosen';
     case TENDIK = 'tendik';
+    case LAINNYA = 'lainnya';
 }
