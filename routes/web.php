@@ -123,10 +123,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
             ->name('tickets.assign.me');
 
-        // Update Assignee Logic
-        Route::patch('/tickets/{ticket}/assignee', [TicketController::class, 'updateAssignee'])
-            ->name('tickets.update_assignee');
-
         // Update Service Logic
         Route::patch('/tickets/{ticket}/service', [TicketController::class, 'updateService'])
             ->name('tickets.update_service');
@@ -157,5 +153,9 @@ Route::middleware(['auth'])->group(function () {
     ])->group(function () {
         // Manajemen User (Admin & Superuser lain)
         Route::resource('users', UserController::class);
+
+        // Update Assignee Logic
+        Route::patch('/tickets/{ticket}/assignee', [TicketController::class, 'updateAssignee'])
+            ->name('tickets.update_assignee');
     });
 });
