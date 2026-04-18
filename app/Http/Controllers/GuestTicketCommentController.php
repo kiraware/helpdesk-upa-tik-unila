@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Enums\TicketStatus;
+use App\Enums\UserRole;
 use App\Models\CommentAttachment;
 use App\Models\Ticket;
 use App\Notifications\SystemNotification;
-use App\Rules\ValidTurnstile;
+use App\Rules\ValidRecaptcha;
 use Illuminate\Http\Request;
 
 class GuestTicketCommentController extends Controller
@@ -18,7 +19,7 @@ class GuestTicketCommentController extends Controller
     {
         $request->validate([
             'message' => 'required|string',
-            'cf-turnstile-response' => ['required', new ValidTurnstile],
+            'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
 
         // 1. KEAMANAN: Cek Status Tiket
@@ -40,8 +41,22 @@ class GuestTicketCommentController extends Controller
             }
         }
 
+        // Jika tiket belum ada petugas, dan yang sedang login (berkomentar) adalah Admin / Superuser
+        if (is_null($ticket->assigned_to) && auth()->check()) {
+            if (in_array(auth()->user()->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+                $ticket->update([
+                    'assigned_to' => auth()->id(),
+                ]);
+
+                // Refresh data tiket agar relasi assignee langsung terbaca di baris berikutnya
+                $ticket->refresh();
+            }
+        }
+
         // 2. Jika sudah ada petugas -> Kirim ke Petugas
-        if ($ticket->assigned_to) {
+        // Catatan Tambahan: Kita tambahkan kondisi "&& $ticket->assigned_to !== auth()->id()"
+        // agar petugas yang membalas tiketnya sendiri tidak mendapat notifikasi notifikasi "Balasan Tamu".
+        if ($ticket->assigned_to && $ticket->assigned_to !== auth()->id()) {
             $ticket->assignee->notify(new SystemNotification(
                 'Balasan Tamu',
                 "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
@@ -49,7 +64,6 @@ class GuestTicketCommentController extends Controller
                 'info'
             ));
         }
-        // Blok ELSE untuk notifikasi "Balasan Tamu (Unassigned)" ke admin dihapus di sini
 
         return back()->with('success', 'Balasan berhasil dikirim.');
     }

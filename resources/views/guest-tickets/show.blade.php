@@ -56,6 +56,7 @@
                             </div>
 
                             <div class="grow min-w-0">
+                                <script src="https://www.google.com/recaptcha/api.js" async defer></script>
                                 <form action="{{ route('guest.tickets.comments.store', $ticket) }}" method="POST">
                                     @csrf
 
@@ -87,18 +88,18 @@
                                         <div
                                             class="px-4 py-3 bg-gray-50 dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
 
-                                            {{-- AREA TURNSTILE (KIRI) --}}
+                                            {{-- AREA RECAPTCHA (KIRI) --}}
                                             <div class="w-full sm:w-auto">
                                                 {{-- Widget Container --}}
-                                                <div class="cf-turnstile scale-90 sm:scale-100 origin-left"
-                                                    data-sitekey="{{ config('services.turnstile.key') }}"
-                                                    data-theme="auto" data-size="flexible"
+                                                <div class="g-recaptcha"
+                                                    data-sitekey="{{ config('services.recaptcha.key') }}"
+                                                    data-theme="light" {{-- Ubah ke "dark" jika ingin mode gelap --}}
                                                     data-callback="enableSubmitButton"
                                                     data-expired-callback="disableSubmitButton"
                                                     data-error-callback="disableSubmitButton">
                                                 </div>
 
-                                                @error('cf-turnstile-response')
+                                                @error('g-recaptcha-response')
                                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                                 @enderror
                                             </div>
@@ -107,8 +108,8 @@
                                             <div class="flex items-center gap-2 self-end sm:self-auto">
                                                 <button type="submit" id="submitButton" disabled
                                                     class="px-4 py-2 bg-secondary text-white text-sm font-medium rounded-lg shadow-sm transition-all whitespace-nowrap
-                                                           hover:opacity-90 
-                                                           disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50">
+                   hover:opacity-90 
+                   disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50">
                                                     Kirim Balasan
                                                 </button>
                                             </div>

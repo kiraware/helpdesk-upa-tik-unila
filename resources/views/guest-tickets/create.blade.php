@@ -22,6 +22,7 @@
         <div
             class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
 
+            <script src="https://www.google.com/recaptcha/api.js" async defer></script>
             <form id="ticketForm" action="{{ route('guest.tickets.store') }}" method="POST"
                 enctype="multipart/form-data">
                 @csrf
@@ -403,12 +404,12 @@
 
                         {{-- KIRI: Widget Captcha --}}
                         <div class="flex flex-col items-center sm:items-start w-full sm:w-auto">
-                            <div class="cf-turnstile scale-90 sm:scale-100 origin-center sm:origin-top-left"
-                                data-sitekey="{{ config('services.turnstile.key') }}" data-theme="auto"
-                                data-size="flexible" data-callback="enableSubmitButton"
+                            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"
+                                data-theme="light" data-callback="enableSubmitButton"
                                 data-expired-callback="disableSubmitButton" data-error-callback="disableSubmitButton">
                             </div>
-                            @error('cf-turnstile-response')
+
+                            @error('g-recaptcha-response')
                                 <p class="text-red-500 text-xs mt-1 text-center sm:text-left">{{ $message }}</p>
                             @enderror
                         </div>
