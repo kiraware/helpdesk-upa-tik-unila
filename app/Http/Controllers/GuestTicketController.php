@@ -12,7 +12,7 @@ use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
 use App\Notifications\SystemNotification;
-use App\Rules\ValidTurnstile;
+use App\Rules\ValidRecaptcha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
@@ -146,7 +146,7 @@ class GuestTicketController extends Controller
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
             'description' => 'required|string',
-            'cf-turnstile-response' => ['required', new ValidTurnstile],
+            'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
 
         $ticket = DB::transaction(function () use ($validated, $request) {
