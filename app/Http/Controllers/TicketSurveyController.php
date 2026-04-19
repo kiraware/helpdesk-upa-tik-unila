@@ -12,7 +12,7 @@ class TicketSurveyController extends Controller
 {
     public function store(Request $request, Ticket $ticket)
     {
-        // 1. Validasi Keberadaan Survei: Pastikan tiket ini belum pernah dinilai
+        // 1. Validasi Keberadaan Survei
         if ($ticket->survey()->exists()) {
             return back()->with('error', 'Survei untuk tiket ini sudah pernah diisi sebelumnya.');
         }
@@ -32,35 +32,57 @@ class TicketSurveyController extends Controller
         // 4. Validasi Input
         $questions = SurveyQuestion::active()->get();
         $rules = [
-            'overall_rating' => 'required|integer|min:1|max:5',
             'feedback' => 'required|string|max:255',
-            'answers' => 'required|array',
+            'satisfaction' => 'required|array',
+            'importance' => 'required|array',
         ];
 
         foreach ($questions as $q) {
-            $rules["answers.{$q->id}"] = 'required|integer|min:1|max:5';
+            $rules["satisfaction.{$q->id}"] = 'required|integer|min:1|max:5';
+            $rules["importance.{$q->id}"] = 'required|integer|min:1|max:5';
         }
 
         $validated = $request->validate($rules);
 
-        DB::transaction(function () use ($ticket, $validated) {
-            // Hitung CSI Score
-            $totalScore = collect($validated['answers'])->sum();
-            $maxScore = count($validated['answers']) * 5;
-            $csiScore = ($totalScore / $maxScore) * 100;
+        DB::transaction(function () use ($ticket, $validated, $questions) {
 
-            // 1. Simpan Header
+            // --- PERHITUNGAN CSI BERDASARKAN JURNAL ---
+            $totalWeightScore = 0;
+            $totalImportance = 0;
+
+            foreach ($questions as $q) {
+                $satScore = $validated['satisfaction'][$q->id];
+                $impScore = $validated['importance'][$q->id];
+
+                // Menghitung Weight Score (Kepuasan x Kepentingan)
+                $totalWeightScore += ($satScore * $impScore);
+
+                // Mengumpulkan Total Importance (sebagai pembagi / Weight Factor)
+                $totalImportance += $impScore;
+            }
+
+            // Menghitung Rating Bintang Tertimbang (Skala 1-5)
+            $weightedRating = $totalImportance > 0 ? ($totalWeightScore / $totalImportance) : 0;
+
+            // Mengkonversi Rating Tertimbang menjadi Persentase (Skor CSI)
+            $csiScore = ($weightedRating / 5) * 100;
+            // ------------------------------------------
+
+            // 1. Simpan Header Survei
             $survey = $ticket->survey()->create([
-                'overall_rating' => $validated['overall_rating'],
+                // overall_rating kita simpan dari hasil pembulatan weighted rating
+                // karena secara default strukturnya kemungkinan integer.
+                'overall_rating' => round($weightedRating),
                 'feedback' => $validated['feedback'],
                 'csi_score' => $csiScore,
             ]);
 
-            // 2. Simpan Detail Jawaban
-            foreach ($validated['answers'] as $questionId => $score) {
+            // 2. Simpan Detail Jawaban (Satisfaction & Importance)
+            foreach ($questions as $q) {
                 $survey->answers()->create([
-                    'survey_question_id' => $questionId,
-                    'score' => $score,
+                    'survey_question_id' => $q->id,
+                    'satisfaction_score' => $validated['satisfaction'][$q->id],
+                    'importance_score' => $validated['importance'][$q->id],
                 ]);
             }
         });

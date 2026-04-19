@@ -46,6 +46,7 @@ class GuestTicketCommentController extends Controller
             if (in_array(auth()->user()->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
                 $ticket->update([
                     'assigned_to' => auth()->id(),
+                    'assigned_at' => now(),
                 ]);
 
                 // Refresh data tiket agar relasi assignee langsung terbaca di baris berikutnya

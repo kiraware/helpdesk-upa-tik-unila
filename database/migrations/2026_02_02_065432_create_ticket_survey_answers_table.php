@@ -15,7 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('ticket_survey_id')->constrained()->cascadeOnDelete();
             $table->foreignId('survey_question_id')->constrained();
-            $table->unsignedTinyInteger('score');
+            $table->unsignedTinyInteger('satisfaction_score');
+            $table->unsignedTinyInteger('importance_score');
             $table->timestamps();
         });
     }
