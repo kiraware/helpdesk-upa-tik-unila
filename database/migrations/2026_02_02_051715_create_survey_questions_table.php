@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('survey_questions', function (Blueprint $table) {
             $table->id();
-            $table->string('question');
+            $table->string('aspect_name');
+            $table->string('satisfaction_question');
+            $table->string('importance_question');
             $table->integer('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();

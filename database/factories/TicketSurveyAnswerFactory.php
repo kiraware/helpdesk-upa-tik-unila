@@ -21,7 +21,8 @@ class TicketSurveyAnswerFactory extends Factory
         return [
             'ticket_survey_id' => TicketSurvey::factory(),
             'survey_question_id' => SurveyQuestion::factory(),
-            'score' => fake()->numberBetween(3, 5),
+            'satisfaction_score' => fake()->numberBetween(3, 5),
+            'importance_score' => fake()->numberBetween(4, 5),
         ];
     }
 }

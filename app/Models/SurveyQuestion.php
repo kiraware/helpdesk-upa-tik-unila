@@ -11,7 +11,9 @@ class SurveyQuestion extends Model
     use HasFactory;
 
     protected $fillable = [
-        'question',
+        'aspect_name',
+        'satisfaction_question',
+        'importance_question',
         'sort_order',
         'is_active',
     ];

@@ -29,66 +29,114 @@ class ReportController extends Controller
         $stats['completion_rate'] = $stats['total'] > 0
             ? round(($stats['done'] / $stats['total']) * 100, 1) : 0;
 
-        // CSI & Predikat Global
-        $avgCSI = Ticket::join('ticket_surveys', 'tickets.id', '=', 'ticket_surveys.ticket_id')
-            ->whereBetween('tickets.created_at', [$startDate, $endDate])
-            ->avg('ticket_surveys.csi_score');
-        $avgCSI = $avgCSI ? round($avgCSI, 1) : 0;
+        // --- DATA UNTUK GRAFIK ---
 
-        $csiPredicate = match (true) {
-            $avgCSI >= 81 => 'Sangat Puas',
-            $avgCSI >= 61 => 'Puas',
-            $avgCSI >= 41 => 'Cukup Puas',
-            $avgCSI >= 21 => 'Kurang Puas',
-            default => 'Tidak Puas',
-        };
+        // 1. Data Tren Tiket Harian
+        $period = collect();
+        $current = $startDate->copy();
 
-        // Avg Resolution Time Global
-        $resolutionTimes = Ticket::whereBetween('created_at', [$startDate, $endDate])
-            ->where('status', TicketStatus::DONE)
-            ->whereNotNull('assigned_at')
-            ->whereNotNull('closed_at')
-            ->get()
-            ->map(fn ($t) => $t->assigned_at->diffInHours($t->closed_at));
-        $avgResolutionTime = $resolutionTimes->count() > 0 ? round($resolutionTimes->avg(), 1) : 0;
+        while ($current <= $endDate) {
+            $period[$current->format('Y-m-d')] = 0;
+            $current->addDay();
+        }
 
-        // Chart Data
-        $dailyTrend = Ticket::selectRaw('DATE(created_at) as date, COUNT(*) as count')
-            ->whereBetween('created_at', [$startDate, $endDate])
+        $data = (clone $ticketsQuery)
+            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
             ->groupBy('date')
-            ->orderBy('date', 'ASC')
             ->pluck('count', 'date')
             ->toArray();
 
+        $dailyTrend = array_merge($period->toArray(), $data);
+        ksort($dailyTrend);
+
+        // 2. Data Komposisi Status
         $statusDist = [
-            'waiting' => $stats['waiting'], 'progress' => $stats['progress'],
-            'done' => $stats['done'], 'reject' => $stats['reject'],
+            'waiting' => $stats['waiting'],
+            'progress' => $stats['progress'],
+            'done' => $stats['done'],
+            'reject' => $stats['reject'],
         ];
 
-        // --- KPI STAFF ---
-        $staffs = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
-            ->with(['assignedTickets' => function ($q) use ($startDate, $endDate) {
-                $q->whereBetween('created_at', [$startDate, $endDate]);
-            }, 'assignedTickets.survey'])
+        // -------------------------------------------------------------
+
+        // --- PENGHITUNGAN CSI GLOBAL (Sesuai Jurnal) ---
+        $ticketsWithSurvey = Ticket::whereBetween('created_at', [$startDate, $endDate])
+            ->whereHas('survey')
+            ->with('survey.answers')
+            ->get();
+
+        $globalTotalWeightScore = 0;
+        $globalTotalImportance = 0;
+
+        foreach ($ticketsWithSurvey as $ticket) {
+            if ($ticket->survey && $ticket->survey->answers) {
+                foreach ($ticket->survey->answers as $answer) {
+                    // Weight Score = Satisfaction x Importance
+                    $globalTotalWeightScore += ($answer->satisfaction_score * $answer->importance_score);
+                    $globalTotalImportance += $answer->importance_score;
+                }
+            }
+        }
+
+        $avgCSI = 0;
+        if ($globalTotalImportance > 0) {
+            // (Total WS / Total Importance) / 5 * 100
+            $avgCSI = (($globalTotalWeightScore / $globalTotalImportance) / 5) * 100;
+        }
+        $avgCSI = round($avgCSI, 2);
+
+        $csiPredicate = match (true) {
+            $avgCSI >= 81 => 'Sangat Puas',
+            $avgCSI >= 66 => 'Puas',
+            $avgCSI >= 51 => 'Cukup Puas',
+            $avgCSI >= 35 => 'Kurang Puas',
+            $avgCSI > 0 => 'Tidak Puas',
+            default => 'Belum Ada Data',
+        };
+        // -----------------------------------------------
+
+        // --- KINERJA PER STAFF (PENGHITUNGAN CSI PER STAFF) ---
+        $staffPerformance = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
+            ->with(['assignedTickets' => function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate])
+                    ->with('survey.answers');
+            }])
             ->get()
             ->map(function ($user) {
-                $tickets = $user->assignedTickets;
-                $totalCount = $tickets->count();
-                $doneCount = $tickets->where('status', TicketStatus::DONE)->count();
-                $surveys = $tickets->map->survey->filter();
+                $assignedTickets = $user->assignedTickets;
+                $totalCount = $assignedTickets->count();
+                $doneCount = $assignedTickets->where('status', TicketStatus::DONE)->count();
 
-                // Hitung Rata-rata Waktu Penyelesaian Per User
-                // Hanya tiket DONE yang punya assigned_at & closed_at
-                $userTimes = $tickets->where('status', TicketStatus::DONE)
+                $userTimes = $assignedTickets
                     ->whereNotNull('assigned_at')
                     ->whereNotNull('closed_at')
                     ->map(fn ($t) => $t->assigned_at->diffInHours($t->closed_at));
 
                 $avgUserTime = $userTimes->count() > 0 ? round($userTimes->avg(), 1) : 0;
-
                 $rate = $totalCount > 0 ? round(($doneCount / $totalCount) * 100) : 0;
-                $avgStar = $surveys->count() > 0 ? round($surveys->avg('overall_rating'), 1) : 0;
-                $avgScore = $surveys->count() > 0 ? round($surveys->avg('csi_score'), 1) : 0;
+
+                // Hitung CSI khusus Staff ini
+                $staffWeightScore = 0;
+                $staffImportance = 0;
+                $surveyCount = 0;
+
+                foreach ($assignedTickets as $ticket) {
+                    if ($ticket->survey && $ticket->survey->answers) {
+                        $surveyCount++;
+                        foreach ($ticket->survey->answers as $answer) {
+                            $staffWeightScore += ($answer->satisfaction_score * $answer->importance_score);
+                            $staffImportance += $answer->importance_score;
+                        }
+                    }
+                }
+
+                $staffCSI = 0;
+                $staffStar = 0;
+
+                if ($staffImportance > 0) {
+                    $staffStar = $staffWeightScore / $staffImportance; // Skala 1-5 (Weighted Rating)
+                    $staffCSI = ($staffStar / 5) * 100; // Persentase CSI
+                }
 
                 return (object) [
                     'name' => $user->name,
@@ -96,10 +144,10 @@ class ReportController extends Controller
                     'assigned' => $totalCount,
                     'done' => $doneCount,
                     'rate' => $rate,
-                    'avg_resolution_time' => $avgUserTime, // <--- Data Baru
-                    'rating_star' => $avgStar,
-                    'csi_score' => $avgScore,
-                    'survey_count' => $surveys->count(),
+                    'avg_resolution_time' => $avgUserTime,
+                    'rating_star' => round($staffStar, 2),
+                    'csi_score' => round($staffCSI, 2),
+                    'survey_count' => $surveyCount,
                 ];
             })
             ->sort(function ($a, $b) {
@@ -107,14 +155,19 @@ class ReportController extends Controller
                     return $b->done <=> $a->done;
                 }
 
-                return $b->csi_score <=> $a->csi_score;
+                return $b->csi_score <=> $a->csi_score; // Urutkan dari CSI tertinggi
             })
             ->values();
 
         return view('reports.index', compact(
-            'startDate', 'endDate',
-            'stats', 'avgCSI', 'csiPredicate', 'avgResolutionTime',
-            'dailyTrend', 'statusDist', 'staffs'
+            'startDate',
+            'endDate',
+            'stats',
+            'avgCSI',
+            'csiPredicate',
+            'staffPerformance',
+            'dailyTrend',
+            'statusDist'
         ));
     }
 }

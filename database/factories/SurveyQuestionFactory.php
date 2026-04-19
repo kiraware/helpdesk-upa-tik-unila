@@ -17,7 +17,11 @@ class SurveyQuestionFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+            'aspect_name' => fake()->words(2, true),
+            'satisfaction_question' => fake()->sentence().'?',
+            'importance_question' => fake()->sentence().'?',
+            'sort_order' => fake()->numberBetween(1, 10),
+            'is_active' => true,
         ];
     }
 }

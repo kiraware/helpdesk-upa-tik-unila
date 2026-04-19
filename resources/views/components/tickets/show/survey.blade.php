@@ -4,41 +4,19 @@
     $survey = $ticket->survey;
     $questions = \App\Models\SurveyQuestion::active()->get();
 
-    // 1. Ambil User yang sedang login (bisa null jika Guest)
     $currentUser = auth()->user();
-
-    // 2. Cek apakah yang login adalah USER BIASA (Internal User)
-    // Jika ya, dia boleh mengisi jika tiket ini miliknya.
     $isUserRole = $currentUser && $currentUser->role === \App\Enums\UserRole::USER;
-
-    // 3. Cek apakah yang login adalah STAFF (Admin/Superuser)
-    // Staff TIDAK BOLEH mengisi survei apapun.
     $isStaffRole =
         $currentUser && in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
 
-    // 4. Cek apakah ini Tiket Guest (User ID Null)
     $isGuestTicket = is_null($ticket->user_id);
-
-    // 5. Validasi Pengisi Survei Guest:
-    // Form Guest hanya boleh muncul jika TIDAK ADA user yang login.
-    // (Asumsi: Guest mengakses via link publik tanpa login).
-    // Jika Admin login dan buka link guest, dia tidak boleh isi.
     $guestCanFill = $isGuestTicket && !$currentUser;
 
-    // DEFINISI STATUS SELESAI (DONE & REJECT)
     $finishedStatuses = [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT];
 
-    // 6. GABUNGKAN KONDISI UTAMA ($canFill):
-    // - Tiket harus status SELESAI
-    // - Survey belum pernah diisi
-    // - DAN:
-    //    a. User Internal (Role User) Pemilik Tiket
-    //    b. ATAU Guest Asli (Tidak Login) pada Tiket Guest
-    // - DAN BUKAN Staff (Admin/Superuser)
     $canFill =
         in_array($ticket->status, $finishedStatuses) && !$survey && !$isStaffRole && ($isUserRole || $guestCanFill);
 
-    // Warna untuk rating
     $getRatingColor = fn($score) => match (true) {
         $score >= 4.5 => 'text-emerald-500',
         $score >= 3.0 => 'text-yellow-500',
@@ -46,31 +24,36 @@
     };
 @endphp
 
-{{-- Tampil jika Tiket Selesai (DONE atau REJECT) --}}
 @if (in_array($ticket->status, $finishedStatuses))
     <div class="mt-8">
 
-        {{-- BAGIAN 1: HASIL SURVEI (Bisa dilihat oleh Admin/Superuser/User) --}}
+        {{-- BAGIAN 1: HASIL SURVEI --}}
         @if ($survey)
             <div
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden p-6 md:p-8">
                 <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
 
-                    {{-- Kiri: Overall Score --}}
+                    {{-- Kiri: Overall Score & CSI --}}
                     <div
                         class="flex flex-col items-center justify-center text-center md:w-1/3 border-b md:border-b-0 md:border-r border-border-light dark:border-border-dark pb-6 md:pb-0 md:pr-6 w-full">
+
+                        {{-- Menghitung kembali desimal Bintang dari CSI (CSI / 100 * 5) --}}
+                        @php
+                            $calculatedStar = ($survey->csi_score / 100) * 5;
+                        @endphp
+
                         <div
                             class="text-xs font-bold uppercase tracking-wider text-muted-light dark:text-muted-dark mb-2">
-                            Rating Kepuasan</div>
+                            Skor Kepuasan (CSI)
+                        </div>
                         <div class="text-6xl font-black text-text-light dark:text-text-dark mb-2">
-                            {{ $survey->overall_rating }}<span class="text-2xl text-muted-light">/5</span></div>
+                            {{ number_format($survey->csi_score, 2) }}<span class="text-2xl text-muted-light">%</span>
+                        </div>
 
-                        {{-- Bintang --}}
-                        <div class="flex items-center gap-1 mb-4">
-                            @for ($i = 1; $i <= 5; $i++)
-                                <span
-                                    class="material-icons-round text-3xl {{ $i <= $survey->overall_rating ? 'text-yellow-400' : 'text-gray-200 dark:text-slate-700' }}">star</span>
-                            @endfor
+                        {{-- Bintang Rata-rata Tertimbang --}}
+                        <div class="text-xl font-bold text-yellow-500 flex items-center gap-2 mb-4">
+                            <span class="material-icons-round">star</span>
+                            {{ number_format($calculatedStar, 2) }} / 5.00
                         </div>
 
                         <div
@@ -83,20 +66,27 @@
                     {{-- Kanan: Detail & Feedback --}}
                     <div class="flex-1 w-full space-y-6 min-w-0">
                         <div>
-                            <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Detail Penilaian</h4>
-                            <div class="space-y-4">
+                            <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Detail Penilaian per Aspek
+                            </h4>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 @foreach ($survey->answers as $ans)
-                                    <div>
-                                        <div class="flex justify-between items-start text-sm mb-1">
-                                            <span
-                                                class="text-muted-light dark:text-muted-dark pr-4">{{ $ans->question->question }}</span>
-                                            <span
-                                                class="font-bold {{ $getRatingColor($ans->score) }} shrink-0">{{ $ans->score }}/5</span>
+                                    <div
+                                        class="bg-gray-50 dark:bg-slate-800/50 p-3 rounded-lg border border-border-light dark:border-border-dark">
+                                        <div class="font-bold text-sm text-text-light dark:text-text-dark mb-2">
+                                            {{ $ans->question->aspect_name ?? 'Aspek Penilaian' }}
                                         </div>
-                                        <div
-                                            class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-2 overflow-hidden">
-                                            <div class="h-full rounded-full {{ str_replace('text-', 'bg-', $getRatingColor($ans->score)) }}"
-                                                style="width: {{ ($ans->score / 5) * 100 }}%"></div>
+
+                                        {{-- Skor Kepuasan --}}
+                                        <div class="flex justify-between items-center text-xs mb-1">
+                                            <span class="text-muted-light dark:text-muted-dark">Kepuasan:</span>
+                                            <span
+                                                class="font-bold {{ $getRatingColor($ans->satisfaction_score) }}">{{ $ans->satisfaction_score }}/5</span>
+                                        </div>
+
+                                        {{-- Skor Kepentingan --}}
+                                        <div class="flex justify-between items-center text-xs">
+                                            <span class="text-muted-light dark:text-muted-dark">Kepentingan:</span>
+                                            <span class="font-bold text-blue-500">{{ $ans->importance_score }}/5</span>
                                         </div>
                                     </div>
                                 @endforeach
@@ -114,21 +104,18 @@
                 </div>
             </div>
 
-            {{-- BAGIAN 2: FORMULIR INPUT (Hanya tampil jika $canFill bernilai true / Role User) --}}
+            {{-- BAGIAN 2: FORMULIR INPUT --}}
         @elseif($canFill)
             <div x-data="{
-                rating: 0,
-                hoverRating: 0,
                 submitLoading: false,
                 validate() {
-                    if (this.rating === 0) { alert('Mohon beri rating bintang.'); return false; }
                     this.submitLoading = true;
                     return true;
                 }
             }"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-secondary/20 dark:border-secondary/20 overflow-hidden relative">
 
-                {{-- Header Dekorasi --}}
+                {{-- Header --}}
                 <div class="bg-linear-to-r from-secondary to-blue-600 p-6 text-white text-center">
                     <h3 class="text-xl font-bold">Bagaimana Pelayanan Kami?</h3>
                     <p class="text-blue-100 text-sm mt-1">Bantu kami meningkatkan kualitas layanan Helpdesk UPA TIK.</p>
@@ -138,80 +125,87 @@
                     class="p-6 md:p-8 space-y-8">
                     @csrf
 
-                    {{-- 1. BINTANG UTAMA --}}
-                    <div class="text-center">
-                        <label
-                            class="block text-sm font-bold text-muted-light dark:text-muted-dark mb-3 uppercase tracking-wider">Kepuasan
-                            Keseluruhan</label>
-                        <div class="flex items-center justify-center gap-2 cursor-pointer"
-                            @mouseleave="hoverRating = 0">
-                            @for ($i = 1; $i <= 5; $i++)
-                                <button type="button" @click="rating = {{ $i }}"
-                                    @mouseover="hoverRating = {{ $i }}"
-                                    class="focus:outline-none transition-transform duration-100 hover:scale-110">
-                                    <span class="material-icons-round text-5xl transition-colors duration-200"
-                                        :class="(hoverRating || rating) >= {{ $i }} ? 'text-yellow-400' :
-                                            'text-gray-200 dark:text-slate-700'">
-                                        star
-                                    </span>
-                                </button>
-                            @endfor
-                        </div>
-                        <input type="hidden" name="overall_rating" :value="rating">
-                        <p class="text-sm font-medium mt-2 h-5 transition-all duration-300"
-                            :class="rating > 0 ? 'text-secondary opacity-100' : 'opacity-0'">
-                            <span
-                                x-text="['Sangat Buruk', 'Buruk', 'Cukup', 'Puas', 'Sangat Puas'][rating-1] || ''"></span>
-                        </p>
-                    </div>
+                    {{-- PERTANYAAN (Kepentingan & Kepuasan per Aspek) --}}
+                    <div class="space-y-8">
+                        @foreach ($questions as $index => $q)
+                            <div
+                                class="bg-gray-50 dark:bg-slate-800/30 p-5 rounded-xl border border-border-light dark:border-border-dark space-y-5">
 
-                    <hr class="border-border-light dark:border-border-dark">
+                                <h4
+                                    class="font-bold text-secondary text-lg border-b border-border-light dark:border-border-dark pb-2">
+                                    {{ $index + 1 }}. {{ $q->aspect_name ?? 'Aspek Penilaian' }}
+                                </h4>
 
-                    {{-- 2. PERTANYAAN SKALA (Grid Layout) --}}
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                        @foreach ($questions as $q)
-                            <div class="space-y-2">
-                                <label class="text-sm font-semibold text-text-light dark:text-text-dark block">
-                                    {{ $q->question }} <span class="text-red-500">*</span>
-                                </label>
-
-                                {{-- Radio Scale 1-5 --}}
-                                <div
-                                    class="flex items-center justify-between bg-gray-50 dark:bg-slate-800/50 rounded-lg p-1.5 border border-border-light dark:border-border-dark">
-                                    @foreach (range(1, 5) as $val)
-                                        <label class="flex-1 text-center cursor-pointer group relative">
-                                            <input type="radio" name="answers[{{ $q->id }}]"
-                                                value="{{ $val }}" required class="peer sr-only">
-                                            <div
-                                                class="w-full py-2 rounded-md text-sm font-medium text-muted-light dark:text-muted-dark transition-all duration-200
-                                                    peer-checked:bg-white dark:peer-checked:bg-slate-700 peer-checked:text-secondary peer-checked:shadow-sm
-                                                    group-hover:bg-gray-100 dark:group-hover:bg-slate-700/50">
-                                                {{ $val }}
-                                            </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    {{-- 1. Tingkat Kepentingan --}}
+                                    <div class="flex flex-col h-full">
+                                        <label
+                                            class="text-sm font-semibold text-text-light dark:text-text-dark block mb-3 grow">
+                                            {{ $q->importance_question }} <span class="text-red-500">*</span>
                                         </label>
-                                    @endforeach
-                                </div>
-                                <div
-                                    class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark px-1">
-                                    <span>Sangat Buruk</span>
-                                    <span>Sangat Baik</span>
+                                        <div class="space-y-2">
+                                            <div
+                                                class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-1.5 border border-border-light dark:border-border-dark shadow-sm">
+                                                @foreach (range(1, 5) as $val)
+                                                    <label class="flex-1 text-center cursor-pointer group relative">
+                                                        <input type="radio" name="importance[{{ $q->id }}]"
+                                                            value="{{ $val }}" required class="peer sr-only">
+                                                        <div
+                                                            class="w-full py-2 rounded-md text-sm font-medium text-muted-light dark:text-muted-dark transition-all duration-200 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:shadow-sm hover:bg-gray-100 dark:hover:bg-slate-800">
+                                                            {{ $val }}
+                                                        </div>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                            <div
+                                                class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark px-1">
+                                                <span>Sangat Tidak Penting</span>
+                                                <span>Sangat Penting</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {{-- 2. Tingkat Kepuasan --}}
+                                    <div class="flex flex-col h-full">
+                                        <label
+                                            class="text-sm font-semibold text-text-light dark:text-text-dark block mb-3 grow">
+                                            {{ $q->satisfaction_question }} <span class="text-red-500">*</span>
+                                        </label>
+                                        <div class="space-y-2">
+                                            <div
+                                                class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-1.5 border border-border-light dark:border-border-dark shadow-sm">
+                                                @foreach (range(1, 5) as $val)
+                                                    <label class="flex-1 text-center cursor-pointer group relative">
+                                                        <input type="radio" name="satisfaction[{{ $q->id }}]"
+                                                            value="{{ $val }}" required class="peer sr-only">
+                                                        <div
+                                                            class="w-full py-2 rounded-md text-sm font-medium text-muted-light dark:text-muted-dark transition-all duration-200 peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm hover:bg-gray-100 dark:hover:bg-slate-800">
+                                                            {{ $val }}
+                                                        </div>
+                                                    </label>
+                                                @endforeach
+                                            </div>
+                                            <div
+                                                class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark px-1">
+                                                <span>Sangat Buruk</span>
+                                                <span>Sangat Baik</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
 
-                    {{-- 3. FEEDBACK TEXT --}}
+                    {{-- FEEDBACK TEXT --}}
                     <div x-data="{ count: 0, max: 255 }">
                         <label for="feedback" class="block text-sm font-bold text-text-light dark:text-text-dark mb-2">
                             Masukan & Saran <span class="text-red-500">*</span>
                         </label>
-
                         <textarea name="feedback" id="feedback" rows="4" required maxlength="255"
                             @input="count = $event.target.value.length"
                             class="w-full rounded-xl border-border-light dark:border-border-dark bg-white dark:bg-slate-800 text-text-light dark:text-text-dark focus:ring-secondary focus:border-secondary placeholder-muted-light text-sm p-4 shadow-sm"
                             placeholder="Apa yang bisa kami tingkatkan lagi?"></textarea>
-
-                        {{-- Info karakter --}}
                         <div class="flex justify-end items-center mt-1 text-xs">
                             <p class="text-muted-light dark:text-muted-dark">
                                 <span x-text="count"></span>/<span x-text="max"></span>
@@ -221,7 +215,7 @@
 
                     {{-- SUBMIT BUTTON --}}
                     <div class="pt-4">
-                        <button type="submit"
+                        <button type="submit" :disabled="submitLoading"
                             class="w-full flex items-center justify-center gap-2 py-3 px-6 bg-secondary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">
                             <span x-show="!submitLoading" class="material-icons-round">send</span>
                             <span x-show="!submitLoading">Kirim Penilaian</span>

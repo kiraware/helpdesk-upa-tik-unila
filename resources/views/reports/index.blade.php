@@ -72,8 +72,9 @@
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Indeks Kepuasan (CSI)</p>
                         <div class="flex items-baseline gap-2 mt-1">
-                            <h3 class="text-3xl font-black text-text-light dark:text-text-dark">{{ $avgCSI }}<span
-                                    class="text-lg text-gray-400 font-normal">/100</span></h3>
+                            <h3 class="text-3xl font-black text-text-light dark:text-text-dark">
+                                {{ number_format($avgCSI, 2) }}<span class="text-lg text-gray-400 font-normal">%</span>
+                            </h3>
                         </div>
                         @php
                             $badgeColor = match (true) {
@@ -99,14 +100,19 @@
                 </div>
             </div>
 
-            {{-- Kartu 3: Rata-rata Waktu --}}
+            {{-- Kartu 3: Rata-rata Waktu (Kalkulasi dari Staff) --}}
+            @php
+                $validTimes = $staffPerformance->where('avg_resolution_time', '>', 0);
+                $globalAvgTime = $validTimes->count() > 0 ? round($validTimes->avg('avg_resolution_time'), 1) : 0;
+            @endphp
             <div
                 class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between">
                 <div class="flex justify-between items-start">
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Rata-rata Waktu Selesai</p>
                         <h3 class="text-3xl font-black text-text-light dark:text-text-dark mt-1">
-                            {{ $avgResolutionTime }}<span class="text-sm font-bold text-gray-400 ml-1">Jam</span></h3>
+                            {{ $globalAvgTime }}<span class="text-sm font-bold text-gray-400 ml-1">Jam</span>
+                        </h3>
                     </div>
                     <div class="p-2 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg text-indigo-500"><span
                             class="material-icons-round">timer</span></div>
@@ -122,7 +128,8 @@
                     <div>
                         <p class="text-gray-500 dark:text-gray-400 text-sm font-medium">Tingkat Penolakan</p>
                         <h3 class="text-3xl font-black text-text-light dark:text-text-dark mt-1">
-                            {{ $stats['total'] > 0 ? round(($stats['reject'] / $stats['total']) * 100, 1) : 0 }}%</h3>
+                            {{ $stats['total'] > 0 ? round(($stats['reject'] / $stats['total']) * 100, 1) : 0 }}%
+                        </h3>
                     </div>
                     <div class="p-2 bg-red-50 dark:bg-red-900/20 rounded-lg text-red-500"><span
                             class="material-icons-round">block</span></div>
@@ -161,24 +168,20 @@
 
             {{-- Wrapper Scrollable Horizontal --}}
             <div class="overflow-x-auto w-full">
-                {{-- Tambahkan whitespace-nowrap agar kolom tidak wrap ke bawah di layar kecil --}}
                 <table class="w-full text-sm text-left whitespace-nowrap">
                     <thead
                         class="bg-gray-50 dark:bg-slate-800/50 text-gray-500 dark:text-gray-400 uppercase text-xs font-bold tracking-wider">
                         <tr>
                             <th class="px-6 py-4">Nama Petugas</th>
                             <th class="px-6 py-4 text-center">Tiket Selesai</th>
-
-                            {{-- KOLOM BARU --}}
                             <th class="px-6 py-4 text-center">Rata-rata Waktu</th>
-
                             <th class="px-6 py-4 text-center w-1/5">Efektivitas (Selesai/Total)</th>
                             <th class="px-6 py-4 text-center">Rating Bintang (1-5)</th>
                             <th class="px-6 py-4 text-center">Skor CSI (0-100)</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                        @forelse ($staffs as $staff)
+                        @forelse ($staffPerformance as $staff)
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
@@ -190,6 +193,7 @@
                                                 {{ $staff->name }}</p>
                                             <p class="text-[10px] text-gray-400">{{ $staff->survey_count }} survei
                                                 diterima</p>
+
                                             @if ($loop->first && $staff->csi_score > 80)
                                                 <span
                                                     class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold border border-yellow-200 inline-flex items-center gap-1 mt-1">
@@ -206,7 +210,6 @@
                                     <span class="text-xs text-gray-400">/ {{ $staff->assigned }}</span>
                                 </td>
 
-                                {{-- ISI KOLOM BARU --}}
                                 <td class="px-6 py-4 text-center">
                                     <span
                                         class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 font-bold border border-indigo-100 dark:border-indigo-800">
@@ -224,19 +227,21 @@
                                         <span class="text-xs font-bold w-10 text-right">{{ $staff->rate }}%</span>
                                     </div>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div
-                                        class="inline-flex items-center gap-1 bg-gray-100 dark:bg-slate-800 px-2.5 py-1.5 rounded-lg border border-gray-200 dark:border-gray-700">
-                                        <span class="material-icons-round text-yellow-400 text-sm">star</span>
-                                        <span
-                                            class="font-bold text-text-light dark:text-text-dark">{{ $staff->rating_star }}</span>
+
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center gap-1 text-yellow-500">
+                                        <span class="material-icons-round text-sm">star</span>
+                                        <span class="font-bold text-gray-900 dark:text-white">
+                                            {{ number_format($staff->rating_star, 2) }}
+                                        </span>
                                     </div>
                                 </td>
+
                                 <td class="px-6 py-4 text-center">
                                     @php
                                         $csiColor = match (true) {
                                             $staff->csi_score >= 80
-                                                => 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400',
+                                                => 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400',
                                             $staff->csi_score >= 60
                                                 => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400',
                                             $staff->csi_score >= 40
@@ -245,8 +250,9 @@
                                                 => 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400',
                                         };
                                     @endphp
-                                    <span
-                                        class="px-3 py-1 rounded-full text-sm font-bold border {{ $csiColor }}">{{ $staff->csi_score }}</span>
+                                    <span class="px-3 py-1 rounded-full text-sm font-bold border {{ $csiColor }}">
+                                        {{ number_format($staff->csi_score, 2) }}%
+                                    </span>
                                 </td>
                             </tr>
                         @empty
