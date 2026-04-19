@@ -36,27 +36,38 @@ Alpine.data("toast", (initialMessage = "", initialType = "success") => ({
         this.visible = false;
         clearInterval(this.interval);
     },
-    get isSuccess() {
-        return this.type === "success";
-    },
+    // Hapus 'get isSuccess()' karena sudah tidak relevan
     get theme() {
-        return this.isSuccess
-            ? {
-                  bg_icon: "bg-emerald-100 dark:bg-emerald-900/30",
-                  text_icon: "text-emerald-600 dark:text-emerald-400",
-                  progress_bg: "bg-emerald-200 dark:bg-emerald-900",
-                  progress_fill: "bg-emerald-500",
-                  icon: "check_circle",
-                  title: "Berhasil",
-              }
-            : {
-                  bg_icon: "bg-red-100 dark:bg-red-900/30",
-                  text_icon: "text-red-600 dark:text-red-400",
-                  progress_bg: "bg-red-200 dark:bg-red-900",
-                  progress_fill: "bg-red-500",
-                  icon: "error",
-                  title: "Gagal",
-              };
+        switch (this.type) {
+            case "warning":
+                return {
+                    bg_icon: "bg-amber-100 dark:bg-amber-900/30",
+                    text_icon: "text-amber-600 dark:text-amber-400",
+                    progress_bg: "bg-amber-200 dark:bg-amber-900",
+                    progress_fill: "bg-amber-500",
+                    icon: "warning", // Menggunakan material icon 'warning'
+                    title: "Peringatan",
+                };
+            case "error":
+                return {
+                    bg_icon: "bg-red-100 dark:bg-red-900/30",
+                    text_icon: "text-red-600 dark:text-red-400",
+                    progress_bg: "bg-red-200 dark:bg-red-900",
+                    progress_fill: "bg-red-500",
+                    icon: "error",
+                    title: "Gagal",
+                };
+            case "success":
+            default:
+                return {
+                    bg_icon: "bg-emerald-100 dark:bg-emerald-900/30",
+                    text_icon: "text-emerald-600 dark:text-emerald-400",
+                    progress_bg: "bg-emerald-200 dark:bg-emerald-900",
+                    progress_fill: "bg-emerald-500",
+                    icon: "check_circle",
+                    title: "Berhasil",
+                };
+        }
     },
 }));
 

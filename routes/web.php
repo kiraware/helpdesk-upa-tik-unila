@@ -13,6 +13,7 @@ use App\Http\Controllers\TicketCommentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketSurveyController;
 use App\Http\Controllers\UserController;
+use App\Http\Middleware\EnsureSurveyCompleted;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -83,7 +84,7 @@ Route::controller(GuestTicketCommentController::class)->group(function () {
 
 Route::post('/tickets/{ticket}/survey', [TicketSurveyController::class, 'store'])->name('tickets.survey.store');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
 
     // 1. DASHBOARD (Semua Role punya dashboard, logic tampilan diatur di Controller)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');

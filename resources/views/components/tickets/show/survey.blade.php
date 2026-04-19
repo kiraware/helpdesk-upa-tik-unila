@@ -25,7 +25,7 @@
 @endphp
 
 @if (in_array($ticket->status, $finishedStatuses))
-    <div class="mt-8">
+    <div class="mt-8 scroll-mt-24" id="survey-section">
 
         {{-- BAGIAN 1: HASIL SURVEI --}}
         @if ($survey)

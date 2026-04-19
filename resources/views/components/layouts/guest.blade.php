@@ -35,6 +35,8 @@
     {{-- Toast Notifications --}}
     @if (session('success'))
         <x-toast type="success" :message="session('success')" />
+    @elseif (session('warning'))
+        <x-toast type="warning" :message="session('warning')" />
     @elseif (session('error'))
         <x-toast type="error" :message="session('error')" />
     @else
