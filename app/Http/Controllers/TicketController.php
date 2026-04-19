@@ -383,6 +383,15 @@ class TicketController extends Controller
             return back()->with('error', 'Anda tidak dapat menutup tiket yang sedang ditugaskan kepada staff lain.');
         }
 
+        // 3. Minimal ada 1 komentar dari staf
+        $hasStaffComment = $ticket->comments()->whereHas('user', function ($query) {
+            $query->whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value]);
+        })->exists();
+
+        if (! $hasStaffComment) {
+            return back()->with('error', 'Tidak dapat menutup tiket. Harus ada minimal 1 balasan/komentar dari petugas sebelum tiket dapat ditutup.');
+        }
+
         $validated = $request->validate([
             'status' => ['required', new Enum(TicketStatus::class)],
         ]);

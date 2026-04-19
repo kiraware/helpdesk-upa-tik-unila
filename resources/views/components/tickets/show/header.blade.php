@@ -40,6 +40,12 @@
         in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]) &&
         !$isClosed &&
         ($ticket->assigned_to === $currentUser->id || is_null($ticket->assigned_to));
+
+    // Cek apakah sudah ada komentar dari staf
+    $hasStaffComment = $ticket->comments->contains(function ($comment) {
+        return $comment->user &&
+            in_array($comment->user->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
+    });
 @endphp
 
 <div class="border-b border-border-light dark:border-border-dark pb-6 mb-6">
@@ -85,12 +91,19 @@
                     <div class="relative flex-1 md:flex-none" x-data="{
                         open: false,
                         showModal: false,
+                        showWarningModal: false,
                         actionStatus: '',
                         actionLabel: '',
                         actionColor: '',
                     
                         // Fungsi untuk memicu modal
                         confirmAction(status, label, color) {
+                            if (!{{ $hasStaffComment ? 'true' : 'false' }}) {
+                                this.showWarningModal = true;
+                                this.open = false; // Tutup dropdown
+                                return;
+                            }
+                    
                             this.actionStatus = status;
                             this.actionLabel = label;
                             this.actionColor = color;
@@ -113,7 +126,7 @@
 
                         {{-- Dropdown Menu --}}
                         <div x-show="open" x-transition x-cloak
-                            class="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-[40] overflow-hidden">
+                            class="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-40 overflow-hidden">
 
                             {{-- Option: Selesai --}}
                             <button type="button"
@@ -135,7 +148,7 @@
                         </div>
 
                         {{-- Modal Konfirmasi (Tailwind + Alpine) --}}
-                        <div x-show="showModal" style="display: none;" class="relative z-[100]"
+                        <div x-show="showModal" style="display: none;" class="relative z-100"
                             aria-labelledby="modal-title" role="dialog" aria-modal="true">
                             {{-- Backdrop Blur / Dim --}}
                             <div x-show="showModal" x-transition:enter="ease-out duration-300"
@@ -146,12 +159,11 @@
                             </div>
 
                             <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                {{-- BAGIAN YANG DIUBAH: items-end menjadi items-center agar di tengah pada mobile --}}
                                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
 
                                     {{-- Modal Panel --}}
                                     <div x-show="showModal" @click.outside="showModal = false"
-                                        x-transition:enter="ease-out duration-300" {{-- Transisi disesuaikan agar muncul dengan efek zoom kecil di tengah --}}
+                                        x-transition:enter="ease-out duration-300"
                                         x-transition:enter-start="opacity-0 scale-95"
                                         x-transition:enter-end="opacity-100 scale-100"
                                         x-transition:leave="ease-in duration-200"
@@ -204,6 +216,58 @@
                             @csrf @method('PATCH')
                             <input type="hidden" name="status" value="">
                         </form>
+
+                        {{-- MODAL PERINGATAN (BELUM ADA KOMENTAR) --}}
+                        <div x-show="showWarningModal" style="display: none;" class="relative z-50" role="dialog"
+                            aria-modal="true">
+                            {{-- Backdrop --}}
+                            <div x-show="showWarningModal" x-transition:enter="ease-out duration-300"
+                                x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
+                                x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
+                                x-transition:leave-end="opacity-0"
+                                class="fixed inset-0 bg-gray-500/75 dark:bg-gray-900/80 backdrop-blur-sm transition-opacity">
+                            </div>
+
+                            <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+                                <div
+                                    class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                                    <div x-show="showWarningModal" @click.away="showWarningModal = false"
+                                        x-transition:enter="ease-out duration-300"
+                                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                        x-transition:leave="ease-in duration-200"
+                                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+                                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+                                        class="relative transform overflow-hidden rounded-xl bg-white dark:bg-surface-dark text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-200 dark:border-border-dark">
+
+                                        <div class="bg-white dark:bg-surface-dark px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                                            <div class="text-center sm:text-left">
+                                                <h3
+                                                    class="text-base font-semibold leading-6 text-text-light dark:text-text-dark">
+                                                    Komentar Diperlukan
+                                                </h3>
+                                                <div class="mt-2">
+                                                    <p
+                                                        class="text-sm text-muted-light dark:text-muted-dark leading-relaxed">
+                                                        Tiket belum dapat ditutup. Silakan berikan setidaknya satu
+                                                        balasan atau tanggapan kepada pengguna sebelum mengakhiri sesi
+                                                        tiket ini.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div
+                                            class="bg-gray-50 dark:bg-slate-800/50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                                            <button type="button" @click="showWarningModal = false"
+                                                class="inline-flex w-full justify-center rounded-lg bg-white dark:bg-surface-dark px-4 py-2 text-sm font-medium text-text-light dark:text-text-dark shadow-sm ring-1 ring-inset ring-gray-300 dark:ring-border-dark hover:bg-gray-50 dark:hover:bg-slate-700 sm:w-auto transition-colors">
+                                                Kembali
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 @endif
 
