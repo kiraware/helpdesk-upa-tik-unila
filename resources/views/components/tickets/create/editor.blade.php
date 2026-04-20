@@ -47,7 +47,7 @@
         </div>
     </div>
 
-    {{-- INFORMASI DI BAWAH EDITOR (Layout Baru) --}}
+    {{-- INFORMASI DI BAWAH EDITOR --}}
     <div class="flex items-start gap-2 mt-2 ml-1">
         <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
 

@@ -229,29 +229,27 @@
                             </div>
 
                             <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-                                <div
-                                    class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                                <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
                                     <div x-show="showWarningModal" @click.away="showWarningModal = false"
                                         x-transition:enter="ease-out duration-300"
-                                        x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                        x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+                                        x-transition:enter-start="opacity-0 scale-95"
+                                        x-transition:enter-end="opacity-100 scale-100"
                                         x-transition:leave="ease-in duration-200"
-                                        x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
-                                        x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
-                                        class="relative transform overflow-hidden rounded-xl bg-white dark:bg-surface-dark text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-md border border-gray-200 dark:border-border-dark">
+                                        x-transition:leave-start="opacity-100 scale-100"
+                                        x-transition:leave-end="opacity-0 scale-95"
+                                        class="relative transform overflow-hidden rounded-xl bg-white dark:bg-surface-dark text-left shadow-xl transition-all w-full sm:my-8 sm:max-w-md border border-gray-200 dark:border-border-dark">
 
                                         <div class="bg-white dark:bg-surface-dark px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
                                             <div class="text-center sm:text-left">
                                                 <h3
                                                     class="text-base font-semibold leading-6 text-text-light dark:text-text-dark">
-                                                    Komentar Diperlukan
+                                                    Tanggapan Diperlukan
                                                 </h3>
                                                 <div class="mt-2">
                                                     <p
                                                         class="text-sm text-muted-light dark:text-muted-dark leading-relaxed">
                                                         Tiket belum dapat ditutup. Silakan berikan setidaknya satu
-                                                        balasan atau tanggapan kepada pengguna sebelum mengakhiri sesi
-                                                        tiket ini.
+                                                        tanggapan kepada pengguna sebelum mengakhiri sesi tiket ini.
                                                     </p>
                                                 </div>
                                             </div>
