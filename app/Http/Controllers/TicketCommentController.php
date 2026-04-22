@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Channels\WhatsAppChannel;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\CommentAttachment;
@@ -66,37 +67,46 @@ class TicketCommentController extends Controller
         $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
         if ($isStaff) {
-            // A. STAFF MEMBALAS -> Notifikasi ke User Pemilik Tiket
+            // A. STAFF MEMBALAS -> Notifikasi ke User/Guest Pemilik Tiket
+            $title = 'Balasan Terbaru pada Tiket Anda';
+            $message = "Petugas kami (*{$user->name}*) baru saja menambahkan balasan pada tiket Anda (*#{$ticket->ticket_code}* - Layanan: *{$ticket->service->name}*). Silakan klik tautan di bawah ini untuk membaca pesan tersebut dan memberikan tanggapan kembali jika diperlukan.";
+            $channels = ['database', 'mail', WhatsAppChannel::class];
+
             if ($ticket->user && $ticket->user_id !== $user->id) {
                 $ticket->user->notify(new SystemNotification(
-                    'Balasan Baru pada Tiket',
-                    "{$user->name} membalas tiket #{$ticket->ticket_code}.",
+                    $title,
+                    $message,
                     route('tickets.show', $ticket),
-                    'info'
+                    'info',
+                    $channels
                 ));
             } elseif ($ticket->guestDetail) {
                 Notification::route('mail', $ticket->guestDetail->email)
-                    ->route('whatsapp', $ticket->guestDetail->phone)
+                    ->route(WhatsAppChannel::class, $ticket->guestDetail->phone)
                     ->notify(new SystemNotification(
-                        'Balasan Baru pada Tiket',
-                        "{$user->name} membalas tiket #{$ticket->ticket_code}.",
+                        $title,
+                        $message,
                         route('guest.tracking.show', $ticket->ticket_code),
-                        'info'
+                        'info',
+                        ['mail', WhatsAppChannel::class]
                     ));
             }
         } else {
             // B. USER MEMBALAS -> Notifikasi ke Petugas (HANYA JIKA ADA PETUGAS)
-            if ($ticket->assigned_to) {
-                if ($ticket->assigned_to !== $user->id) {
-                    $ticket->assignee->notify(new SystemNotification(
-                        'Balasan User',
-                        "{$user->name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
-                        route('tickets.show', $ticket),
-                        'info'
-                    ));
-                }
+            if ($ticket->assigned_to && $ticket->assigned_to !== $user->id) {
+
+                $title = 'Aksi Diperlukan: Tanggapan Baru dari Pelapor';
+                $message = "Pelapor (*{$user->name}*) telah menambahkan tanggapan baru pada tiket *#{$ticket->ticket_code}* (Layanan: *{$ticket->service->name}*) yang sedang Anda tangani. Mohon segera periksa detail tiket untuk meninjau pesan tersebut dan memberikan tindak lanjut.";
+                $channels = ['database', 'mail', WhatsAppChannel::class];
+
+                $ticket->assignee->notify(new SystemNotification(
+                    $title,
+                    $message,
+                    route('tickets.show', $ticket),
+                    'info',
+                    $channels
+                ));
             }
-            // Blok ELSE untuk notifikasi "Balasan User (Unassigned)" ke admin dihapus di sini
         }
 
         return back()->with('success', 'Komentar berhasil dikirim.');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Channels\WhatsAppChannel;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\CommentAttachment;
@@ -55,14 +56,18 @@ class GuestTicketCommentController extends Controller
         }
 
         // 2. Jika sudah ada petugas -> Kirim ke Petugas
-        // Catatan Tambahan: Kita tambahkan kondisi "&& $ticket->assigned_to !== auth()->id()"
-        // agar petugas yang membalas tiketnya sendiri tidak mendapat notifikasi notifikasi "Balasan Tamu".
         if ($ticket->assigned_to && $ticket->assigned_to !== auth()->id()) {
+            $title = 'Balasan Baru dari Tamu';
+            $guestName = $ticket->guestDetail->full_name;
+            $message = "Terdapat balasan terbaru dari pelapor (*{$guestName}*) pada tiket *#{$ticket->ticket_code}* (Layanan: *{$ticket->service->name}*). Mohon segera periksa detail tiket untuk meninjau pesan tersebut dan memberikan tindak lanjut.";
+            $channels = ['database', 'mail', WhatsAppChannel::class];
+
             $ticket->assignee->notify(new SystemNotification(
-                'Balasan Tamu',
-                "{$ticket->guestDetail->full_name} membalas tiket #{$ticket->ticket_code} yang Anda tangani.",
+                $title,
+                $message,
                 route('tickets.show', $ticket),
-                'info'
+                'info',
+                $channels
             ));
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Channels\WhatsAppChannel;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
@@ -172,11 +173,19 @@ class TicketController extends Controller
 
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
 
+        // TIKET BARU DIBUAT (Ke Admin)
+        $userName = auth()->user()->name;
+        $title = 'Laporan Baru dari Pengguna';
+        $message = "Terdapat tiket baru dari pengguna (*{$userName}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
+
+        $channels = ['database', 'mail', WhatsAppChannel::class];
+
         Notification::send($admins, new SystemNotification(
-            'Tiket Baru Masuk',
-            auth()->user()->name." membuat tiket baru: #{$ticket->ticket_code}.",
+            $title,
+            $message,
             route('tickets.show', $ticket),
-            'info'
+            'info',
+            $channels
         ));
 
         return redirect()->route('tickets.show', $ticket)
@@ -203,21 +212,32 @@ class TicketController extends Controller
 
         $adminName = auth()->user()->name;
 
+        // PETUGAS MENGAMBIL TIKET (Ke Pelapor)
+        $title = 'Tiket Diproses';
+        $message = "Tiket Anda (*#{$ticket->ticket_code}*) untuk layanan *{$ticket->service->name}* saat ini telah berstatus *Sedang Diproses* dan ditangani oleh petugas kami (*{$adminName}*). Silakan klik tautan di bawah ini untuk memantau perkembangan penanganan tiket Anda.";
+
+        // Tentukan channel (Contoh: Notif di App + WhatsApp + Email)
+        $channels = ['database', 'mail', WhatsAppChannel::class];
+
         if ($ticket->user) {
+            // Jika User terdaftar di sistem
             $ticket->user->notify(new SystemNotification(
-                'Tiket Sedang Diproses',
-                "Tiket #{$ticket->ticket_code} kini sedang ditangani oleh ".$adminName.'.',
+                $title,
+                $message,
                 route('tickets.show', $ticket),
-                'info'
+                'info',
+                $channels
             ));
         } elseif ($ticket->guestDetail) {
+            // Jika Guest (Gunakan On-Demand Notification)
             Notification::route('mail', $ticket->guestDetail->email)
-                ->route('whatsapp', $ticket->guestDetail->phone)
+                ->route(WhatsAppChannel::class, $ticket->guestDetail->phone)
                 ->notify(new SystemNotification(
-                    'Tiket Sedang Diproses',
-                    "Tiket Anda (#{$ticket->ticket_code}) kini sedang ditangani oleh staff kami ({$adminName}).",
+                    $title,
+                    $message,
                     route('guest.tracking.show', $ticket->ticket_code),
-                    'info'
+                    'info',
+                    ['mail', WhatsAppChannel::class]
                 ));
         }
 
@@ -269,11 +289,19 @@ class TicketController extends Controller
             $ticket->load('assignee');
 
             if ($ticket->assignee && $ticket->assignee->id !== $user->id) {
+
+                // TIKET DITUGASKAN OLEH SUPERUSER (Ke Petugas Baru)
+                $title = 'Penugasan Tiket Baru';
+                $message = "Tiket *#{$ticket->ticket_code}* (Layanan: *{$ticket->service->name}*) telah ditugaskan kepada Anda oleh *{$user->name}*. Mohon segera periksa detail tiket melalui tautan di bawah ini dan mulai proses penanganan.";
+
+                $channels = ['database', 'mail', WhatsAppChannel::class];
+
                 $ticket->assignee->notify(new SystemNotification(
-                    'Penugasan Tiket Baru',
-                    "Anda telah ditugaskan untuk menangani tiket #{$ticket->ticket_code} oleh {$user->name}.",
+                    $title,
+                    $message,
                     route('tickets.show', $ticket),
-                    'info'
+                    'info',
+                    $channels
                 ));
             }
         }
@@ -414,24 +442,32 @@ class TicketController extends Controller
             $ticket->update($updateData);
         });
 
-        $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'diselesaikan' : 'ditolak';
+        $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'Diselesaikan' : 'Ditolak';
         $type = $validated['status'] === TicketStatus::DONE->value ? 'success' : 'error';
+
+        // TIKET DITUTUP / DITOLAK (Ke Pelapor)
+        $title = "Tiket {$statusLabel}";
+        $message = "Tiket Anda (*#{$ticket->ticket_code}*) terkait layanan *{$ticket->service->name}* telah dinyatakan *{$statusLabel}* oleh petugas kami (*{$user->name}*). Silakan klik tautan di bawah ini untuk melihat detail penyelesaian dan mohon luangkan waktu Anda untuk mengisi survei kepuasan layanan kami.";
+
+        $channels = ['database', 'mail', WhatsAppChannel::class];
 
         if ($ticket->user) {
             $ticket->user->notify(new SystemNotification(
-                "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
-                "Tiket Anda telah {$statusLabel} oleh {$user->name}. Mohon luangkan waktu untuk mengisi survei kepuasan pada halaman detail tiket.",
+                $title,
+                $message,
                 route('tickets.show', $ticket),
-                $type
+                $type,
+                $channels
             ));
         } elseif ($ticket->guestDetail) {
             Notification::route('mail', $ticket->guestDetail->email)
-                ->route('whatsapp', $ticket->guestDetail->phone)
+                ->route(WhatsAppChannel::class, $ticket->guestDetail->phone)
                 ->notify(new SystemNotification(
-                    "Tiket #{$ticket->ticket_code} ".ucfirst($statusLabel),
-                    "Tiket Anda telah {$statusLabel} oleh staff {$user->name}. Mohon luangkan waktu untuk mengisi survei kepuasan pada halaman detail tiket.",
+                    $title,
+                    $message,
                     route('guest.tracking.show', $ticket->ticket_code),
-                    $type
+                    $type,
+                    ['mail', WhatsAppChannel::class]
                 ));
         }
 

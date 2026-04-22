@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Channels\WhatsAppChannel;
 use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
@@ -186,24 +187,39 @@ class GuestTicketController extends Controller
             }
         }
 
-        // 1. Notifikasi ke Admin & Superuser
+        // 1. NOTIFIKASI KE ADMIN & SUPERUSER
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
+        $titleAdmin = 'Laporan Baru dari Tamu';
+        $messageAdmin = "Terdapat laporan baru dari tamu (*{$validated['full_name']}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
+        $channels = ['database', 'mail', WhatsAppChannel::class];
+
         Notification::send($admins, new SystemNotification(
-            'Tiket Baru (Tamu)',
-            "Tamu ({$validated['full_name']}) membuat tiket baru: #{$ticket->ticket_code}",
+            $titleAdmin,
+            $messageAdmin,
             route('tickets.show', $ticket),
-            'info'
+            'info',
+            $channels
         ));
 
-        // 2. Notifikasi ke Guest
-        Notification::route('mail', $validated['email'])
-            ->route('whatsapp', $validated['phone'])
-            ->notify(new SystemNotification(
-                'Tiket Berhasil Dibuat',
-                "Halo {$validated['full_name']}, laporan Anda telah kami terima dengan Kode Tiket: #{$ticket->ticket_code}. Silakan pantau perkembangannya melalui link berikut.",
-                route('guest.tracking.show', $ticket->ticket_code),
-                'success'
-            ));
+        // 2. NOTIFIKASI KE GUEST
+        $titleGuest = 'Laporan Anda Berhasil Diterima';
+        $messageGuest = "Halo *{$validated['full_name']}*, laporan Anda terkait layanan *{$ticket->service->name}* telah berhasil kami terima dan simpan dengan kode tiket *#{$ticket->ticket_code}*. Silakan klik tautan di bawah ini untuk melihat detail dan memantau status penanganan tiket Anda secara berkala.";
+        $guestChannels = ['mail'];
+        $guestNotification = Notification::route('mail', $validated['email']);
+
+        // Cek apakah nomor telepon diisi oleh tamu
+        if (! empty($validated['phone'])) {
+            $guestNotification->route(WhatsAppChannel::class, $validated['phone']);
+            $guestChannels[] = WhatsAppChannel::class;
+        }
+
+        $guestNotification->notify(new SystemNotification(
+            $titleGuest,
+            $messageGuest,
+            route('guest.tracking.show', $ticket->ticket_code),
+            'info',
+            $guestChannels
+        ));
 
         return redirect()
             ->route('guest.tracking.show', $ticket->ticket_code)
