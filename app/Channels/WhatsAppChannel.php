@@ -27,6 +27,8 @@ class WhatsAppChannel
             $to = $notifiable->routeNotificationForWhatsapp($notification);
         } elseif (isset($notifiable->phone)) {
             $to = $notifiable->phone;
+        } elseif (isset($notifiable->routes[__CLASS__])) {
+            $to = $notifiable->routes[__CLASS__];
         } elseif (isset($notifiable->routes['whatsapp'])) {
             $to = $notifiable->routes['whatsapp'];
         }
