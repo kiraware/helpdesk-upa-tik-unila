@@ -37,6 +37,7 @@ class UserFactory extends Factory
             // Data User
             'identity_number' => fake()->numerify('##########'),
             'phone' => fake()->phoneNumber(),
+            'avatar_path' => null,
             'role' => UserRole::USER,
             'division_id' => null,
             'department_id' => Department::inRandomOrder()->first()?->id ?? Department::factory(),

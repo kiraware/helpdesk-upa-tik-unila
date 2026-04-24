@@ -15,8 +15,8 @@ class ConfigurationSeeder extends Seeder
         Configuration::updateOrCreate(
             ['id' => 1],
             [
-                'upa_head_name' => 'Muhammad Komaruddin, S.T., M.T.',
-                'upa_head_nip' => '19681207 199703 1 006',
+                'upa_head_name' => 'Dr. Eng. Mardiana, S.T., M.T.',
+                'upa_head_nip' => '19720316 199903 2 003',
                 'upa_head_position' => 'Kepala UPA TIK',
             ]
         );

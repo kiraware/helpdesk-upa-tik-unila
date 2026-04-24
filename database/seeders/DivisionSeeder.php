@@ -15,8 +15,8 @@ class DivisionSeeder extends Seeder
         $divisions = [
             'Pusat Data dan Informasi',
             'PSI',
-            'INF',
-            'PPSI',
+            'Pusat Infrastruktur dan Jaringan',
+            'Pusat Pelatihan Sistem Informasi',
             'SDI',
         ];
 
