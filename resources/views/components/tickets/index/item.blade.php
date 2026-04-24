@@ -57,7 +57,7 @@
         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
             {{-- LINK UTAMA: Direntangkan menggunakan before:absolute --}}
             <a href="{{ route('tickets.show', $ticket) }}"
-                class="text-[15px] font-medium text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug line-clamp-2 break-words before:absolute before:inset-0 before:z-0"
+                class="text-[15px] font-medium text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug line-clamp-2 wrap-break-word before:absolute before:inset-0 before:z-0"
                 title="Lihat Detail Tiket">
                 {{-- Mengganti Title dengan potongan Deskripsi --}}
                 {{ Str::limit(strip_tags($ticket->description), 100, '...') }}
@@ -85,8 +85,7 @@
             <span class="font-mono text-gray-500 shrink-0">#{{ $ticket->ticket_code }}</span>
             <span class="text-gray-400 shrink-0">·</span>
 
-            <span
-                class="font-medium text-gray-900 dark:text-slate-200 truncate max-w-[100px] sm:max-w-none align-bottom"
+            <span class="font-medium text-gray-900 dark:text-slate-200 truncate max-w-25 sm:max-w-none align-bottom"
                 title="{{ $displayName }}">
                 {{ $displayName }}
             </span>
@@ -109,7 +108,7 @@
             </form>
         @elseif (!is_null($ticket->assigned_to))
             <div class="hidden sm:flex items-center" title="Ditugaskan ke {{ $ticket->assignee->name }}">
-                <img src="{{ $ticket->assignee->photo ? asset('storage/' . $ticket->assignee->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
+                <img src="{{ $ticket->assignee->avatar_path ? asset('storage/' . $ticket->assignee->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
                     alt="{{ $ticket->assignee->name }}"
                     class="w-6 h-6 rounded-full object-cover border border-border-light dark:border-slate-600 shadow-sm pointer-events-none" />
             </div>

@@ -29,6 +29,7 @@ class User extends Authenticatable
         'avatar_path',
         'role',
         'division_id',
+        'department_id',
     ];
 
     /**
@@ -92,5 +93,15 @@ class User extends Authenticatable
     public function routeNotificationForWhatsapp($notification)
     {
         return $this->phone;
+    }
+
+    /**
+     * Accessor untuk mendapatkan URL foto profil yang valid
+     */
+    public function getAvatarUrlAttribute(): string
+    {
+        return $this->avatar_path
+            ? asset('storage/'.$this->avatar_path)
+            : 'https://ui-avatars.com/api/?name='.urlencode($this->name);
     }
 }
