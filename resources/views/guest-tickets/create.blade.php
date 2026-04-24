@@ -176,26 +176,41 @@
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Foto Kartu Identitas <span class="text-red-500">*</span>
                             </label>
+
                             <div class="relative group">
                                 <input type="file" name="photo_identity" id="photo_identity" accept="image/*"
                                     class="hidden" onchange="previewFile(this, 'preview-identity', 'label-identity')"
                                     required>
-                                <label for="photo_identity"
-                                    class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all">
 
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-blue-500 transition-colors px-4 text-center"
-                                        id="label-identity">
+                                <label for="photo_identity"
+                                    class="relative flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all overflow-hidden">
+
+                                    {{-- Placeholder Image --}}
+                                    <img src="{{ asset('img/foto-kartu-edited-compressed-cropped.jpeg') }}"
+                                        class="absolute inset-0 w-full h-full object-cover opacity-30">
+
+                                    {{-- Badge contoh --}}
+                                    <span id="badge-identity"
+                                        class="absolute top-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded z-10">
+                                        Contoh
+                                    </span>
+
+                                    {{-- Overlay Text --}}
+                                    <div id="label-identity"
+                                        class="relative z-10 flex flex-col items-center justify-center text-slate-500 group-hover:text-blue-500 transition-colors px-4 text-center">
                                         <span class="material-icons-round text-5xl mb-3">badge</span>
                                         <p class="text-sm font-medium">Klik untuk upload foto</p>
-                                        <p class="text-xs text-slate-400 mt-1">
-                                            KTM / ID Card / KTP / SK Pengangkatan harus terlihat jelas
+                                        <p class="text-xs mt-1">
+                                            KTM / ID Card / KTP / SK harus terlihat jelas
                                         </p>
                                     </div>
 
+                                    {{-- Preview --}}
                                     <img id="preview-identity"
-                                        class="hidden h-full w-full object-contain rounded-xl p-2">
+                                        class="hidden absolute inset-0 w-full h-full object-contain bg-slate-50 dark:bg-slate-800 rounded-xl p-2">
                                 </label>
                             </div>
+
                             @error('photo_identity')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -206,24 +221,39 @@
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Selfie dengan Kartu Identitas <span class="text-red-500">*</span>
                             </label>
+
                             <div class="relative group">
                                 <input type="file" name="photo_selfie" id="photo_selfie" accept="image/*"
                                     class="hidden" onchange="previewFile(this, 'preview-selfie', 'label-selfie')"
                                     required>
-                                <label for="photo_selfie"
-                                    class="flex flex-col items-center justify-center w-full h-64 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all">
 
-                                    <div class="flex flex-col items-center justify-center pt-5 pb-6 text-slate-400 group-hover:text-blue-500 transition-colors px-4 text-center"
-                                        id="label-selfie">
+                                <label for="photo_selfie"
+                                    class="relative flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all overflow-hidden">
+
+                                    {{-- Placeholder Image --}}
+                                    <img src="{{ asset('img/foto-selfie-edited-compressed-cropped.jpeg') }}"
+                                        class="absolute inset-0 w-full h-full object-cover opacity-30">
+
+                                    {{-- Badge contoh --}}
+                                    <span id="badge-selfie"
+                                        class="absolute top-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded z-10">
+                                        Contoh
+                                    </span>
+
+                                    {{-- Overlay Text --}}
+                                    <div id="label-selfie"
+                                        class="relative z-10 flex flex-col items-center justify-center text-slate-500 group-hover:text-blue-500 transition-colors px-4 text-center">
                                         <span class="material-icons-round text-5xl mb-3">camera_front</span>
                                         <p class="text-sm font-medium">Klik untuk upload selfie</p>
-                                        <p class="text-xs text-slate-400 mt-1">Wajah & kartu harus jelas</p>
+                                        <p class="text-xs mt-1">Wajah & kartu harus jelas</p>
                                     </div>
 
+                                    {{-- Preview --}}
                                     <img id="preview-selfie"
-                                        class="hidden h-full w-full object-contain rounded-xl p-2">
+                                        class="hidden absolute inset-0 w-full h-full object-contain bg-slate-50 dark:bg-slate-800 rounded-xl p-2">
                                 </label>
                             </div>
+
                             @error('photo_selfie')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -479,34 +509,40 @@
             const label = document.getElementById(labelId);
             const file = input.files[0];
 
+            const badgeId = input.id === 'photo_identity' ?
+                'badge-identity' :
+                'badge-selfie';
+
+            const badge = document.getElementById(badgeId);
+
             if (file) {
-                // 1. Definisikan batas maksimal (2 MB dalam bytes)
                 const maxSize = 2 * 1024 * 1024;
 
-                // 2. Cek apakah ukuran file melebihi batas
                 if (file.size > maxSize) {
-                    // Panggil Toast Alpine.js alih-alih menggunakan alert()
                     window.dispatchEvent(new CustomEvent('notify', {
                         detail: {
-                            message: 'Ukuran foto terlalu besar! Maksimal ukuran adalah 2 MB.',
+                            message: 'Ukuran foto terlalu besar! Maksimal 2 MB.',
                             type: 'error'
                         }
                     }));
 
-                    // Reset input agar form tidak ter-submit dengan file raksasa ini
                     input.value = '';
                     preview.classList.add('hidden');
                     label.classList.remove('hidden');
-                    return; // Hentikan eksekusi script
+                    if (badge) badge.classList.remove('hidden');
+                    return;
                 }
 
-                // 3. Jika file aman (< 2MB), tampilkan preview gambar
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     preview.src = e.target.result;
+
                     preview.classList.remove('hidden');
                     label.classList.add('hidden');
+
+                    if (badge) badge.classList.add('hidden');
                 }
+
                 reader.readAsDataURL(file);
             }
         }
