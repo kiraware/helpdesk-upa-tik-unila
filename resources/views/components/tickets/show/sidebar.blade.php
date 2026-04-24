@@ -72,7 +72,7 @@
             @if ($ticket->assignee)
                 <div class="flex items-center gap-3">
                     {{-- Foto Profil Petugas Utama --}}
-                    <img src="{{ $ticket->assignee->avatar_path ? asset('storage/' . $ticket->assignee->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) . '&color=7F9CF5&background=EBF4FF' }}"
+                    <img src="{{ $ticket->assignee->avatar_path ? asset('storage/' . $ticket->assignee->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
                         class="w-8 h-8 rounded-full object-cover border border-border-light dark:border-slate-600 shadow-sm">
 
                     <div class="min-w-0">
@@ -132,7 +132,7 @@
                                 class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ $ticket->assigned_to === $admin->id ? 'bg-gray-50 dark:bg-slate-700/50 font-bold' : '' }}">
 
                                 {{-- Foto Profil Petugas di Dropdown --}}
-                                <img src="{{ $admin->avatar_path ? asset('storage/' . $admin->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) . '&color=7F9CF5&background=EBF4FF' }}"
+                                <img src="{{ $admin->avatar_path ? asset('storage/' . $admin->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) }}"
                                     class="w-5 h-5 rounded-full object-cover border border-border-light dark:border-slate-600">
 
                                 <span class="truncate">{{ $admin->name }}</span>

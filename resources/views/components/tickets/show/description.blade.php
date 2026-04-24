@@ -14,19 +14,21 @@
     // Cek apakah Admin/Superuser (Untuk styling border biru)
     $isStaff = $creator && in_array($creator->role->value, ['admin', 'superuser']);
 
-    // Avatar URL
-    if ($creator && $creator->photo) {
-        $avatarUrl = asset('storage/' . $creator->photo);
+    // AVATAR
+    if ($creator) {
+        $avatarUrl = $creator->avatar_path
+            ? asset('storage/' . $creator->avatar_path)
+            : 'https://ui-avatars.com/api/?name=' . urlencode($senderName);
     } else {
         $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($senderName);
     }
 @endphp
 
 <div class="flex gap-4 relative mb-6 group">
-    {{-- Avatar --}}
+    {{-- Avatar (Desktop) --}}
     <div class="shrink-0 hidden sm:block z-10">
-        <img src="{{ $avatarUrl }}"
-            class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light">
+        <img src="{{ $avatarUrl }}" alt="{{ $senderName }}"
+            class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light object-cover">
     </div>
 
     {{-- Bubble Content --}}
@@ -36,17 +38,21 @@
 
             {{-- HEADER --}}
             <div
-                class="px-4 py-2.5
-           {{ $isStaff ? 'bg-blue-50 dark:bg-blue-900/20' : 'bg-gray-50 dark:bg-slate-800/50' }}
+                class="px-4 py-2 {{ $isStaff ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'bg-gray-50/50 dark:bg-slate-800/50' }}
            border-b {{ $isStaff ? 'border-blue-100 dark:border-blue-900/30' : 'border-border-light dark:border-border-dark' }}
            flex items-start justify-between text-sm gap-4">
 
-                {{-- LEFT : NAME --}}
-                <div class="flex flex-wrap items-center min-w-0">
-                    <span
-                        class="font-semibold text-text-light dark:text-text-dark break-all wrap-break-word whitespace-normal max-w-full">
-                        {{ $senderName }}
-                    </span>
+                {{-- LEFT : NAME & AVATAR MOBILE --}}
+                <div class="flex items-center gap-2 min-w-0">
+                    {{-- Foto Profil (Mobile) --}}
+                    <img src="{{ $avatarUrl }}"
+                        class="w-5 h-5 rounded-full sm:hidden object-cover border border-gray-200 dark:border-slate-700">
+
+                    <div class="flex flex-wrap items-center min-w-0">
+                        <span class="font-semibold text-text-light dark:text-text-dark break-all">
+                            {{ $senderName }}
+                        </span>
+                    </div>
                 </div>
 
                 {{-- ROLE BADGE --}}
