@@ -130,7 +130,16 @@ class GuestTicketController extends Controller
         $validated = $request->validate([
             // 1. Validasi Data Diri
             'full_name' => 'required|string|max:100',
-            'email' => 'required|email|max:100',
+            'email' => [
+                'required',
+                'email',
+                'max:100',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/@([a-z0-9-]+\.)*unila\.ac\.id$/i', $value)) {
+                        $fail('Email dari domain unila.ac.id tidak diperbolehkan.');
+                    }
+                },
+            ],
             'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
             'identity_number' => 'required|string|max:50',
             'department_id' => 'required|exists:departments,id',
