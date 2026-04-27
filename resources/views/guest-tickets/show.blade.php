@@ -32,11 +32,18 @@
 
                         // Logika Nama & Avatar
                         if (auth()->check()) {
-                            $responderName = auth()->user()->name;
+                            $user = auth()->user();
+
+                            $responderName = $user->name;
+
+                            $avatarUrl = $user->avatar_path
+                                ? asset('storage/' . $user->avatar_path)
+                                : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
                         } else {
                             $responderName = $ticket->guestDetail->full_name ?? 'Guest';
+
+                            $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($responderName);
                         }
-                        $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($responderName);
 
                         // KONFIGURASI FILE
                         $maxSizeKp = 2048; // 2MB dalam KB
@@ -51,7 +58,7 @@
                             {{-- Avatar --}}
                             <div class="shrink-0 hidden sm:block">
                                 <img src="{{ $avatarUrl }}" alt="{{ $responderName }}"
-                                    class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm"
+                                    class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light object-cover"
                                     title="{{ $responderName }}">
                             </div>
 

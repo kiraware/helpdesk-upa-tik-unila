@@ -20,6 +20,7 @@ class DashboardController extends Controller
                 'waiting' => Ticket::where('status', TicketStatus::WAITING)->count(),
                 'progress' => Ticket::where('status', TicketStatus::PROGRESS)->count(),
                 'done' => Ticket::where('status', TicketStatus::DONE)->count(),
+                'reject' => Ticket::where('status', TicketStatus::REJECT)->count(),
             ];
 
             // Tiket terbaru sistem

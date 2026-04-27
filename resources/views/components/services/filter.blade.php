@@ -11,8 +11,19 @@
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <span class="material-icons-round text-base text-muted-light">search</span>
         </div>
+
+        {{-- Ubah pr-4 menjadi pr-10 agar teks tidak tertimpa tombol silang --}}
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari nama layanan..."
-            class="w-full pl-10 pr-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-all">
+            class="w-full pl-10 pr-10 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-all">
+
+        {{-- Tombol Silang (Hanya Muncul Jika Ada Pencarian) --}}
+        @if (request('q'))
+            <a href="{{ request()->fullUrlWithoutQuery('q') }}"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-light hover:text-red-500 transition-colors"
+                title="Hapus pencarian">
+                <span class="material-icons-round text-lg">close</span>
+            </a>
+        @endif
     </div>
 
     {{-- ROW 2: Grid 3 Kolom (Status, Tamu, User) --}}

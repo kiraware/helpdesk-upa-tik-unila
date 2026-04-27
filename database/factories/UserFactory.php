@@ -6,7 +6,6 @@ use App\Enums\UserRole;
 use App\Models\Department;
 use App\Models\Division;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 /**
@@ -14,11 +13,6 @@ use Illuminate\Support\Str;
  */
 class UserFactory extends Factory
 {
-    /**
-     * The current password being used by the factory.
-     */
-    protected static ?string $password;
-
     /**
      * Define the model's default state.
      *
@@ -31,7 +25,6 @@ class UserFactory extends Factory
             'email' => fake()->unique()->safeEmail(),
             'username_sso' => fake()->unique()->userName(),
             'email_verified_at' => now(),
-            'password' => static::$password ??= Hash::make('password'),
             'remember_token' => Str::random(10),
 
             // Data User

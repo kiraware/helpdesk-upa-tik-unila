@@ -6,7 +6,6 @@ use App\Enums\UserRole;
 use App\Models\Division;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -19,7 +18,6 @@ class UserSeeder extends Seeder
             'name' => 'Super Administrator',
             'username_sso' => 'superadmin',
             'email' => 'superadmin@unila.ac.id',
-            'password' => Hash::make('password'),
             'role' => UserRole::SUPERUSER,
             'identity_number' => '000000001',
         ]);
@@ -33,7 +31,6 @@ class UserSeeder extends Seeder
                 'name' => 'Staff Pusat Data dan Informasi',
                 'username_sso' => 'staff.pusdatin',
                 'email' => 'helpdesk@unila.ac.id',
-                'password' => Hash::make('password'),
                 'role' => UserRole::ADMIN,
                 'division_id' => $pusdatin->id,
                 'identity_number' => '198501012010121001',

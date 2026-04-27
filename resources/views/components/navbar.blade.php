@@ -129,7 +129,7 @@
         {{-- PEMISAH VERTIKAL --}}
         <div class="h-6 w-px bg-border-light dark:bg-slate-700/70 hidden sm:block"></div>
 
-        {{-- === MENU PROFIL === --}}
+        {{-- MENU PROFIL --}}
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" class="flex items-center gap-3 focus:outline-none group max-w-full">
 
@@ -173,7 +173,7 @@
                 </div>
 
                 {{-- Route Profil --}}
-                <a href="{{-- route('profile.edit') --}}#"
+                <a href="{{ route('profile.edit') }}"
                     class="block px-4 py-2.5 text-sm
                            text-text-light dark:text-slate-100
                            hover:bg-gray-100/70 dark:hover:bg-slate-700/60">
@@ -183,7 +183,7 @@
                 <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
 
                 {{-- Route Logout --}}
-                <form method="POST" action="{{-- route('logout') --}}#">
+                <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"
                         class="w-full text-left px-4 py-2.5 text-sm

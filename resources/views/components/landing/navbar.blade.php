@@ -41,7 +41,7 @@
                     <div class="h-4 w-px bg-border-light dark:bg-border-dark mx-1"></div>
 
                     {{-- Login --}}
-                    <a href="{{-- route('login') --}}"
+                    <a href="{{ route('login') }}"
                         class="text-sm font-semibold text-text-light dark:text-text-dark 
                                border border-border-light dark:border-border-dark 
                                hover:border-brand hover:text-brand 
@@ -59,6 +59,14 @@
 
                 {{-- LOGIKA: HANYA UNTUK USER LOGIN --}}
                 @auth
+                    @php
+                        $user = auth()->user();
+
+                        $avatarUrl = $user->avatar_path
+                            ? asset('storage/' . $user->avatar_path)
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
+                    @endphp
+
                     {{-- 2. TOMBOL DASHBOARD (LANGSUNG MUNCUL) --}}
                     <a href="{{ route('dashboard') }}"
                         class="text-sm font-semibold text-white bg-brand hover:bg-brand-hover 
@@ -77,16 +85,14 @@
                                     {{ auth()->user()->name }}
                                 </p>
                                 <p class="text-xs text-muted-light dark:text-slate-400 capitalize truncate">
-                                    {{ auth()->user()->role }}
+                                    {{ auth()->user()->role->value }}
                                 </p>
                             </div>
 
-                            <img src="{{ auth()->user()->photo
-                                ? asset('storage/' . auth()->user()->photo)
-                                : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                            <img src="{{ $avatarUrl }}"
                                 class="w-9 h-9 rounded-full object-cover
-                                       border border-border-light dark:border-slate-600
-                                       shadow-sm transition-all" />
+           border border-border-light dark:border-slate-600
+           shadow-sm transition-all" />
                         </button>
 
                         {{-- DROPDOWN --}}
@@ -98,7 +104,7 @@
                                    backdrop-blur-md backdrop-saturate-150 mt-2 origin-top-right">
 
                             {{-- Menu Profil --}}
-                            <a href="#" {{-- Ganti route('profile.edit') jika ada --}}
+                            <a href="{{ route('profile.edit') }}"
                                 class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium
                                        text-text-light dark:text-slate-100
                                        hover:bg-gray-100/70 dark:hover:bg-slate-700/60 transition-colors">
@@ -109,7 +115,7 @@
                             <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
 
                             {{-- Menu Keluar --}}
-                            <form method="POST" action="{{-- route('logout') --}}">
+                            <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
                                     class="w-full flex items-center gap-2 px-4 py-2.5 text-sm
@@ -150,7 +156,7 @@
                 </a>
 
                 <div class="pt-2 flex flex-col gap-3">
-                    <a href="{{-- route('login') --}}"
+                    <a href="{{ route('login') }}"
                         class="block text-center text-sm font-semibold border border-border-light dark:border-border-dark py-2.5 rounded-lg dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-800">
                         Login
                     </a>
@@ -162,16 +168,24 @@
             @endguest
 
             @auth
+                @php
+                    $user = auth()->user();
+
+                    $avatarUrl = $user->avatar_path
+                        ? asset('storage/' . $user->avatar_path)
+                        : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
+                @endphp
+
                 {{-- MOBILE AUTH MENU --}}
                 <div class="pt-2">
                     {{-- User Info Header --}}
                     <div class="flex items-center gap-3 mb-4">
-                        <img src="{{ auth()->user()->photo ? asset('storage/' . auth()->user()->photo) : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
+                        <img src="{{ $avatarUrl }}"
                             class="w-10 h-10 rounded-full object-cover border border-border-light">
                         <div class="flex flex-col">
                             <span
                                 class="text-sm font-bold text-text-light dark:text-text-dark">{{ auth()->user()->name }}</span>
-                            <span class="text-xs text-muted-light capitalize">{{ auth()->user()->role }}</span>
+                            <span class="text-xs text-muted-light capitalize">{{ auth()->user()->role->value }}</span>
                         </div>
                     </div>
 
@@ -179,18 +193,18 @@
                     <a href="{{ route('dashboard') }}"
                         class="flex items-center gap-2 w-full text-sm font-medium text-white bg-brand px-3 py-2.5 rounded-lg hover:bg-brand-hover shadow-sm mb-2">
                         <span class="material-icons-round text-white">dashboard</span>
-                        Ke Dashboard
+                        Dashboard
                     </a>
 
                     {{-- Profil Link --}}
-                    <a href="#" {{-- Ganti route profil --}}
+                    <a href="{{ route('profile.edit') }}"
                         class="flex items-center gap-2 w-full text-sm font-medium text-text-light dark:text-text-dark px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
                         <span class="material-icons-round text-muted-light">person</span>
                         Profil
                     </a>
 
                     {{-- Logout --}}
-                    <form method="POST" action="{{-- route('logout') --}}" class="mt-1">
+                    <form method="POST" action="{{ route('logout') }}" class="mt-1">
                         @csrf
                         <button
                             class="flex items-center gap-2 w-full text-left text-sm font-medium text-red-600 px-3 py-2.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">

@@ -117,6 +117,18 @@
                 </p>
             </div>
 
+            <a href="{{ route('sso-users.index') }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
+               {{ request()->routeIs('sso-users.*')
+                   ? 'bg-secondary text-white'
+                   : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+                <span
+                    class="material-icons-round mr-3 {{ request()->routeIs('sso-users.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
+                    lock_reset
+                </span>
+                User SSO
+            </a>
+
             <a href="{{ route('services.index') }}"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
                {{ request()->routeIs('services.*')
@@ -171,7 +183,7 @@
                     class="material-icons-round mr-3 {{ request()->routeIs('users.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
                     manage_accounts
                 </span>
-                Manajemen Pengguna
+                Manajemen Staff
             </a>
 
             <a href="{{ route('configurations.index') }}"

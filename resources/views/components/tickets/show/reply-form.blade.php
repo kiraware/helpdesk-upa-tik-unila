@@ -3,9 +3,11 @@
 @php
     $isClosed = in_array($ticket->status, [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT]);
 
-    $userAvatar = auth()->user()->photo
-        ? asset('storage/' . auth()->user()->photo)
-        : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name);
+    $user = auth()->user();
+
+    $userAvatar = $user->avatar_path
+        ? asset('storage/' . $user->avatar_path)
+        : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
 
     // KONFIGURASI FILE
     $maxSizeKp = 2048; // 2MB dalam KB
@@ -19,7 +21,7 @@
         {{-- Avatar --}}
         <div class="shrink-0 hidden sm:block">
             <img src="{{ $userAvatar }}"
-                class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm">
+                class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light object-cover">
         </div>
 
         <div class="grow min-w-0">
