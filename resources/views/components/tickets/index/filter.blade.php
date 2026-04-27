@@ -16,8 +16,19 @@
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <span class="material-icons-round text-base text-muted-light">search</span>
         </div>
+
+        {{-- Ubah pr-4 menjadi pr-10 agar ada ruang untuk tombol silang (close) --}}
         <input type="text" name="q" value="{{ request('q') }}" placeholder="Cari kode tiket / isi laporan..."
-            class="w-full pl-10 pr-4 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-all">
+            class="w-full pl-10 pr-10 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm transition-all">
+
+        {{-- Tombol Silang (Hanya Muncul Jika Ada Pencarian) --}}
+        @if (request('q'))
+            <a href="{{ request()->fullUrlWithoutQuery('q') }}"
+                class="absolute inset-y-0 right-0 pr-3 flex items-center text-muted-light hover:text-red-500 transition-colors"
+                title="Hapus pencarian">
+                <span class="material-icons-round text-lg">close</span>
+            </a>
+        @endif
     </div>
 
     {{-- ROW 2: Grid 4 Kolom (Layanan, Status, Prioritas, Petugas) --}}
@@ -121,7 +132,9 @@
                     @endphp
 
                     @if ($selectedAdmin)
-                        <img src="{{ $selectedAdmin->photo ? asset('storage/' . $selectedAdmin->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($selectedAdmin->name) }}"
+                        <img src="{{ $selectedAdmin->avatar_path
+                            ? asset('storage/' . $selectedAdmin->avatar_path)
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($selectedAdmin->name) }}"
                             class="w-5 h-5 rounded-full object-cover shrink-0 border border-border-light dark:border-slate-600">
                         {{ $selectedAdmin->name }}
                     @else
@@ -153,7 +166,10 @@
                         class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ request('assigned_to') == $admin->id ? 'font-bold text-secondary bg-gray-50 dark:bg-slate-700/50' : 'text-text-light dark:text-text-dark' }}">
 
                         {{-- Foto Profil Admin --}}
-                        <img src="{{ $admin->photo ? asset('storage/' . $admin->photo) : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) }}"
+
+                        <img src="{{ $admin->avatar_path
+                            ? asset('storage/' . $admin->avatar_path)
+                            : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) }}"
                             class="w-5 h-5 rounded-full object-cover shrink-0 border border-border-light dark:border-slate-600">
 
                         <span class="truncate">{{ $admin->name }}</span>

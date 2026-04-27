@@ -86,7 +86,7 @@ class TicketController extends Controller
 
         $admins = User::whereIn('role', ['admin', 'superuser'])
             ->orderByRaw('LOWER(name) ASC')
-            ->get(['id', 'name']);
+            ->get(['id', 'name', 'avatar_path']);
 
         return view('tickets.index', compact('tickets', 'admins', 'services'));
     }

@@ -162,7 +162,14 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
                             color: this.getGridColor(),
                             borderDash: [5, 5],
                         },
-                        ticks: { color: this.getTextColor() },
+                        ticks: {
+                            color: this.getTextColor(),
+                            stepSize: 1,
+                            precision: 0,
+                            callback: function (value) {
+                                return Number.isInteger(value) ? value : null;
+                            },
+                        },
                     },
                     x: {
                         grid: { display: false },
