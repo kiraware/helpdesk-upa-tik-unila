@@ -86,6 +86,38 @@
                 Semua Tiket
             </a>
 
+            <a href="{{ route('tickets.index', ['status' => \App\Enums\TicketStatus::WAITING->value]) }}"
+                class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
+    {{ request()->input('status') == \App\Enums\TicketStatus::WAITING->value
+        ? 'bg-secondary text-white'
+        : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+
+                <span
+                    class="material-icons-round mr-3 
+        {{ request()->input('status') == \App\Enums\TicketStatus::WAITING->value ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
+                    schedule
+                </span>
+
+                <div class="flex items-center justify-between w-full">
+                    <span>Tiket Menunggu</span>
+
+                    @if ($waitingCount > 0)
+                        <span class="relative ml-auto mr-1">
+                            <span
+                                class="absolute -top-2.5 -right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1
+                     text-[10px] font-bold leading-none
+                     text-yellow-800 bg-yellow-400
+                     rounded-full z-10">
+                                {{ $waitingCount > 99 ? '99+' : $waitingCount }}
+                            </span>
+                            <span
+                                class="absolute -top-2.5 -right-1 min-w-4.5 h-4.5
+                     bg-yellow-400 rounded-full animate-ping opacity-75"></span>
+                        </span>
+                    @endif
+                </div>
+            </a>
+
             <a href="{{ route('tickets.index', ['assigned_to' => 'me']) }}"
                 class="flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-colors group
                {{ request()->input('assigned_to') == 'me'
@@ -95,7 +127,24 @@
                     class="material-icons-round mr-3 {{ request()->input('assigned_to') == 'me' ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
                     assignment_ind
                 </span>
-                Tiket Ditugaskan
+                <div class="flex items-center justify-between w-full">
+                    <span>Tiket Ditugaskan</span>
+
+                    @if ($assignedProgressCount > 0)
+                        <span class="relative ml-auto mr-1">
+                            <span
+                                class="absolute -top-2.5 -right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1
+                     text-[10px] font-bold leading-none
+                     text-blue-900 bg-blue-400
+                     rounded-full z-10">
+                                {{ $assignedProgressCount > 99 ? '99+' : $assignedProgressCount }}
+                            </span>
+                            <span
+                                class="absolute -top-2.5 -right-1 min-w-4.5 h-4.5
+                     bg-blue-400 rounded-full animate-ping opacity-75"></span>
+                        </span>
+                    @endif
+                </div>
             </a>
 
             <a href="{{ route('reports.index') }}"
