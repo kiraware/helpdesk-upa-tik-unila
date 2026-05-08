@@ -13,8 +13,9 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // 1. Logic untuk SUPERUSER (Overview Menyeluruh)
+        // 1. SUPERUSER
         if ($user->role === UserRole::SUPERUSER) {
+
             $stats = [
                 'total' => Ticket::count(),
                 'waiting' => Ticket::where('status', TicketStatus::WAITING)->count(),
@@ -23,65 +24,93 @@ class DashboardController extends Controller
                 'reject' => Ticket::where('status', TicketStatus::REJECT)->count(),
             ];
 
-            // Tiket terbaru sistem
-            $recentTickets = Ticket::with(['user', 'service'])
+            $recentTickets = Ticket::with([
+                'user',
+                'service',
+            ])
+                ->withCount('comments') // <-- TAMBAHAN
                 ->latest()
                 ->take(5)
                 ->get();
 
-            // Statistik per layanan (Service)
             $serviceStats = Service::withCount('tickets')
                 ->orderByDesc('tickets_count')
                 ->take(5)
                 ->get();
 
-            return view('dashboard.superuser', compact('stats', 'recentTickets', 'serviceStats'));
+            return view('dashboard.superuser', compact(
+                'stats',
+                'recentTickets',
+                'serviceStats'
+            ));
         }
 
-        // 2. Logic untuk ADMIN (Fokus Operasional / Penugasan)
+        // 2. ADMIN
         if ($user->role === UserRole::ADMIN) {
+
             $stats = [
                 'unassigned' => Ticket::whereNull('assigned_to')->count(),
+
                 'my_tasks' => Ticket::where('assigned_to', $user->id)
                     ->where('status', TicketStatus::PROGRESS)
                     ->count(),
             ];
 
-            // Tiket yang butuh perhatian (Belum ada petugas atau prioritas tinggi)
-            $priorityTickets = Ticket::with(['user', 'service', 'guestDetail'])
+            $priorityTickets = Ticket::with([
+                'user',
+                'service',
+                'guestDetail',
+            ])
+                ->withCount('comments') // <-- TAMBAHAN
                 ->where(function ($q) {
                     $q->whereNull('assigned_to')
                         ->orWhere('status', TicketStatus::WAITING);
                 })
-                ->orderByRaw("CASE priority 
-                    WHEN 'high' THEN 1 
-                    WHEN 'medium' THEN 2 
-                    WHEN 'low' THEN 3 
-                    ELSE 4 END")
+                ->orderByRaw("
+                    CASE priority
+                        WHEN 'high' THEN 1
+                        WHEN 'medium' THEN 2
+                        WHEN 'low' THEN 3
+                        ELSE 4
+                    END
+                ")
                 ->latest()
                 ->take(10)
                 ->get();
 
-            return view('dashboard.admin', compact('stats', 'priorityTickets'));
+            return view('dashboard.admin', compact(
+                'stats',
+                'priorityTickets'
+            ));
         }
 
-        // 3. Logic untuk USER (Fokus Tiket Saya)
-        // Default fallback ke user jika role lain tidak match
+        // 3. USER
         $myStats = [
             'active' => Ticket::where('user_id', $user->id)
-                ->whereIn('status', [TicketStatus::WAITING, TicketStatus::PROGRESS])
+                ->whereIn('status', [
+                    TicketStatus::WAITING,
+                    TicketStatus::PROGRESS,
+                ])
                 ->count(),
+
             'completed' => Ticket::where('user_id', $user->id)
                 ->where('status', TicketStatus::DONE)
                 ->count(),
         ];
 
         $myRecentTickets = Ticket::where('user_id', $user->id)
-            ->with(['service', 'assignee'])
+            ->with([
+                'service',
+                'assignee',
+            ])
+            ->withCount('comments') // <-- TAMBAHAN
             ->latest()
             ->take(5)
             ->get();
 
-        return view('dashboard.user', compact('myStats', 'myRecentTickets'));
+        return view('dashboard.user', compact(
+            'myStats',
+            'myRecentTickets'
+        ));
     }
 }

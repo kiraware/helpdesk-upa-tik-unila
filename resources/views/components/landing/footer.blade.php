@@ -89,9 +89,18 @@
 
         <div
             class="border-t border-border-light dark:border-border-dark pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-xs text-muted-dark text-center md:text-left w-full">
-                © {{ date('Y') }} UPA TIK Universitas Lampung. All rights reserved.
+
+            <p class="text-xs text-muted-dark text-center md:text-left w-full md:w-auto">
+                &copy; {{ date('Y') }} UPA TIK Universitas Lampung. All rights reserved.
             </p>
+
+            <p class="text-xs text-muted-dark text-center md:text-right w-full md:w-auto">
+                Made with <span class="text-red-500">❤️</span> by
+                <a href="https://github.com/kiraware" target="_blank" class="hover:text-brand transition-colors">
+                    kiraware
+                </a>
+            </p>
+
         </div>
     </div>
 </footer>

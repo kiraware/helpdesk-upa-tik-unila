@@ -58,7 +58,7 @@
                             langsung.
                         </p>
                         <div class="mt-auto">
-                            <a href="{{ route('guest.tickets.create') }}"
+                            <a href="{{ auth()->check() ? route('tickets.create') : route('guest.tickets.create') }}"
                                 class="group/btn inline-flex items-center justify-center gap-2 bg-white text-brand font-bold py-4 px-6 rounded-xl hover:bg-blue-50 transition-all w-full sm:w-auto shadow-sm">
                                 <span
                                     class="material-icons-round group-hover/btn:scale-110 transition-transform">add_circle</span>
@@ -157,7 +157,8 @@
                     <p class="text-sm text-muted-light dark:text-muted-dark mb-4">
                         Cek FAQ kami untuk solusi cepat masalah umum.
                     </p>
-                    <a href="#" class="text-brand text-sm font-semibold hover:underline">Lihat FAQ &rarr;</a>
+                    <a href="{{ route('faq') }}" class="text-brand text-sm font-semibold hover:underline">Lihat
+                        FAQ &rarr;</a>
                 </div>
             </div>
         </div>

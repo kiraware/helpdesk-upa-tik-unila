@@ -256,9 +256,9 @@ class TicketController extends Controller
 
         $user = auth()->user();
 
-        // Keamanan tambahan: Hanya Superuser yang boleh merubah petugas secara manual
-        if ($user->role !== UserRole::SUPERUSER) {
-            return back()->with('error', 'Hanya Superuser yang dapat merubah petugas secara manual.');
+        // Keamanan tambahan: Admin dan Superuser boleh merubah petugas secara manual
+        if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+            return back()->with('error', 'Hanya Admin dan Superuser yang dapat merubah petugas secara manual.');
         }
 
         // Syarat: Status tiket masih waiting atau progress

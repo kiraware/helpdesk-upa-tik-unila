@@ -288,7 +288,7 @@
         <div class="mt-12 sm:mt-16 text-center">
             <p class="text-sm sm:text-base text-muted-light dark:text-muted-dark mb-4">Sudah menyiapkan persyaratan?
             </p>
-            <a href="{{ route('tickets.create') }}"
+            <a href="{{ auth()->check() ? route('tickets.create') : route('guest.tickets.create') }}"
                 class="w-full sm:w-auto inline-flex justify-center items-center gap-2 px-8 py-3 bg-secondary hover:bg-blue-600 text-white font-bold rounded-lg shadow-lg shadow-blue-500/30 transition-all transform hover:-translate-y-1 active:scale-95">
                 <span class="material-icons-round">confirmation_number</span>
                 Buat Tiket Sekarang
