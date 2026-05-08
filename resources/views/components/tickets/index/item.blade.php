@@ -55,11 +55,9 @@
     <div class="grow min-w-0">
 
         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
-            {{-- LINK UTAMA: Direntangkan menggunakan before:absolute --}}
             <a href="{{ route('tickets.show', $ticket) }}"
                 class="text-[15px] font-medium text-gray-900 dark:text-slate-100 hover:text-blue-600 dark:hover:text-blue-400 transition-colors leading-snug line-clamp-2 wrap-break-word before:absolute before:inset-0 before:z-0"
                 title="Lihat Detail Tiket">
-                {{-- Mengganti Title dengan potongan Deskripsi --}}
                 {{ Str::limit(strip_tags($ticket->description), 100, '...') }}
             </a>
 

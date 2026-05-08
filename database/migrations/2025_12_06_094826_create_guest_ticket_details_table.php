@@ -19,7 +19,7 @@ return new class extends Migration
                 ->constrained('tickets')
                 ->cascadeOnDelete();
             $table->string('full_name', 50);
-            $table->string('email');
+            $table->string('email')->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('identity_number', 32);
             $table->foreignId('department_id')
@@ -27,8 +27,8 @@ return new class extends Migration
                 ->constrained('departments')
                 ->nullOnDelete();
             $table->enum('entity_type', array_column(IdentityType::cases(), 'value'));
-            $table->string('photo_identity_path');
-            $table->string('photo_selfie_path');
+            $table->string('photo_identity_path')->nullable();
+            $table->string('photo_selfie_path')->nullable();
             $table->timestamps();
         });
     }

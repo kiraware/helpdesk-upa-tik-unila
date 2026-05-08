@@ -8,14 +8,14 @@
 
     {{-- Logo / Brand --}}
     <div class="h-16 shrink-0 flex items-center px-6 border-b border-border-dark bg-opacity-50">
-        <div class="flex items-center gap-3">
+        <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition">
             <div class="bg-secondary p-1.5 rounded-lg">
                 <span class="material-icons-round text-white text-xl">support_agent</span>
             </div>
             <span class="text-lg font-bold text-white tracking-wide">
                 Helpdesk
             </span>
-        </div>
+        </a>
     </div>
 
     {{-- Navigation --}}

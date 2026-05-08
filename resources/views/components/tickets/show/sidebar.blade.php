@@ -18,15 +18,11 @@
     $canEditPriority = false;
     $canEditAssignee = false;
 
-    // Cek apakah status memenuhi syarat
+    // Cek apakah status memenuhi syarat: Berikan hak edit ke Admin & Superuser
     if (in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
-        if ($currentUser && $currentUser->role === UserRole::SUPERUSER) {
+        if ($isAdminOrSuper) {
             $canEditPriority = true;
             $canEditAssignee = true;
-        } elseif ($currentUser && $currentUser->role === UserRole::ADMIN) {
-            if (is_null($ticket->assigned_to) || $ticket->assigned_to === $currentUser->id) {
-                $canEditPriority = true;
-            }
         }
     }
 
