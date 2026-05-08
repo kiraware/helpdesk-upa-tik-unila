@@ -1,7 +1,6 @@
 <x-layouts.guest title="Informasi & FAQ - UPA TIK Unila">
 
     {{-- HERO SECTION --}}
-    {{-- Mobile: Padding lebih kecil (pt-12), Desktop: Padding besar (pt-20) --}}
     <section class="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
         <div class="absolute inset-0 z-0 pointer-events-none">
             <div
@@ -15,11 +14,11 @@
                 <span class="material-icons-round text-sm">info</span>
                 Pusat Informasi
             </div>
-            {{-- Typography Scaling: text-3xl di HP, text-5xl di Desktop --}}
+
             <h1
                 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-text-light dark:text-text-dark tracking-tight mb-4">
-                Panduan Layanan <span
-                    class="text-transparent bg-clip-text bg-gradient-to-r from-secondary to-blue-600">UPA TIK</span>
+                Panduan Layanan <span class="text-transparent bg-clip-text bg-linear-to-r from-secondary to-blue-600">UPA
+                    TIK</span>
             </h1>
             <p class="text-base sm:text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto px-2">
                 Informasi lengkap mengenai Email Institusi, Akun SSO, dan prosedur layanan Helpdesk Universitas Lampung.
@@ -41,7 +40,6 @@
             </div>
 
             {{-- Grid Domain Email --}}
-            {{-- Mobile: 1 kolom, Tablet: 2 kolom, Desktop: 4 kolom --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
                 <div
                     class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm hover:border-secondary transition-colors group">
@@ -75,7 +73,6 @@
             </div>
 
             {{-- Persyaratan Unit Kerja --}}
-            {{-- Mobile: Stack vertikal, Desktop: Grid --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 <div
                     class="col-span-1 md:col-span-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-700/30 rounded-xl p-5 sm:p-6">
@@ -120,8 +117,6 @@
                 <h2 class="text-xl sm:text-2xl font-bold text-text-light dark:text-text-dark">2. Layanan Akun SSO</h2>
             </div>
 
-            {{-- Mobile-First Tab Switcher --}}
-            {{-- Mobile: Grid 2 kolom (tombol besar), Desktop: Flex inline (tombol rapi) --}}
             <div
                 class="grid grid-cols-2 sm:inline-flex sm:space-x-1 rounded-xl bg-gray-100 dark:bg-slate-800 p-1 mb-8 w-full sm:w-fit">
                 <button @click="tab = 'reg'"
@@ -138,7 +133,7 @@
                 </button>
             </div>
 
-            {{-- Content: Registrasi --}}
+            {{-- Registrasi --}}
             <div x-show="tab === 'reg'" x-transition.opacity class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div
                     class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 sm:p-6 relative overflow-hidden">
@@ -178,7 +173,7 @@
                 </div>
             </div>
 
-            {{-- Content: Lupa Password --}}
+            {{-- Lupa Password --}}
             <div x-show="tab === 'reset'" x-cloak x-transition.opacity class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div
@@ -237,7 +232,6 @@
                     membuat tiket baru</p>
             </div>
 
-            {{-- Grid Icon: 2 kolom di HP, 3 di Tablet, 6 di Desktop --}}
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
                 {{-- Item 1 --}}
                 <div
