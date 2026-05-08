@@ -28,7 +28,7 @@
                         <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">
                             Identitas (NIP/NIK)</th>
                         <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">
-                            Divisi</th>
+                            Penanggung Jawab</th>
                         <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">Role
                         </th>
                         <th

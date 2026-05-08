@@ -56,7 +56,7 @@ class User extends Authenticatable
     // --- RELASI ---
 
     /**
-     * Relasi: User (Staff) milik satu Divisi
+     * Relasi: User (Staff) milik satu Penanggung Jawab
      */
     public function division(): BelongsTo
     {

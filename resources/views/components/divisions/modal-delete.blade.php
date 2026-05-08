@@ -6,12 +6,12 @@
             <div class="flex items-center justify-center h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/40">
                 <span class="material-icons-round text-red-600 dark:text-red-400">warning</span>
             </div>
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Hapus Divisi</h3>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Hapus Penanggung Jawab</h3>
         </div>
         <div class="p-6">
             <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                Apakah Anda yakin ingin menghapus divisi <span class="font-semibold text-gray-900 dark:text-white"
-                    id="deleteDivisionName"></span>? <br><br>
+                Apakah Anda yakin ingin menghapus penanggung jawab <span
+                    class="font-semibold text-gray-900 dark:text-white" id="deleteDivisionName"></span>? <br><br>
                 <span class="text-red-600 dark:text-red-400 font-medium">Tindakan ini tidak dapat dibatalkan dan semua
                     data terkait akan hilang permanen.</span>
             </p>

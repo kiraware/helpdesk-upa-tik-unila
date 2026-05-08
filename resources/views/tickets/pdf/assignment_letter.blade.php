@@ -202,7 +202,7 @@
             <td class="value-col">{{ $ticket->assignee->identity_number ?? '-' }}</td>
         </tr>
         <tr>
-            <td class="label-col">Divisi</td>
+            <td class="label-col">Penanggung Jawab</td>
             <td class="separator-col">:</td>
             <td class="value-col">{{ $ticket->assignee->division->name ?? '-' }}</td>
         </tr>

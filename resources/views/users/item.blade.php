@@ -45,7 +45,7 @@
         {{ $user->identity_number ?? '-' }}
     </td>
 
-    {{-- Divisi --}}
+    {{-- Penanggung Jawab --}}
     <td class="px-6 py-4 text-sm text-text-light dark:text-text-dark">
         {{ $user->division?->name ?? '-' }}
     </td>

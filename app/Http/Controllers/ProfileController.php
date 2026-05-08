@@ -63,7 +63,7 @@ class ProfileController extends Controller
         // Update nomor telepon
         $user->phone = $validated['phone'] ?? $user->phone;
 
-        // Update relasi (Divisi atau Departemen)
+        // Update relasi (Penanggung Jawab atau Departemen)
         if ($isAdminOrSuperuser && array_key_exists('division_id', $validated)) {
             $user->division_id = $validated['division_id'];
         } elseif ($user->role === UserRole::USER && array_key_exists('department_id', $validated)) {

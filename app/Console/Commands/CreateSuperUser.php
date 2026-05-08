@@ -47,28 +47,28 @@ class CreateSuperUser extends Command
             0 // Index 0 = superuser
         );
 
-        // Pilihan Divisi jika ada data di tabel divisions
+        // Pilihan Penanggung Jawab jika ada data di tabel divisions
         $division_id = null;
         $divisions = Division::all();
 
         if ($divisions->isNotEmpty()) {
-            $divisionChoices = ['0' => '-- Tidak ada divisi --'];
+            $divisionChoices = ['0' => '-- Tidak ada penanggung jawab --'];
             foreach ($divisions as $div) {
                 $divisionChoices[(string) $div->id] = $div->name;
             }
 
             $selectedDivName = $this->choice(
-                'Pilih Divisi',
+                'Pilih Penanggung Jawab',
                 array_values($divisionChoices),
                 0
             );
 
-            // Mencari ID dari nama divisi yang dipilih
-            if ($selectedDivName !== '-- Tidak ada divisi --') {
+            // Mencari ID dari nama penanggung jawab yang dipilih
+            if ($selectedDivName !== '-- Tidak ada penanggung jawab --') {
                 $division_id = array_search($selectedDivName, $divisionChoices);
             }
         } else {
-            $this->line('<fg=yellow>Info:</> Tabel divisions masih kosong, field divisi di-skip.');
+            $this->line('<fg=yellow>Info:</> Tabel divisions masih kosong, field penanggung jawab di-skip.');
         }
 
         $this->info('Menyimpan data user...');

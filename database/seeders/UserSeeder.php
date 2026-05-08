@@ -23,7 +23,7 @@ class UserSeeder extends Seeder
         ]);
 
         // 2. Buat Akun Staff Helpdesk (Pusat Data dan Informasi)
-        // Pastikan DivisionSeeder dijalankan DULUAN agar divisi 'Pusat Data dan Informasi' ada
+        // Pastikan DivisionSeeder dijalankan DULUAN agar penanggung jawab 'Pusat Data dan Informasi' ada
         $pusdatin = Division::where('name', 'Pusat Data dan Informasi')->first();
 
         if ($pusdatin) {
