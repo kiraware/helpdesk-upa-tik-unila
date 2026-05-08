@@ -116,7 +116,7 @@
                         @enderror
                     </div>
 
-                    {{-- Divisi (Khusus Admin/Superuser) --}}
+                    {{-- Penanggung Jawab (Khusus Admin/Superuser) --}}
                     @if ($isAdminOrSuperuser)
                         <div x-data='{
                             open: false,
@@ -126,7 +126,8 @@
                             class="relative">
 
                             <label
-                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Divisi</label>
+                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Penanggung
+                                Jawab</label>
 
                             <input type="hidden" name="division_id" :value="selected">
 
@@ -136,7 +137,7 @@
                                 <span class="flex items-center gap-2 truncate">
                                     <span class="material-icons-round text-base text-slate-400">business</span>
                                     <span
-                                        x-text="selected && listData[selected] ? listData[selected] : 'Pilih Divisi...'"></span>
+                                        x-text="selected && listData[selected] ? listData[selected] : 'Pilih Penanggung Jawab...'"></span>
                                 </span>
 
                                 <span class="material-icons-round text-slate-400 transition-transform duration-200"
@@ -150,7 +151,7 @@
                                 <div class="max-h-60 overflow-y-auto py-1">
                                     <button type="button" @click="selected=''; open=false"
                                         class="w-full text-left px-4 py-2 text-sm text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-700">Kosongkan
-                                        / Pilih Divisi</button>
+                                        / Pilih Penanggung Jawab</button>
                                     @foreach ($divisions as $division)
                                         <button type="button" @click="selected='{{ $division->id }}'; open=false"
                                             class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/60 transition-colors {{ old('division_id', $user->division_id) == $division->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">

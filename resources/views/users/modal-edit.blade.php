@@ -79,7 +79,7 @@
                     </div>
                 </div>
 
-                {{-- Baris 3: Identity & Divisi --}}
+                {{-- Baris 3: Identity & Penanggung Jawab --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">NIP /
@@ -94,11 +94,12 @@
                         </div>
                     </div>
 
-                    {{-- Dropdown Divisi Alpine JS --}}
+                    {{-- Dropdown Penanggung Jawab Alpine JS --}}
                     <div x-data="{ open: false, selectedId: '', selectedName: '' }"
                         @set-edit-division.window="selectedId = $event.detail.id; selectedName = $event.detail.name"
                         class="relative">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Divisi</label>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Penanggung
+                            Jawab</label>
                         <input type="hidden" name="division_id" :value="selectedId">
                         <button type="button" @click="open = !open"
                             class="relative flex items-center justify-between w-full pl-10 pr-3 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-left text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 transition-colors shadow-sm">
@@ -106,7 +107,7 @@
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                                 <span class="material-icons-round text-[18px]">domain</span>
                             </div>
-                            <span x-text="selectedName || 'Pilih Divisi...'"
+                            <span x-text="selectedName || 'Pilih Penanggung Jawab...'"
                                 :class="{
                                     'text-gray-900 dark:text-white': selectedName,
                                     'text-gray-500 dark:text-gray-400': !
@@ -120,7 +121,7 @@
                             class="absolute z-50 top-full mt-1.5 w-full rounded-lg shadow-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 max-h-48 overflow-y-auto py-1">
                             <button type="button" @click="selectedId = ''; selectedName = ''; open = false"
                                 class="w-full px-4 py-2 text-left text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-slate-700 italic transition-colors">
-                                -- Tidak ada divisi --
+                                -- Tidak ada penanggung jawab --
                             </button>
                             @foreach ($divisions as $div)
                                 <button type="button"

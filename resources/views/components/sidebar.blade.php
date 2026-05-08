@@ -199,7 +199,7 @@
                     class="material-icons-round mr-3 {{ request()->routeIs('divisions.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
                     business
                 </span>
-                Divisi
+                Penanggung Jawab
             </a>
 
             <a href="{{ route('departments.index') }}"

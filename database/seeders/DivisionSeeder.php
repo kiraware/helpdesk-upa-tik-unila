@@ -13,11 +13,12 @@ class DivisionSeeder extends Seeder
     public function run(): void
     {
         $divisions = [
-            'Pusat Data dan Informasi',
-            'PSI',
-            'Pusat Infrastruktur dan Jaringan',
-            'Pusat Pelatihan Sistem Informasi',
-            'SDI',
+            'Pengembangan dan Inovasi Teknologi Informasi',
+            'Layanan Sistem dan Teknologi Informasi',
+            'Manajemen dan Integrasi Sistem Teknologi Informasi',
+            'Infrastruktur Jaringan',
+            'Sumber Daya Sistem Informasi',
+            'Pusat Data dan Keamanan Informasi',
         ];
 
         foreach ($divisions as $divisionName) {
