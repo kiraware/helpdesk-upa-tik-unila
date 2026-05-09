@@ -60,7 +60,6 @@
     @include('users.modal-delete')
 
     <script>
-        // Script modal yang sama seperti sebelumnya
         function openAddUserModal() {
             document.getElementById('addUserModal').classList.remove('hidden');
         }

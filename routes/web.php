@@ -120,7 +120,9 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
 
         // Manajemen User SSO
         Route::get('/sso-users', [SsoUserController::class, 'index'])->name('sso-users.index');
+        Route::post('/sso-users', [SsoUserController::class, 'store'])->name('sso-users.store');
         Route::post('/sso-users/reset-password', [SsoUserController::class, 'resetPassword'])->name('sso-users.reset-password');
+        Route::post('/sso-users/inactive', [SsoUserController::class, 'inactive'])->name('sso-users.inactive');
 
         // Laporan (Reports)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
