@@ -15,7 +15,6 @@ class DatabaseSeeder extends Seeder
             DivisionSeeder::class,
             DepartmentSeeder::class,
             ServiceSeeder::class,
-            UserSeeder::class,
             SurveyQuestionSeeder::class,
             ConfigurationSeeder::class,
         ]);

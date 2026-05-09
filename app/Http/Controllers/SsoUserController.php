@@ -32,15 +32,14 @@ class SsoUserController extends Controller
         if ($response->successful()) {
             $ssoData = $response->json();
 
-            // Konversi Array dari API menjadi Objek Paginator Laravel
             $users = new LengthAwarePaginator(
-                $ssoData['data'] ?? [],          // Kumpulan data pada halaman ini
-                $ssoData['totalData'] ?? 0,      // Total keseluruhan data
-                $limit,                          // Jumlah per halaman
-                $ssoData['currentPage'] ?? 1,    // Halaman aktif
+                $ssoData['data'] ?? [],
+                $ssoData['totalData'] ?? 0,
+                $limit,
+                $ssoData['currentPage'] ?? 1,
                 [
-                    'path' => $request->url(),   // URL dasar untuk link
-                    'query' => $request->query(), // Mempertahankan parameter 'search' di link paginasi
+                    'path' => $request->url(),
+                    'query' => $request->query(),
                 ]
             );
 
@@ -52,6 +51,42 @@ class SsoUserController extends Controller
         }
 
         return back()->with('error', 'Gagal mengambil data dari server SSO.');
+    }
+
+    /**
+     * Menambahkan User SSO Baru
+     */
+    public function store(Request $request)
+    {
+        $request->validate([
+            'numberID' => 'required|string',
+            'name' => 'required|string',
+            'username' => 'required|string',
+            'domain_email' => 'required|string',
+            'status' => 'required|string',
+            'tgl_lahir' => 'nullable|date',
+            'fakultas' => 'nullable|string',
+            'jurusan' => 'nullable|string',
+            'unit_kerja' => 'nullable|string',
+            'no_telp' => 'nullable|string',
+            'alamat' => 'nullable|string',
+        ]);
+
+        $token = session('sso_token');
+
+        if (! $token) {
+            return redirect()->route('login')->withErrors(['username' => 'Sesi SSO telah berakhir. Silakan login kembali.']);
+        }
+
+        $response = Http::withToken($token)->post('http://localhost:3000/users', $request->all());
+
+        if ($response->successful()) {
+            return back()->with('success', 'User SSO berhasil ditambahkan.');
+        }
+
+        $errorMessage = $response->json('message') ?? 'Gagal menambahkan user SSO.';
+
+        return back()->with('error', $errorMessage);
     }
 
     /**
@@ -71,9 +106,37 @@ class SsoUserController extends Controller
         ]);
 
         if ($response->successful()) {
-            return back()->with('success', "Password untuk user '{$request->username}' berhasil di-reset.");
+            return back()->with('success', "Password untuk user {$request->username} berhasil di-reset.");
         }
 
         return back()->with('error', 'Gagal mereset password. Pastikan username benar.');
+    }
+
+    /**
+     * Menonaktifkan User SSO
+     */
+    public function inactive(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string',
+        ]);
+
+        $token = session('sso_token');
+
+        if (! $token) {
+            return redirect()->route('login')->withErrors(['username' => 'Sesi SSO telah berakhir. Silakan login kembali.']);
+        }
+
+        $response = Http::withToken($token)->post('http://localhost:3000/inactive-user', [
+            'username' => $request->username,
+        ]);
+
+        if ($response->successful()) {
+            return back()->with('success', "User '{$request->username}' berhasil dinonaktifkan.");
+        }
+
+        $errorMessage = $response->json('message') ?? 'Gagal menonaktifkan user SSO.';
+
+        return back()->with('error', $errorMessage);
     }
 }
