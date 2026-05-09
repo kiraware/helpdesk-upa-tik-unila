@@ -245,4 +245,29 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
     },
 }));
 
+Alpine.data(
+    "sidebarCounter",
+    (initialWaiting = 0, initialAssigned = 0, fetchUrl = "") => ({
+        waitingCount: initialWaiting,
+        assignedProgressCount: initialAssigned,
+
+        init() {
+            if (!fetchUrl) return;
+
+            // Lakukan polling setiap 15 detik (15000 ms)
+            setInterval(() => {
+                fetch(fetchUrl)
+                    .then((res) => res.json())
+                    .then((data) => {
+                        this.waitingCount = data.waitingCount;
+                        this.assignedProgressCount = data.assignedProgressCount;
+                    })
+                    .catch((err) =>
+                        console.error("Gagal mengambil data tiket:", err),
+                    );
+            }, 15000);
+        },
+    }),
+);
+
 Alpine.start();

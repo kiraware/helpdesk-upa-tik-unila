@@ -1,4 +1,14 @@
-<aside :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
+@php
+    // Cek apakah user adalah Admin atau Superuser
+    $isStaff =
+        auth()->user()->role === \App\Enums\UserRole::ADMIN || auth()->user()->role === \App\Enums\UserRole::SUPERUSER;
+@endphp
+
+<aside x-data="sidebarCounter(
+    {{ $waitingCount ?? 0 }},
+    {{ $assignedProgressCount ?? 0 }},
+    '{{ $isStaff ? route('api.ticket.counts') : '' }}'
+)" :class="sidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     class="fixed inset-y-0 left-0 z-30 w-64 flex flex-col
            bg-primary dark:bg-surface-dark text-text-dark
            border-r border-border-dark
@@ -101,20 +111,17 @@
                 <div class="flex items-center justify-between w-full">
                     <span>Tiket Menunggu</span>
 
-                    @if ($waitingCount > 0)
+                    <template x-if="waitingCount > 0">
                         <span class="relative ml-auto mr-1">
                             <span
                                 class="absolute -top-2.5 -right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1
-                     text-[10px] font-bold leading-none
-                     text-yellow-800 bg-yellow-400
-                     rounded-full z-10">
-                                {{ $waitingCount > 99 ? '99+' : $waitingCount }}
+                         text-[10px] font-bold leading-none text-yellow-800 bg-yellow-400 rounded-full z-10"
+                                x-text="waitingCount > 99 ? '99+' : waitingCount">
                             </span>
                             <span
-                                class="absolute -top-2.5 -right-1 min-w-4.5 h-4.5
-                     bg-yellow-400 rounded-full animate-ping opacity-75"></span>
+                                class="absolute -top-2.5 -right-1 min-w-4.5 h-4.5 bg-yellow-400 rounded-full animate-ping opacity-75"></span>
                         </span>
-                    @endif
+                    </template>
                 </div>
             </a>
 
@@ -130,20 +137,17 @@
                 <div class="flex items-center justify-between w-full">
                     <span>Tiket Ditugaskan</span>
 
-                    @if ($assignedProgressCount > 0)
+                    <template x-if="assignedProgressCount > 0">
                         <span class="relative ml-auto mr-1">
                             <span
                                 class="absolute -top-2.5 -right-1 flex items-center justify-center min-w-4.5 h-4.5 px-1
-                     text-[10px] font-bold leading-none
-                     text-blue-900 bg-blue-400
-                     rounded-full z-10">
-                                {{ $assignedProgressCount > 99 ? '99+' : $assignedProgressCount }}
+                         text-[10px] font-bold leading-none text-blue-900 bg-blue-400 rounded-full z-10"
+                                x-text="assignedProgressCount > 99 ? '99+' : assignedProgressCount">
                             </span>
                             <span
-                                class="absolute -top-2.5 -right-1 min-w-4.5 h-4.5
-                     bg-blue-400 rounded-full animate-ping opacity-75"></span>
+                                class="absolute -top-2.5 -right-1 min-w-4.5 h-4.5 bg-blue-400 rounded-full animate-ping opacity-75"></span>
                         </span>
-                    @endif
+                    </template>
                 </div>
             </a>
 
