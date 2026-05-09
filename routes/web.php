@@ -69,13 +69,11 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 
-    // --- ROUTE NOTIFIKASI ---
+    // ROUTE NOTIFIKASI
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
         ->name('notifications.index');
-
     Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsReadAndRedirect'])
         ->name('notifications.read');
-
     Route::post('/notifications/mark-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])
         ->name('notifications.markAll');
 
@@ -83,6 +81,17 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     Route::middleware([
         'role:'.UserRole::ADMIN->value.','.UserRole::SUPERUSER->value,
     ])->group(function () {
+        // Sidebar Counter
+        Route::get('/api/ticket-counts', function () {
+            $user = auth()->user();
+
+            return response()->json([
+                'waitingCount' => \App\Models\Ticket::where('status', \App\Enums\TicketStatus::WAITING)->count(),
+                'assignedProgressCount' => \App\Models\Ticket::where('assigned_to', $user->id)
+                    ->where('status', \App\Enums\TicketStatus::PROGRESS)
+                    ->count(),
+            ]);
+        })->name('api.ticket.counts');
 
         // Master Data
         Route::resource('services', ServiceController::class)->except(['show']);
@@ -92,6 +101,10 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
         // Assign Ticket Logic
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
             ->name('tickets.assign.me');
+
+        // Update Assignee Logic
+        Route::patch('/tickets/{ticket}/assignee', [TicketController::class, 'updateAssignee'])
+            ->name('tickets.update_assignee');
 
         // Update Service Logic
         Route::patch('/tickets/{ticket}/service', [TicketController::class, 'updateService'])
@@ -115,10 +128,6 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
         // Print Assignment Letter
         Route::get('/tickets/{ticket}/assignment', [TicketController::class, 'printAssignment'])
             ->name('tickets.print_assignment');
-
-        // Configuration Management
-        Route::get('/configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
-        Route::put('/configurations', [ConfigurationController::class, 'update'])->name('configurations.update');
     });
 
     // 4. GROUP SUPERUSER ONLY
@@ -128,8 +137,8 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
         // Manajemen User (Admin & Superuser lain)
         Route::resource('users', UserController::class);
 
-        // Update Assignee Logic
-        Route::patch('/tickets/{ticket}/assignee', [TicketController::class, 'updateAssignee'])
-            ->name('tickets.update_assignee');
+        // Configuration Management
+        Route::get('/configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
+        Route::put('/configurations', [ConfigurationController::class, 'update'])->name('configurations.update');
     });
 });

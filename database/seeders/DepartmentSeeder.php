@@ -35,6 +35,7 @@ class DepartmentSeeder extends Seeder
             'UPA PKK',
             'UPA PKLI',
             'UPA Kearsipan',
+            'Lainnya',
         ];
 
         foreach ($departments as $departmentName) {
