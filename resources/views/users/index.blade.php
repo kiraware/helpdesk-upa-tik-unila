@@ -6,7 +6,7 @@
         </div>
         <button type="button" onclick="openAddUserModal()"
             class="flex items-center justify-center px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-            <span class="material-icons-round text-sm mr-2">add</span> Tambah Staff
+            <span class="material-icons-round text-sm mr-2">person_add</span> Tambah Staff
         </button>
     </div>
 
@@ -28,6 +28,8 @@
                         <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">
                             Identitas (NIP/NIK)</th>
                         <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">
+                            Entitas</th>
+                        <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">
                             Penanggung Jawab</th>
                         <th class="px-6 py-4 text-xs font-semibold text-muted-light dark:text-muted-dark uppercase">Role
                         </th>
@@ -41,7 +43,7 @@
                         @include('users.item', ['user' => $user, 'number' => $users->firstItem() + $index])
                     @empty
                         <tr>
-                            <td colspan="7" class="px-6 py-8 text-center text-muted-light dark:text-muted-dark">Tidak
+                            <td colspan="8" class="px-6 py-8 text-center text-muted-light dark:text-muted-dark">Tidak
                                 ada data staff.</td>
                         </tr>
                     @endforelse
@@ -70,11 +72,7 @@
 
         function openEditUserModal(button) {
             const data = button.dataset;
-            document.getElementById('edit_name').value = data.name;
             document.getElementById('edit_username_sso').value = data.sso;
-            document.getElementById('edit_email').value = data.email;
-            document.getElementById('edit_phone').value = data.phone;
-            document.getElementById('edit_identity_number').value = data.identity;
 
             // Dispatch untuk update alpine.js dropdown
             window.dispatchEvent(new CustomEvent('set-edit-division', {

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserEntity;
 use App\Enums\UserRole;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,7 @@ class User extends Authenticatable
         'phone',
         'avatar_path',
         'role',
+        'entity',
         'division_id',
         'department_id',
     ];
@@ -50,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'role' => UserRole::class,
+            'entity' => UserEntity::class,
         ];
     }
 

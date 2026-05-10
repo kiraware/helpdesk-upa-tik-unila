@@ -29,7 +29,7 @@
 
                     {{-- Foto Avatar (Clickable) --}}
                     <div @click="$refs.photo.click()"
-                        class="relative h-28 w-28 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg cursor-pointer group bg-slate-100 dark:bg-slate-800 flex-shrink-0 transition-transform hover:scale-105">
+                        class="relative h-28 w-28 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg cursor-pointer group bg-slate-100 dark:bg-slate-800 shrink-0 transition-transform hover:scale-105">
 
                         {{-- Gambar Default / Current --}}
                         <img x-show="!photoPreview" src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
@@ -56,7 +56,7 @@
 
                         <div class="flex flex-wrap justify-center sm:justify-start gap-2">
                             @if ($user->avatar_path)
-                                <button type="submit" form="delete-avatar-form"
+                                <button type="button" onclick="document.getElementById('delete-avatar-form').submit();"
                                     class="px-4 py-2 text-sm font-medium border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-red-50 hover:text-red-600 hover:border-red-200 dark:hover:bg-red-900/30 dark:hover:border-red-800 dark:hover:text-red-400 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 shadow-sm transition-colors">
                                     Hapus Foto
                                 </button>
@@ -97,6 +97,13 @@
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nomor
                             Identitas (NIP/NPM)</label>
                         <input type="text" value="{{ $user->identity_number }}" disabled
+                            class="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed sm:text-sm">
+                    </div>
+
+                    <div>
+                        <label
+                            class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Entitas</label>
+                        <input type="text" value="{{ $user->entity?->value ?? '-' }}" disabled
                             class="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed sm:text-sm">
                     </div>
 

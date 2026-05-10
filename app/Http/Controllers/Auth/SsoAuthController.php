@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserEntity;
 use App\Enums\UserRole;
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -40,9 +41,33 @@ class SsoAuthController extends Controller
                 $user->role = UserRole::USER;
             }
 
-            $user->identity_number = $ssoUser['numberID'];
-            $user->name = $ssoUser['name'];
-            $user->email = $ssoUser['email'];
+            /**
+             * LOGIKA: "Jika data dari API SSO kosong, biarkan data yang sudah ada"
+             * Menggunakan operator ?: (elvis) akan mengambil nilai kiri jika TRUE (tidak kosong/null),
+             * jika FALSE (kosong/null), akan mengambil nilai kanan (nilai lama di DB).
+             */
+            $user->identity_number = ($ssoUser['numberID'] ?? null) ?: $user->identity_number;
+            $user->name = ($ssoUser['name'] ?? null) ?: $user->name;
+            $user->email = ($ssoUser['email'] ?? null) ?: $user->email;
+            $user->phone = ($ssoUser['phone'] ?? null) ?: $user->phone;
+
+            // --> NORMALISASI DAN MAPPING ENTITY <--
+            // 1. Ambil raw string dari SSO (sesuaikan key 'status' jika beda)
+            $rawEntity = $ssoUser['status'] ?? '';
+
+            // 2. Normalisasi: hapus spasi di awal/akhir dan jadikan huruf kecil semua
+            // " Mahasiswa " -> "mahasiswa", "SUPER USER" -> "super user"
+            $normalizedEntity = strtolower(trim($rawEntity));
+
+            // 3. Mapping string yang sudah dinormalisasi ke Enum
+            $user->entity = match ($normalizedEntity) {
+                'super user', 'superuser' => UserEntity::SUPER_USER,
+                'mahasiswa' => UserEntity::MAHASISWA,
+                'dosen' => UserEntity::DOSEN,
+                'karyawan', 'staff' => UserEntity::KARYAWAN, // Bisa tangkap lebih dari 1 variasi kata
+                'tamu', 'guest' => UserEntity::TAMU,
+                default => UserEntity::LAINNYA,  // Jika null, kosong, atau tidak dikenali, otomatis jadi 'Lainnya'
+            };
 
             $user->save();
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\UserEntity;
 use App\Enums\UserRole;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -15,7 +16,7 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('username_sso')->nullable()->unique();
-            $table->string('name');
+            $table->string('name')->nullable();
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('identity_number')->nullable();
@@ -23,6 +24,8 @@ return new class extends Migration
             $table->string('avatar_path')->nullable();
             $table->enum('role', array_column(UserRole::cases(), 'value'))
                 ->default(UserRole::USER->value);
+            $table->enum('entity', array_column(UserEntity::cases(), 'value'))
+                ->nullable();
             $table->foreignId('division_id')
                 ->nullable()
                 ->constrained('divisions')

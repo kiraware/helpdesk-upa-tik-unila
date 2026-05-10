@@ -6,7 +6,6 @@ use App\Enums\UserRole;
 use App\Models\Division;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rules\Enum;
 
 class UserController extends Controller
 {
@@ -34,43 +33,35 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
             'username_sso' => 'required|string|max:255|unique:users',
-            'email' => 'required|email|max:255|unique:users',
             'phone' => 'nullable|string|max:255',
-            'identity_number' => 'nullable|string|max:255',
-            'role' => ['required', new Enum(UserRole::class)],
+            'role' => ['required', new \Illuminate\Validation\Rules\Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
         ]);
 
         User::create([
-            'name' => $request->name,
             'username_sso' => $request->username_sso,
-            'email' => $request->email,
+            'name' => $request->username_sso,
             'phone' => $request->phone,
-            'identity_number' => $request->identity_number,
             'role' => $request->role,
             'division_id' => $request->division_id,
         ]);
 
-        return back()->with('success', 'Staff berhasil ditambahkan.');
+        return back()->with('success', 'Staff berhasil ditambahkan. Data profil akan sinkron saat user login.');
     }
 
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
             'username_sso' => 'required|string|max:255|unique:users,username_sso,'.$user->id,
-            'email' => 'required|email|max:255|unique:users,email,'.$user->id,
             'phone' => 'nullable|string|max:255',
-            'identity_number' => 'nullable|string|max:255',
-            'role' => ['required', new Enum(UserRole::class)],
+            'role' => ['required', new \Illuminate\Validation\Rules\Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
         ]);
 
-        $user->update($request->only('name', 'username_sso', 'email', 'phone', 'identity_number', 'role', 'division_id'));
+        $user->update($request->only('username_sso', 'phone', 'role', 'division_id'));
 
-        return back()->with('success', 'Staff berhasil diperbarui.');
+        return back()->with('success', 'Data staff berhasil diperbarui.');
     }
 
     public function destroy(User $user)
