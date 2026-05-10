@@ -5,6 +5,17 @@
     $avatarUrl = $user->avatar_path
         ? asset('storage/' . $user->avatar_path)
         : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
+
+    // Menentukan warna tag berdasarkan nilai Entitas
+    $entityColor = match ($user->entity?->value) {
+        'Mahasiswa' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
+        'Dosen' => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
+        'Karyawan' => 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/30 dark:text-cyan-300',
+        'Super User' => 'bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300',
+        'Tamu' => 'bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300',
+        default
+            => 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300', // Untuk 'Lainnya' atau tidak dikenali
+    };
 @endphp
 
 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
@@ -45,6 +56,17 @@
         {{ $user->identity_number ?? '-' }}
     </td>
 
+    {{-- Entitas (Diubah menjadi Tag/Badge) --}}
+    <td class="px-6 py-4">
+        @if ($user->entity)
+            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $entityColor }}">
+                {{ $user->entity->value }}
+            </span>
+        @else
+            <span class="text-sm text-muted-light dark:text-muted-dark">-</span>
+        @endif
+    </td>
+
     {{-- Penanggung Jawab --}}
     <td class="px-6 py-4 text-sm text-text-light dark:text-text-dark">
         {{ $user->division?->name ?? '-' }}
@@ -66,8 +88,8 @@
             <button type="button" onclick="openEditUserModal(this)" data-id="{{ $user->id }}"
                 data-name="{{ $user->name }}" data-sso="{{ $user->username_sso }}" data-email="{{ $user->email }}"
                 data-phone="{{ $user->phone }}" data-identity="{{ $user->identity_number }}"
-                data-role="{{ $user->role->value }}" data-division="{{ $user->division_id }}"
-                data-division-name="{{ $user->division?->name }}"
+                data-entity="{{ $user->entity?->value }}" data-role="{{ $user->role->value }}"
+                data-division="{{ $user->division_id }}" data-division-name="{{ $user->division?->name }}"
                 class="p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors"
                 title="Ubah">
                 <span class="material-icons-round text-lg">edit</span>

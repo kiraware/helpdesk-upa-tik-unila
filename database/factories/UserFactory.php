@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\UserEntity;
 use App\Enums\UserRole;
 use App\Models\Department;
 use App\Models\Division;
@@ -32,6 +33,7 @@ class UserFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'avatar_path' => null,
             'role' => UserRole::USER,
+            'entity' => fake()->randomElement(array_column(UserEntity::cases(), 'value')),
             'division_id' => null,
             'department_id' => Department::inRandomOrder()->first()?->id ?? Department::factory(),
         ];
