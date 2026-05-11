@@ -4,21 +4,25 @@ namespace App\Http\Controllers;
 
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Exports\TicketReportExport;
+use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
     public function index(Request $request)
     {
+        // --- 1. FILTER RENTANG WAKTU ---
         $startDate = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfMonth();
         $endDate = $request->end_date ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
 
         $ticketsQuery = Ticket::whereBetween('created_at', [$startDate, $endDate]);
 
-        // STATS Global (Waiting, Progress, Done, Reject)
+        // --- 2. STATS GLOBAL ---
         $stats = [
             'total' => (clone $ticketsQuery)->count(),
             'waiting' => (clone $ticketsQuery)->where('status', TicketStatus::WAITING)->count(),
@@ -29,12 +33,9 @@ class ReportController extends Controller
         $stats['completion_rate'] = $stats['total'] > 0
             ? round(($stats['done'] / $stats['total']) * 100, 1) : 0;
 
-        // --- DATA UNTUK GRAFIK ---
-
-        // 1. Data Tren Tiket Harian
+        // --- 3. DATA TREN HARIAN & STATUS ---
         $period = collect();
         $current = $startDate->copy();
-
         while ($current <= $endDate) {
             $period[$current->format('Y-m-d')] = 0;
             $current->addDay();
@@ -49,7 +50,6 @@ class ReportController extends Controller
         $dailyTrend = array_merge($period->toArray(), $data);
         ksort($dailyTrend);
 
-        // 2. Data Komposisi Status
         $statusDist = [
             'waiting' => $stats['waiting'],
             'progress' => $stats['progress'],
@@ -57,10 +57,74 @@ class ReportController extends Controller
             'reject' => $stats['reject'],
         ];
 
-        // -------------------------------------------------------------
+        // --- 4. REKAP BERDASARKAN LAYANAN & ENTITAS (BARU) ---
+        $allTickets = (clone $ticketsQuery)->with(['service', 'user', 'guestDetail'])->get();
 
-        // --- PENGHITUNGAN CSI GLOBAL (Sesuai Jurnal) ---
-        $ticketsWithSurvey = Ticket::whereBetween('created_at', [$startDate, $endDate])
+        $services = Service::all();
+        $serviceStats = [];
+        $entityDist = ['T' => 0, 'D' => 0, 'M' => 0, 'L' => 0];
+
+        foreach ($services as $service) {
+            $serviceStats[$service->id] = [
+                'name' => $service->name,
+                'total' => 0,
+                'done' => 0,
+                'reject' => 0,
+                'entities' => ['T' => 0, 'D' => 0, 'M' => 0, 'L' => 0],
+            ];
+        }
+
+        foreach ($allTickets as $ticket) {
+            $serviceId = $ticket->service_id;
+            if (! isset($serviceStats[$serviceId])) {
+                continue;
+            }
+
+            $serviceStats[$serviceId]['total']++;
+            if ($ticket->status === TicketStatus::DONE) {
+                $serviceStats[$serviceId]['done']++;
+            }
+            if ($ticket->status === TicketStatus::REJECT) {
+                $serviceStats[$serviceId]['reject']++;
+            }
+
+            // Deteksi Entitas
+            $entityCode = 'L'; // Lainnya
+            if ($ticket->user) {
+                $e = strtolower($ticket->user->entity->value ?? '');
+                if (in_array($e, ['karyawan', 'tendik'])) {
+                    $entityCode = 'T';
+                } elseif ($e === 'dosen') {
+                    $entityCode = 'D';
+                } elseif ($e === 'mahasiswa') {
+                    $entityCode = 'M';
+                }
+            } elseif ($ticket->guestDetail) {
+                $e = strtolower($ticket->guestDetail->entity_type->value ?? '');
+                if ($e === 'tendik') {
+                    $entityCode = 'T';
+                } elseif ($e === 'dosen') {
+                    $entityCode = 'D';
+                } elseif ($e === 'mahasiswa') {
+                    $entityCode = 'M';
+                }
+            }
+
+            $serviceStats[$serviceId]['entities'][$entityCode]++;
+            $entityDist[$entityCode]++;
+        }
+
+        usort($serviceStats, fn ($a, $b) => $b['total'] <=> $a['total']);
+
+        $chartData = [
+            'services_labels' => collect($serviceStats)->pluck('name')->toArray(),
+            'services_totals' => collect($serviceStats)->pluck('total')->toArray(),
+            'entity_labels' => ['Tendik', 'Dosen', 'Mahasiswa', 'Lainnya'],
+            'entity_totals' => [$entityDist['T'], $entityDist['D'], $entityDist['M'], $entityDist['L']],
+        ];
+
+        // --- 5. PENGHITUNGAN CSI GLOBAL ---
+        $ticketsWithSurvey = (clone $ticketsQuery)
             ->whereHas('survey')
             ->with('survey.answers')
             ->get();
@@ -71,7 +135,6 @@ class ReportController extends Controller
         foreach ($ticketsWithSurvey as $ticket) {
             if ($ticket->survey && $ticket->survey->answers) {
                 foreach ($ticket->survey->answers as $answer) {
-                    // Weight Score = Satisfaction x Importance
                     $globalTotalWeightScore += ($answer->satisfaction_score * $answer->importance_score);
                     $globalTotalImportance += $answer->importance_score;
                 }
@@ -80,7 +143,6 @@ class ReportController extends Controller
 
         $avgCSI = 0;
         if ($globalTotalImportance > 0) {
-            // (Total WS / Total Importance) / 5 * 100
             $avgCSI = (($globalTotalWeightScore / $globalTotalImportance) / 5) * 100;
         }
         $avgCSI = round($avgCSI, 2);
@@ -93,9 +155,8 @@ class ReportController extends Controller
             $avgCSI > 0 => 'Tidak Puas',
             default => 'Belum Ada Data',
         };
-        // -----------------------------------------------
 
-        // --- KINERJA PER STAFF (PENGHITUNGAN CSI PER STAFF) ---
+        // --- 6. KINERJA PER STAFF ---
         $staffPerformance = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
             ->with(['assignedTickets' => function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('created_at', [$startDate, $endDate])
@@ -115,7 +176,6 @@ class ReportController extends Controller
                 $avgUserTime = $userTimes->count() > 0 ? round($userTimes->avg(), 1) : 0;
                 $rate = $totalCount > 0 ? round(($doneCount / $totalCount) * 100) : 0;
 
-                // Hitung CSI khusus Staff ini
                 $staffWeightScore = 0;
                 $staffImportance = 0;
                 $surveyCount = 0;
@@ -134,8 +194,8 @@ class ReportController extends Controller
                 $staffStar = 0;
 
                 if ($staffImportance > 0) {
-                    $staffStar = $staffWeightScore / $staffImportance; // Skala 1-5 (Weighted Rating)
-                    $staffCSI = ($staffStar / 5) * 100; // Persentase CSI
+                    $staffStar = $staffWeightScore / $staffImportance;
+                    $staffCSI = ($staffStar / 5) * 100;
                 }
 
                 return (object) [
@@ -155,7 +215,7 @@ class ReportController extends Controller
                     return $b->done <=> $a->done;
                 }
 
-                return $b->csi_score <=> $a->csi_score; // Urutkan dari CSI tertinggi
+                return $b->csi_score <=> $a->csi_score;
             })
             ->values();
 
@@ -167,7 +227,20 @@ class ReportController extends Controller
             'csiPredicate',
             'staffPerformance',
             'dailyTrend',
-            'statusDist'
+            'statusDist',
+            'serviceStats',
+            'chartData'
         ));
+    }
+
+    // --- 7. EXPORT EXCEL ---
+    public function export(Request $request)
+    {
+        $startDate = $request->start_date ? Carbon::parse($request->start_date)->startOfDay() : Carbon::now()->startOfMonth();
+        $endDate = $request->end_date ? Carbon::parse($request->end_date)->endOfDay() : Carbon::now()->endOfDay();
+
+        $fileName = 'Laporan_Helpdesk_'.$startDate->format('d-M-Y').'_sd_'.$endDate->format('d-M-Y').'.xlsx';
+
+        return Excel::download(new TicketReportExport($startDate, $endDate), $fileName);
     }
 }

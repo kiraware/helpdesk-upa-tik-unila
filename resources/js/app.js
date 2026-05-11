@@ -36,7 +36,6 @@ Alpine.data("toast", (initialMessage = "", initialType = "success") => ({
         this.visible = false;
         clearInterval(this.interval);
     },
-    // Hapus 'get isSuccess()' karena sudah tidak relevan
     get theme() {
         switch (this.type) {
             case "warning":
@@ -45,7 +44,7 @@ Alpine.data("toast", (initialMessage = "", initialType = "success") => ({
                     text_icon: "text-amber-600 dark:text-amber-400",
                     progress_bg: "bg-amber-200 dark:bg-amber-900",
                     progress_fill: "bg-amber-500",
-                    icon: "warning", // Menggunakan material icon 'warning'
+                    icon: "warning",
                     title: "Peringatan",
                 };
             case "error":
@@ -71,17 +70,22 @@ Alpine.data("toast", (initialMessage = "", initialType = "success") => ({
     },
 }));
 
-Alpine.data("chartHandler", (trendData, statusData) => ({
+Alpine.data("chartHandler", (trendData, statusData, chartData) => ({
     trendChart: null,
     statusChart: null,
+    serviceChart: null,
+    entityChart: null,
 
     init() {
         // Render Chart saat inisialisasi
-        this.renderTrend(trendData);
-        this.renderStatus(statusData);
+        if (trendData) this.renderTrend(trendData);
+        if (statusData) this.renderStatus(statusData);
+        if (chartData) {
+            this.renderService(chartData);
+            this.renderEntity(chartData);
+        }
 
-        // Opsional: Listener untuk perubahan tema (Dark/Light) agar chart update warna grid
-        // Asumsi Anda menggunakan class 'dark' di html tag
+        // Listener untuk perubahan tema (Dark/Light) agar chart update warna grid & teks
         const observer = new MutationObserver(() => {
             this.updateChartsTheme();
         });
@@ -131,7 +135,7 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
                             return bg;
                         },
                         borderWidth: 3,
-                        tension: 0.4, // Smooth curve
+                        tension: 0.4,
                         fill: true,
                         pointBackgroundColor: "#ffffff",
                         pointBorderColor: "#3b82f6",
@@ -192,7 +196,7 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
         this.statusChart = new Chart(ctx, {
             type: "doughnut",
             data: {
-                labels: ["Menunggu", "Proses", "Selesai", "Ditolak"], // Label Bahasa Indonesia
+                labels: ["Menunggu", "Proses", "Selesai", "Ditolak"],
                 datasets: [
                     {
                         data: [
@@ -202,10 +206,10 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
                             data.reject,
                         ],
                         backgroundColor: [
-                            "#ca8a04", // WAITING  (Yellow-600)
-                            "#2563eb", // PROGRESS (Blue-600)
-                            "#059669", // DONE     (Emerald-600)
-                            "#dc2626", // REJECT   (Red-600)
+                            "#ca8a04", // WAITING
+                            "#2563eb", // PROGRESS
+                            "#059669", // DONE
+                            "#dc2626", // REJECT
                         ],
                         hoverOffset: 4,
                         borderWidth: 0,
@@ -213,7 +217,6 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
                 ],
             },
             options: {
-                // ... opsi lainnya sama ...
                 plugins: {
                     legend: {
                         position: "bottom",
@@ -230,6 +233,87 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
         });
     },
 
+    // LAYANAN
+    renderService(data) {
+        const ctx = document.getElementById("serviceBarChart");
+        if (!ctx) return;
+
+        this.serviceChart = new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: data.services_labels,
+                datasets: [
+                    {
+                        label: "Total Tiket",
+                        data: data.services_totals,
+                        backgroundColor: "#8b5cf6", // Purple
+                        borderRadius: 4,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: "y", // Menjadi Horizontal Bar
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        grid: {
+                            color: this.getGridColor(),
+                            borderDash: [5, 5],
+                        },
+                        ticks: { color: this.getTextColor(), stepSize: 1 },
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { color: this.getTextColor() },
+                    },
+                },
+            },
+        });
+    },
+
+    // --- CHART BARU: ENTITAS TENDIK/DOSEN/MHS ---
+    renderEntity(data) {
+        const ctx = document.getElementById("entityPieChart");
+        if (!ctx) return;
+
+        this.entityChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+                labels: data.entity_labels,
+                datasets: [
+                    {
+                        data: data.entity_totals,
+                        backgroundColor: [
+                            "#10b981",
+                            "#f59e0b",
+                            "#ef4444",
+                            "#64748b",
+                        ], // Hijau, Kuning, Merah, Slate
+                        borderWidth: 0,
+                    },
+                ],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: "right",
+                        labels: {
+                            color: this.getTextColor(),
+                            usePointStyle: true,
+                            font: { family: "'Inter Variable', sans-serif" },
+                        },
+                    },
+                },
+                cutout: "60%",
+            },
+        });
+    },
+
     updateChartsTheme() {
         if (this.trendChart) {
             this.trendChart.options.scales.y.grid.color = this.getGridColor();
@@ -241,6 +325,19 @@ Alpine.data("chartHandler", (trendData, statusData) => ({
             this.statusChart.options.plugins.legend.labels.color =
                 this.getTextColor();
             this.statusChart.update();
+        }
+        if (this.serviceChart) {
+            this.serviceChart.options.scales.x.grid.color = this.getGridColor();
+            this.serviceChart.options.scales.x.ticks.color =
+                this.getTextColor();
+            this.serviceChart.options.scales.y.ticks.color =
+                this.getTextColor();
+            this.serviceChart.update();
+        }
+        if (this.entityChart) {
+            this.entityChart.options.plugins.legend.labels.color =
+                this.getTextColor();
+            this.entityChart.update();
         }
     },
 }));

@@ -126,6 +126,7 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
 
         // Laporan (Reports)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
+        Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
         // Print Assignment Letter
         Route::get('/tickets/{ticket}/assignment', [TicketController::class, 'printAssignment'])
