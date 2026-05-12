@@ -4,50 +4,59 @@
 
         {{-- HEADER & FILTER --}}
         <div
-            class="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-surface-light dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+            class="flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-surface-light dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
+
+            {{-- Kiri --}}
             <div>
-                <h1 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">Ringkasan Eksekutif
+                <h1 class="text-2xl font-bold text-text-light dark:text-text-dark tracking-tight">
+                    Ringkasan Eksekutif
                 </h1>
-                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">Pantau kinerja helpdesk, statistik tiket,
-                    layanan, dan indeks kepuasan pengguna (CSI).</p>
+                <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
+                    Pantau kinerja helpdesk, statistik tiket, layanan, dan indeks kepuasan pengguna (CSI).
+                </p>
             </div>
 
-            <div class="flex flex-col sm:flex-row gap-3 items-end w-full xl:w-auto">
-                <form action="{{ route('reports.index') }}" method="GET"
-                    class="flex flex-col sm:flex-row gap-3 items-end w-full" x-data>
-                    {{-- Input Tanggal Awal --}}
+            {{-- Kanan --}}
+            <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
+
+                {{-- FILTER --}}
+                <form action="{{ route('reports.index') }}" method="GET" class="flex flex-col sm:flex-row gap-3 w-full"
+                    x-data>
+
                     <div class="relative w-full sm:w-40">
-                        <label class="text-xs font-semibold text-gray-500 mb-1 block">Dari Tanggal</label>
                         <input x-ref="startDate" type="text" name="start_date"
                             value="{{ $startDate->format('Y-m-d') }}" onfocus="(this.type='date')"
-                            onblur="(this.value ? this.type='date' : this.type='text')"
-                            class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all shadow-sm cursor-pointer placeholder-gray-400 text-gray-900 dark:text-gray-100">
-                        <span @click="$refs.startDate.type='date'; $refs.startDate.showPicker()"
-                            class="absolute right-3 top-[34px] material-icons-round text-base text-gray-400 cursor-pointer hover:text-secondary transition-colors">calendar_today</span>
+                            class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm shadow-sm">
+                        <span @click="$refs.startDate.showPicker()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-gray-400 cursor-pointer">
+                            calendar_today
+                        </span>
                     </div>
 
-                    {{-- Input Tanggal Akhir --}}
                     <div class="relative w-full sm:w-40">
-                        <label class="text-xs font-semibold text-gray-500 mb-1 block">Sampai Tanggal</label>
                         <input x-ref="endDate" type="text" name="end_date" value="{{ $endDate->format('Y-m-d') }}"
-                            onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')"
-                            class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-900 text-sm focus:ring-2 focus:ring-secondary focus:border-secondary outline-none transition-all shadow-sm cursor-pointer placeholder-gray-400 text-gray-900 dark:text-gray-100">
-                        <span @click="$refs.endDate.type='date'; $refs.endDate.showPicker()"
-                            class="absolute right-3 top-[34px] material-icons-round text-base text-gray-400 cursor-pointer hover:text-secondary transition-colors">event</span>
+                            onfocus="(this.type='date')"
+                            class="w-full pl-3 pr-10 py-2.5 rounded-lg border border-gray-200 dark:border-gray-700 text-sm shadow-sm">
+                        <span @click="$refs.endDate.showPicker()"
+                            class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-gray-400 cursor-pointer">
+                            event
+                        </span>
                     </div>
 
                     <button type="submit"
-                        class="w-full sm:w-auto px-5 py-2.5 bg-secondary hover:brightness-110 text-white rounded-lg text-sm font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 h-[42px]">
-                        <span class="material-icons-round text-lg">filter_alt</span> Filter
+                        class="px-4 py-2.5 bg-secondary text-white rounded-lg text-sm font-bold shadow-md flex items-center gap-2">
+                        <span class="material-icons-round text-lg">filter_alt</span>
+                        Filter
                     </button>
                 </form>
 
-                <div class="h-10 w-px bg-gray-200 dark:bg-gray-700 hidden sm:block"></div>
-
-                <a href="{{ route('reports.export', ['start_date' => request('start_date'), 'end_date' => request('end_date')]) }}"
-                    class="w-full sm:w-auto px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95 flex items-center justify-center gap-2 h-[42px]">
-                    <span class="material-icons-round text-lg">file_download</span> Unduh Excel
+                {{-- EXPORT --}}
+                <a href="{{ route('reports.export', request()->all()) }}"
+                    class="px-4 py-2.5 bg-emerald-600 text-white rounded-lg text-sm font-bold shadow-md flex items-center gap-2 justify-center">
+                    <span class="material-icons-round text-lg">file_download</span>
+                    Export
                 </a>
+
             </div>
         </div>
 
@@ -142,38 +151,136 @@
         </div>
 
         {{-- AREA GRAFIK --}}
-        <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-6"
+        @php
+            // Warna entitas — sumber tunggal untuk chart JS dan legend Blade
+            $entityColors = ['#3b82f6', '#8b5cf6', '#10b981', '#14b8a6', '#fb923c', '#facc15', '#9ca3af'];
+            $chartData['entity_colors'] = $entityColors;
+        @endphp
+        <div class="space-y-6"
             x-data='chartHandler(@json($dailyTrend), @json($statusDist), @json($chartData))'>
 
-            {{-- Grafik Garis (Tren Harian) --}}
-            <div
-                class="xl:col-span-2 p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                <h3 class="font-bold text-lg text-text-light dark:text-text-dark mb-4">Tren Tiket Harian</h3>
-                <div class="relative h-64 w-full"><canvas id="trendChart"></canvas></div>
-            </div>
+            {{-- ROW 1 --}}
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {{-- Grafik Komposisi Status --}}
-            <div
-                class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                <h3 class="font-bold text-lg text-text-light dark:text-text-dark mb-4">Komposisi Status</h3>
-                <div class="relative h-64 w-full flex items-center justify-center"><canvas id="statusChart"></canvas>
+                {{-- Tren --}}
+                <div
+                    class="lg:col-span-2 p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <h3 class="font-bold text-lg mb-6">Tren Tiket Harian</h3>
+                    <div class="relative h-80">
+                        <canvas id="trendChart"></canvas>
+                    </div>
                 </div>
-            </div>
 
-            {{-- Grafik Pie (Berdasarkan Entitas) --}}
-            <div
-                class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                <h3 class="font-bold text-lg text-text-light dark:text-text-dark mb-4">Entitas Pengguna</h3>
-                <div class="relative h-64 w-full flex items-center justify-center"><canvas id="entityPieChart"></canvas>
+                {{-- Status --}}
+                <div
+                    class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <h3 class="font-bold text-lg mb-2">Komposisi Status</h3>
+                    <div class="h-64 flex items-center justify-center">
+                        <canvas id="statusChart"></canvas>
+                    </div>
                 </div>
+
             </div>
 
-            {{-- Grafik Bar (Berdasarkan Layanan) - Dibuat full width di bawahnya --}}
-            <div
-                class="xl:col-span-4 p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                <h3 class="font-bold text-lg text-text-light dark:text-text-dark mb-4">Tiket Berdasarkan Layanan</h3>
-                <div class="relative h-75 w-full"><canvas id="serviceBarChart"></canvas></div>
+            {{-- ROW 2 --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                {{-- Entitas --}}
+                <div
+                    class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <h3 class="font-bold text-lg mb-1">Entitas Pengguna</h3>
+                    <p class="text-xs text-gray-400 mb-4">Distribusi tiket berdasarkan seluruh entitas pembuat.</p>
+                    @php
+                        $entityMeta = [
+                            [
+                                'label' => 'Mahasiswa',
+                                'sub' => 'Mahasiswa aktif',
+                                'dot' => 'bg-blue-500',
+                                'bar' => 'bg-blue-500',
+                            ],
+                            [
+                                'label' => 'Dosen',
+                                'sub' => 'Dosen / Pengajar',
+                                'dot' => 'bg-violet-500',
+                                'bar' => 'bg-violet-500',
+                            ],
+                            [
+                                'label' => 'Tendik',
+                                'sub' => 'Tenaga Kependidikan',
+                                'dot' => 'bg-emerald-500',
+                                'bar' => 'bg-emerald-500',
+                            ],
+                            [
+                                'label' => 'Karyawan',
+                                'sub' => 'Karyawan non-Tendik',
+                                'dot' => 'bg-teal-500',
+                                'bar' => 'bg-teal-500',
+                            ],
+                            [
+                                'label' => 'Superuser',
+                                'sub' => 'Admin sistem',
+                                'dot' => 'bg-orange-400',
+                                'bar' => 'bg-orange-400',
+                            ],
+                            [
+                                'label' => 'Tamu',
+                                'sub' => 'Pengguna tanpa akun terdaftar',
+                                'dot' => 'bg-yellow-400',
+                                'bar' => 'bg-yellow-400',
+                            ],
+                            [
+                                'label' => 'Lainnya',
+                                'sub' => 'Entitas tidak terkategori',
+                                'dot' => 'bg-gray-400',
+                                'bar' => 'bg-gray-400',
+                            ],
+                        ];
+                        $totalEnt = array_sum($chartData['entity_totals']) ?: 1;
+                    @endphp
+                    <div class="flex flex-col sm:flex-row items-center gap-6">
+                        {{-- Pie --}}
+                        <div class="w-44 h-44 flex-shrink-0">
+                            <canvas id="entityPieChart"></canvas>
+                        </div>
+                        {{-- Legend --}}
+                        <div class="flex-1 w-full space-y-2">
+                            @foreach ($entityMeta as $i => $leg)
+                                @php
+                                    $cnt = $chartData['entity_totals'][$i] ?? 0;
+                                    $pct = round(($cnt / $totalEnt) * 100, 1);
+                                @endphp
+                                <div class="flex items-center gap-2 min-w-0">
+                                    <span class="w-2.5 h-2.5 rounded-full flex-shrink-0 {{ $leg['dot'] }}"></span>
+                                    <div class="w-20 flex-shrink-0">
+                                        <p class="text-xs font-semibold text-gray-700 dark:text-gray-200 leading-tight">
+                                            {{ $leg['label'] }}</p>
+                                        <p class="text-[10px] text-gray-400 leading-tight">{{ $leg['sub'] }}</p>
+                                    </div>
+                                    <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                        <div class="{{ $leg['bar'] }} h-full rounded-full"
+                                            style="width: {{ $pct }}%"></div>
+                                    </div>
+                                    <span
+                                        class="text-xs font-bold text-gray-700 dark:text-gray-200 w-6 text-right flex-shrink-0">{{ $cnt }}</span>
+                                    <span
+                                        class="text-[10px] text-gray-400 w-10 text-right flex-shrink-0">{{ $pct }}%</span>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Service --}}
+                <div
+                    class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <h3 class="font-bold text-lg mb-4">Tiket Berdasarkan Layanan</h3>
+                    <div class="h-72">
+                        <canvas id="serviceBarChart"></canvas>
+                    </div>
+                </div>
+
             </div>
+
         </div>
 
         {{-- TABEL REKAP LAYANAN DAN ENTITAS --}}
@@ -181,59 +288,114 @@
             class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
             <div class="p-6 border-b border-gray-100 dark:border-gray-800">
                 <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Rekapitulasi Layanan & Pengguna</h3>
-                <p class="text-sm text-gray-500 mt-1">Distribusi penyelesaian tiket dan komposisi pembuat tiket (Tendik,
-                    Dosen, Mahasiswa).</p>
+                <p class="text-sm text-gray-500 mt-1">
+                    Distribusi penyelesaian tiket dan rincian entitas pembuat tiket per layanan.
+                </p>
             </div>
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-sm text-left whitespace-nowrap">
                     <thead
-                        class="bg-gray-50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-300 font-bold tracking-wider">
+                        class="bg-gray-50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-300 font-bold tracking-wider text-xs">
                         <tr>
-                            <th class="px-6 py-4 border-b border-gray-200 dark:border-gray-700" rowspan="2">No</th>
-                            <th class="px-6 py-4 border-b border-gray-200 dark:border-gray-700" rowspan="2">Layanan
+                            <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700" rowspan="2">No</th>
+                            <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700" rowspan="2">Layanan
                             </th>
-                            <th class="px-6 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                colspan="3">Status Penyelesaian</th>
-                            <th class="px-6 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                colspan="4">Entitas Pembuat Tiket</th>
+                            {{-- Status group --}}
+                            <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest"
+                                colspan="3">
+                                Status Penyelesaian
+                            </th>
+                            {{-- Entitas group --}}
+                            <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest bg-slate-50 dark:bg-slate-800"
+                                colspan="7">
+                                Entitas Pembuat Tiket
+                            </th>
                         </tr>
                         <tr>
                             <th
-                                class="px-6 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-blue-600 bg-blue-50/50">
+                                class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-blue-600 bg-blue-50/50">
                                 Total</th>
                             <th
-                                class="px-6 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-emerald-600 bg-emerald-50/50">
+                                class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-emerald-600 bg-emerald-50/50">
                                 Done</th>
                             <th
-                                class="px-6 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-red-600 bg-red-50/50">
+                                class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-red-500 bg-red-50/50">
                                 Reject</th>
-                            <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Tenaga Kependidikan">Tendik (T)</th>
-                            <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Dosen">Dosen (D)</th>
-                            <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Mahasiswa">Mhs (M)</th>
-                            <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center">Lainnya
-                            </th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Mahasiswa">Mhs</th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Dosen">Dosen</th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Tenaga Kependidikan">Tendik</th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Karyawan">Kary.</th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Superuser / Admin Sistem">S.User</th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Tamu (pengguna tanpa akun)">Tamu</th>
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                title="Entitas lain / tidak terkategori">Lain.</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                    <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
                         @php $no = 1; @endphp
-                        @foreach ($serviceStats as $service)
+                        @forelse ($serviceStats as $service)
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
-                                <td class="px-6 py-4">{{ $no++ }}</td>
-                                <td class="px-6 py-4 font-semibold">{{ $service['name'] }}</td>
-                                <td class="px-6 py-4 text-center font-bold text-blue-600">{{ $service['total'] }}</td>
-                                <td class="px-6 py-4 text-center font-bold text-emerald-600">{{ $service['done'] }}
+                                <td class="px-4 py-3 text-gray-400">{{ $no++ }}</td>
+                                <td class="px-4 py-3 font-semibold text-text-light dark:text-text-dark">
+                                    {{ $service['name'] }}</td>
+                                <td class="px-4 py-3 text-center font-bold text-blue-600">{{ $service['total'] }}</td>
+                                <td class="px-4 py-3 text-center font-bold text-emerald-600">{{ $service['done'] }}
                                 </td>
-                                <td class="px-6 py-4 text-center font-bold text-red-600">{{ $service['reject'] }}</td>
-                                <td class="px-4 py-4 text-center">{{ $service['entities']['T'] }}</td>
-                                <td class="px-4 py-4 text-center">{{ $service['entities']['D'] }}</td>
-                                <td class="px-4 py-4 text-center">{{ $service['entities']['M'] }}</td>
-                                <td class="px-4 py-4 text-center text-gray-400">{{ $service['entities']['L'] }}</td>
+                                <td class="px-4 py-3 text-center font-bold text-red-500">{{ $service['reject'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['mahasiswa'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['dosen'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['tendik'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['karyawan'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['superuser'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['tamu'] }}</td>
+                                <td class="px-3 py-3 text-center">{{ $service['entities']['lainnya'] }}</td>
                             </tr>
-                        @endforeach
+                        @empty
+                            <tr>
+                                <td colspan="12" class="px-6 py-10 text-center text-gray-400">
+                                    <span class="material-icons-round text-4xl mb-2 opacity-40">inbox</span>
+                                    <p>Tidak ada data layanan pada periode ini.</p>
+                                </td>
+                            </tr>
+                        @endforelse
                     </tbody>
+                    {{-- FOOTER TOTAL --}}
+                    @php
+                        $totals = [
+                            'total' => collect($serviceStats)->sum('total'),
+                            'done' => collect($serviceStats)->sum('done'),
+                            'reject' => collect($serviceStats)->sum('reject'),
+                            'mahasiswa' => collect($serviceStats)->sum(fn($s) => $s['entities']['mahasiswa']),
+                            'dosen' => collect($serviceStats)->sum(fn($s) => $s['entities']['dosen']),
+                            'tendik' => collect($serviceStats)->sum(fn($s) => $s['entities']['tendik']),
+                            'karyawan' => collect($serviceStats)->sum(fn($s) => $s['entities']['karyawan']),
+                            'superuser' => collect($serviceStats)->sum(fn($s) => $s['entities']['superuser']),
+                            'tamu' => collect($serviceStats)->sum(fn($s) => $s['entities']['tamu']),
+                            'lainnya' => collect($serviceStats)->sum(fn($s) => $s['entities']['lainnya']),
+                        ];
+                    @endphp
+                    <tfoot
+                        class="bg-gray-100 dark:bg-slate-700/60 text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
+                        <tr>
+                            <td class="px-4 py-3" colspan="2">Total Keseluruhan</td>
+                            <td class="px-4 py-3 text-center text-blue-600">{{ $totals['total'] }}</td>
+                            <td class="px-4 py-3 text-center text-emerald-600">{{ $totals['done'] }}</td>
+                            <td class="px-4 py-3 text-center text-red-500">{{ $totals['reject'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['mahasiswa'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['dosen'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['tendik'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['karyawan'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['superuser'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['tamu'] }}</td>
+                            <td class="px-3 py-3 text-center">{{ $totals['lainnya'] }}</td>
+                        </tr>
+                    </tfoot>
                 </table>
             </div>
         </div>
@@ -271,6 +433,13 @@
                                                 {{ $staff->name }}</p>
                                             <p class="text-[10px] text-gray-400">{{ $staff->survey_count }} survei
                                                 diterima</p>
+                                            @if ($loop->first && $staff->csi_score > 80)
+                                                <span
+                                                    class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold border border-yellow-200 inline-flex items-center gap-1 mt-1">
+                                                    <span class="material-icons-round text-[10px]">emoji_events</span>
+                                                    Pelayanan Terbaik
+                                                </span>
+                                            @endif
                                         </div>
                                     </div>
                                 </td>
@@ -298,17 +467,20 @@
                                     <div class="flex items-center justify-center gap-1 text-yellow-500">
                                         <span class="material-icons-round text-sm">star</span>
                                         <span
-                                            class="font-bold text-gray-900">{{ number_format($staff->rating_star, 2) }}</span>
+                                            class="font-bold text-gray-900 dark:text-white">{{ number_format($staff->rating_star, 2) }}</span>
                                     </div>
                                 </td>
                                 <td class="px-6 py-4 text-center">
                                     @php
                                         $csiColor = match (true) {
-                                            $staff->csi_score >= 80 => 'bg-green-100 text-green-800 border-green-200',
-                                            $staff->csi_score >= 60 => 'bg-blue-100 text-blue-800 border-blue-200',
+                                            $staff->csi_score >= 80
+                                                => 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400',
+                                            $staff->csi_score >= 60
+                                                => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400',
                                             $staff->csi_score >= 40
-                                                => 'bg-yellow-100 text-yellow-800 border-yellow-200',
-                                            default => 'bg-red-100 text-red-800 border-red-200',
+                                                => 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400',
+                                            default
+                                                => 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400',
                                         };
                                     @endphp
                                     <span class="px-3 py-1 rounded-full text-sm font-bold border {{ $csiColor }}">

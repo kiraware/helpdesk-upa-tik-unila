@@ -455,7 +455,7 @@ class TicketController extends Controller
             $ticket->user->notify(new SystemNotification(
                 $title,
                 $message,
-                route('tickets.show', $ticket),
+                route('tickets.show', $ticket).'#survey-section',
                 $type,
                 $channels
             ));
@@ -465,7 +465,7 @@ class TicketController extends Controller
                 ->notify(new SystemNotification(
                     $title,
                     $message,
-                    route('guest.tracking.show', $ticket->ticket_code),
+                    route('guest.tracking.show', $ticket->ticket_code).'#survey-section',
                     $type,
                     ['mail', WhatsAppChannel::class]
                 ));

@@ -274,10 +274,22 @@ Alpine.data("chartHandler", (trendData, statusData, chartData) => ({
         });
     },
 
-    // --- CHART BARU: ENTITAS TENDIK/DOSEN/MHS ---
+    // --- CHART ENTITAS PENGGUNA ---
     renderEntity(data) {
         const ctx = document.getElementById("entityPieChart");
         if (!ctx) return;
+
+        // Warna dibaca dari chartData.entity_colors yang dikirim Blade,
+        // sehingga konsisten dengan dot/bar pada legend di bawah chart.
+        const colors = data.entity_colors ?? [
+            "#3b82f6", // Mahasiswa
+            "#8b5cf6", // Dosen
+            "#10b981", // Tendik
+            "#14b8a6", // Karyawan
+            "#fb923c", // Superuser
+            "#facc15", // Tamu
+            "#9ca3af", // Lainnya
+        ];
 
         this.entityChart = new Chart(ctx, {
             type: "doughnut",
@@ -286,13 +298,9 @@ Alpine.data("chartHandler", (trendData, statusData, chartData) => ({
                 datasets: [
                     {
                         data: data.entity_totals,
-                        backgroundColor: [
-                            "#10b981",
-                            "#f59e0b",
-                            "#ef4444",
-                            "#64748b",
-                        ], // Hijau, Kuning, Merah, Slate
+                        backgroundColor: colors,
                         borderWidth: 0,
+                        hoverOffset: 4,
                     },
                 ],
             },
@@ -300,13 +308,14 @@ Alpine.data("chartHandler", (trendData, statusData, chartData) => ({
                 responsive: true,
                 maintainAspectRatio: false,
                 plugins: {
-                    legend: {
-                        position: "right",
-                        labels: {
-                            color: this.getTextColor(),
-                            usePointStyle: true,
-                            font: { family: "'Inter Variable', sans-serif" },
-                        },
+                    // Legend dimatikan karena sudah ada legend custom di Blade
+                    legend: { display: false },
+                    tooltip: {
+                        backgroundColor: this.isDark ? "#1e293b" : "#ffffff",
+                        titleColor: this.isDark ? "#fff" : "#0f172a",
+                        bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                        borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                        borderWidth: 1,
                     },
                 },
                 cutout: "60%",

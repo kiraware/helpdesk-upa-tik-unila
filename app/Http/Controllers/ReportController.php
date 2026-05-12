@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\IdentityType;
 use App\Enums\TicketStatus;
+use App\Enums\UserEntity;
 use App\Enums\UserRole;
 use App\Exports\TicketReportExport;
 use App\Models\Service;
@@ -57,12 +59,23 @@ class ReportController extends Controller
             'reject' => $stats['reject'],
         ];
 
-        // --- 4. REKAP BERDASARKAN LAYANAN & ENTITAS (BARU) ---
+        // --- 4. REKAP BERDASARKAN LAYANAN & ENTITAS ---
         $allTickets = (clone $ticketsQuery)->with(['service', 'user', 'guestDetail'])->get();
 
         $services = Service::all();
         $serviceStats = [];
-        $entityDist = ['T' => 0, 'D' => 0, 'M' => 0, 'L' => 0];
+
+        $emptyEntities = [
+            'mahasiswa' => 0,
+            'dosen' => 0,
+            'tendik' => 0,
+            'karyawan' => 0,
+            'superuser' => 0,
+            'tamu' => 0,
+            'lainnya' => 0,
+        ];
+
+        $entityDist = $emptyEntities;
 
         foreach ($services as $service) {
             $serviceStats[$service->id] = [
@@ -70,7 +83,7 @@ class ReportController extends Controller
                 'total' => 0,
                 'done' => 0,
                 'reject' => 0,
-                'entities' => ['T' => 0, 'D' => 0, 'M' => 0, 'L' => 0],
+                'entities' => $emptyEntities,
             ];
         }
 
@@ -89,25 +102,24 @@ class ReportController extends Controller
             }
 
             // Deteksi Entitas
-            $entityCode = 'L'; // Lainnya
+            $entityCode = 'lainnya';
             if ($ticket->user) {
-                $e = strtolower($ticket->user->entity->value ?? '');
-                if (in_array($e, ['karyawan', 'tendik'])) {
-                    $entityCode = 'T';
-                } elseif ($e === 'dosen') {
-                    $entityCode = 'D';
-                } elseif ($e === 'mahasiswa') {
-                    $entityCode = 'M';
-                }
+                $entityCode = match ($ticket->user->entity) {
+                    UserEntity::MAHASISWA => 'mahasiswa',
+                    UserEntity::DOSEN => 'dosen',
+                    UserEntity::TENDIK => 'tendik',
+                    UserEntity::KARYAWAN => 'karyawan',
+                    UserEntity::SUPER_USER => 'superuser',
+                    UserEntity::TAMU => 'tamu',
+                    default => 'lainnya',
+                };
             } elseif ($ticket->guestDetail) {
-                $e = strtolower($ticket->guestDetail->entity_type->value ?? '');
-                if ($e === 'tendik') {
-                    $entityCode = 'T';
-                } elseif ($e === 'dosen') {
-                    $entityCode = 'D';
-                } elseif ($e === 'mahasiswa') {
-                    $entityCode = 'M';
-                }
+                $entityCode = match ($ticket->guestDetail->entity_type) {
+                    IdentityType::MAHASISWA => 'mahasiswa',
+                    IdentityType::DOSEN => 'dosen',
+                    IdentityType::TENDIK => 'tendik',
+                    default => 'lainnya',
+                };
             }
 
             $serviceStats[$serviceId]['entities'][$entityCode]++;
@@ -119,8 +131,16 @@ class ReportController extends Controller
         $chartData = [
             'services_labels' => collect($serviceStats)->pluck('name')->toArray(),
             'services_totals' => collect($serviceStats)->pluck('total')->toArray(),
-            'entity_labels' => ['Tendik', 'Dosen', 'Mahasiswa', 'Lainnya'],
-            'entity_totals' => [$entityDist['T'], $entityDist['D'], $entityDist['M'], $entityDist['L']],
+            'entity_labels' => ['Mahasiswa', 'Dosen', 'Tendik', 'Karyawan', 'Superuser', 'Tamu', 'Lainnya'],
+            'entity_totals' => [
+                $entityDist['mahasiswa'],
+                $entityDist['dosen'],
+                $entityDist['tendik'],
+                $entityDist['karyawan'],
+                $entityDist['superuser'],
+                $entityDist['tamu'],
+                $entityDist['lainnya'],
+            ],
         ];
 
         // --- 5. PENGHITUNGAN CSI GLOBAL ---

@@ -47,9 +47,12 @@
     <tr style="background-color: #f3f4f6; font-weight: bold;">
         <th>No</th>
         <th>Layanan</th>
-        <th>Tendik (T)</th>
-        <th>Dosen (D)</th>
-        <th>Mahasiswa (M)</th>
+        <th>Mahasiswa</th>
+        <th>Dosen</th>
+        <th>Tendik</th>
+        <th>Karyawan</th>
+        <th>Superuser</th>
+        <th>Tamu</th>
         <th>Lainnya</th>
         <th>Total</th>
         <th>% dari Total Keseluruhan</th>
@@ -59,10 +62,13 @@
         <tr>
             <td>{{ $no++ }}</td>
             <td>{{ $row['name'] }}</td>
-            <td>{{ $row['T'] }}</td>
-            <td>{{ $row['D'] }}</td>
-            <td>{{ $row['M'] }}</td>
-            <td>{{ $row['L'] }}</td>
+            <td>{{ $row['entities']['mahasiswa'] ?? 0 }}</td>
+            <td>{{ $row['entities']['dosen'] ?? 0 }}</td>
+            <td>{{ $row['entities']['tendik'] ?? 0 }}</td>
+            <td>{{ $row['entities']['karyawan'] ?? 0 }}</td>
+            <td>{{ $row['entities']['superuser'] ?? 0 }}</td>
+            <td>{{ $row['entities']['tamu'] ?? 0 }}</td>
+            <td>{{ $row['entities']['lainnya'] ?? 0 }}</td>
             <td>{{ $row['total'] }}</td>
             <td>{{ $grandTotal > 0 ? round(($row['total'] / $grandTotal) * 100, 2) : 0 }}%</td>
         </tr>

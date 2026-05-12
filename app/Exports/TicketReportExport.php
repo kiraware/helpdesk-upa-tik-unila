@@ -2,7 +2,9 @@
 
 namespace App\Exports;
 
+use App\Enums\IdentityType;
 use App\Enums\TicketStatus;
+use App\Enums\UserEntity;
 use App\Models\Service;
 use App\Models\Ticket;
 use Illuminate\Contracts\View\View;
@@ -33,12 +35,24 @@ class TicketReportExport implements FromView, ShouldAutoSize, WithStyles
         $services = Service::all();
         $reportData = [];
 
+        $emptyEntities = [
+            'mahasiswa' => 0,
+            'dosen' => 0,
+            'tendik' => 0,
+            'karyawan' => 0,
+            'superuser' => 0,
+            'tamu' => 0,
+            'lainnya' => 0,
+        ];
+
         // Siapkan kerangka array per layanan
         foreach ($services as $service) {
             $reportData[$service->id] = [
                 'name' => $service->name,
-                'total' => 0, 'done' => 0, 'reject' => 0,
-                'T' => 0, 'D' => 0, 'M' => 0, 'L' => 0,
+                'total' => 0,
+                'done' => 0,
+                'reject' => 0,
+                'entities' => $emptyEntities,
             ];
         }
 
@@ -58,27 +72,26 @@ class TicketReportExport implements FromView, ShouldAutoSize, WithStyles
             }
 
             // Hitung entitas pengguna
-            $entityCode = 'L'; // Default: Lainnya
+            $entityCode = 'lainnya';
             if ($ticket->user) {
-                $e = strtolower($ticket->user->entity->value ?? '');
-                if (in_array($e, ['karyawan', 'tendik'])) {
-                    $entityCode = 'T';
-                } elseif ($e === 'dosen') {
-                    $entityCode = 'D';
-                } elseif ($e === 'mahasiswa') {
-                    $entityCode = 'M';
-                }
+                $entityCode = match ($ticket->user->entity) {
+                    UserEntity::MAHASISWA => 'mahasiswa',
+                    UserEntity::DOSEN => 'dosen',
+                    UserEntity::TENDIK => 'tendik',
+                    UserEntity::KARYAWAN => 'karyawan',
+                    UserEntity::SUPER_USER => 'superuser',
+                    UserEntity::TAMU => 'tamu',
+                    default => 'lainnya',
+                };
             } elseif ($ticket->guestDetail) {
-                $e = strtolower($ticket->guestDetail->entity_type->value ?? '');
-                if ($e === 'tendik') {
-                    $entityCode = 'T';
-                } elseif ($e === 'dosen') {
-                    $entityCode = 'D';
-                } elseif ($e === 'mahasiswa') {
-                    $entityCode = 'M';
-                }
+                $entityCode = match ($ticket->guestDetail->entity_type) {
+                    IdentityType::MAHASISWA => 'mahasiswa',
+                    IdentityType::DOSEN => 'dosen',
+                    IdentityType::TENDIK => 'tendik',
+                    default => 'lainnya',
+                };
             }
-            $reportData[$ticket->service_id][$entityCode]++;
+            $reportData[$ticket->service_id]['entities'][$entityCode]++;
         }
 
         // Urutkan dari total tiket terbanyak
