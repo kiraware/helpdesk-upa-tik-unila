@@ -70,286 +70,489 @@ Alpine.data("toast", (initialMessage = "", initialType = "success") => ({
     },
 }));
 
-Alpine.data("chartHandler", (trendData, statusData, chartData) => ({
-    trendChart: null,
-    statusChart: null,
-    serviceChart: null,
-    entityChart: null,
+Alpine.data(
+    "chartHandler",
+    (trendData, statusData, chartData, durationData, priorityData) => ({
+        trendChart: null,
+        statusChart: null,
+        serviceChart: null,
+        entityChart: null,
+        monthlyTrendChart: null,
+        durationChart: null,
+        priorityChart: null,
 
-    init() {
-        // Render Chart saat inisialisasi
-        if (trendData) this.renderTrend(trendData);
-        if (statusData) this.renderStatus(statusData);
-        if (chartData) {
-            this.renderService(chartData);
-            this.renderEntity(chartData);
-        }
+        init() {
+            if (trendData) this.renderTrend(trendData);
+            if (statusData) this.renderStatus(statusData);
+            if (chartData) {
+                this.renderService(chartData);
+                this.renderEntity(chartData);
+                if (chartData.monthly_labels?.length)
+                    this.renderMonthly(chartData);
+            }
+            if (durationData) this.renderDuration(durationData);
+            if (priorityData) this.renderPriority(priorityData);
 
-        // Listener untuk perubahan tema (Dark/Light) agar chart update warna grid & teks
-        const observer = new MutationObserver(() => {
-            this.updateChartsTheme();
-        });
-        observer.observe(document.documentElement, {
-            attributes: true,
-            attributeFilter: ["class"],
-        });
-    },
+            // Tema listener
+            const observer = new MutationObserver(() => {
+                this.updateChartsTheme();
+            });
+            observer.observe(document.documentElement, {
+                attributes: true,
+                attributeFilter: ["class"],
+            });
+        },
 
-    get isDark() {
-        return document.documentElement.classList.contains("dark");
-    },
+        get isDark() {
+            return document.documentElement.classList.contains("dark");
+        },
 
-    getGridColor() {
-        return this.isDark ? "#334155" : "#e2e8f0"; // Slate-700 vs Slate-200
-    },
+        getGridColor() {
+            return this.isDark ? "#334155" : "#e2e8f0";
+        },
 
-    getTextColor() {
-        return this.isDark ? "#cbd5e1" : "#475569"; // Slate-300 vs Slate-600
-    },
+        getTextColor() {
+            return this.isDark ? "#cbd5e1" : "#475569";
+        },
 
-    renderTrend(data) {
-        const ctx = document.getElementById("trendChart");
-        if (!ctx) return;
+        renderTrend(data) {
+            const ctx = document.getElementById("trendChart");
+            if (!ctx) return;
+            const labels = Object.keys(data);
+            const values = Object.values(data);
 
-        const labels = Object.keys(data);
-        const values = Object.values(data);
-
-        this.trendChart = new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: labels,
-                datasets: [
-                    {
-                        label: "Tiket Masuk",
-                        data: values,
-                        borderColor: "#3b82f6", // Primary Blue
-                        backgroundColor: (context) => {
-                            const bg = context.chart.ctx.createLinearGradient(
-                                0,
-                                0,
-                                0,
-                                300,
-                            );
-                            bg.addColorStop(0, "rgba(59, 130, 246, 0.5)");
-                            bg.addColorStop(1, "rgba(59, 130, 246, 0.0)");
-                            return bg;
+            this.trendChart = new Chart(ctx, {
+                type: "line",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            label: "Tiket Masuk",
+                            data: values,
+                            borderColor: "#3b82f6",
+                            backgroundColor: (context) => {
+                                const bg =
+                                    context.chart.ctx.createLinearGradient(
+                                        0,
+                                        0,
+                                        0,
+                                        300,
+                                    );
+                                bg.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+                                bg.addColorStop(1, "rgba(59, 130, 246, 0.0)");
+                                return bg;
+                            },
+                            borderWidth: 2.5,
+                            tension: 0.4,
+                            fill: true,
+                            pointBackgroundColor: "#ffffff",
+                            pointBorderColor: "#3b82f6",
+                            pointRadius: 3,
+                            pointHoverRadius: 5,
                         },
-                        borderWidth: 3,
-                        tension: 0.4,
-                        fill: true,
-                        pointBackgroundColor: "#ffffff",
-                        pointBorderColor: "#3b82f6",
-                        pointRadius: 4,
-                        pointHoverRadius: 6,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        mode: "index",
-                        intersect: false,
-                        backgroundColor: this.isDark ? "#1e293b" : "#ffffff",
-                        titleColor: this.isDark ? "#fff" : "#0f172a",
-                        bodyColor: this.isDark ? "#cbd5e1" : "#334155",
-                        borderColor: this.isDark ? "#334155" : "#e2e8f0",
-                        borderWidth: 1,
-                    },
+                    ],
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: this.getGridColor(),
-                            borderDash: [5, 5],
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            mode: "index",
+                            intersect: false,
+                            backgroundColor: this.isDark
+                                ? "#1e293b"
+                                : "#ffffff",
+                            titleColor: this.isDark ? "#fff" : "#0f172a",
+                            bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                            borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                            borderWidth: 1,
                         },
-                        ticks: {
-                            color: this.getTextColor(),
-                            stepSize: 1,
-                            precision: 0,
-                            callback: function (value) {
-                                return Number.isInteger(value) ? value : null;
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: this.getGridColor(),
+                                borderDash: [5, 5],
+                            },
+                            ticks: {
+                                color: this.getTextColor(),
+                                stepSize: 1,
+                                precision: 0,
+                                callback: (v) =>
+                                    Number.isInteger(v) ? v : null,
+                            },
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: {
+                                color: this.getTextColor(),
+                                maxTicksLimit: 15,
                             },
                         },
                     },
-                    x: {
-                        grid: { display: false },
-                        ticks: { color: this.getTextColor() },
+                    interaction: {
+                        mode: "nearest",
+                        axis: "x",
+                        intersect: false,
                     },
                 },
-                interaction: {
-                    mode: "nearest",
-                    axis: "x",
-                    intersect: false,
+            });
+        },
+
+        renderStatus(data) {
+            const ctx = document.getElementById("statusChart");
+            if (!ctx) return;
+
+            this.statusChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: ["Menunggu", "Proses", "Selesai", "Ditolak"],
+                    datasets: [
+                        {
+                            data: [
+                                data.waiting,
+                                data.progress,
+                                data.done,
+                                data.reject,
+                            ],
+                            backgroundColor: [
+                                "#ca8a04",
+                                "#2563eb",
+                                "#059669",
+                                "#dc2626",
+                            ],
+                            hoverOffset: 6,
+                            borderWidth: 0,
+                        },
+                    ],
                 },
-            },
-        });
-    },
-
-    renderStatus(data) {
-        const ctx = document.getElementById("statusChart");
-        if (!ctx) return;
-
-        this.statusChart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: ["Menunggu", "Proses", "Selesai", "Ditolak"],
-                datasets: [
-                    {
-                        data: [
-                            data.waiting,
-                            data.progress,
-                            data.done,
-                            data.reject,
-                        ],
-                        backgroundColor: [
-                            "#ca8a04", // WAITING
-                            "#2563eb", // PROGRESS
-                            "#059669", // DONE
-                            "#dc2626", // REJECT
-                        ],
-                        hoverOffset: 4,
-                        borderWidth: 0,
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: this.getTextColor(),
+                                usePointStyle: true,
+                                padding: 16,
+                                font: {
+                                    family: "'Inter Variable', sans-serif",
+                                    size: 11,
+                                },
+                            },
+                        },
                     },
-                ],
-            },
-            options: {
-                plugins: {
-                    legend: {
-                        position: "bottom",
-                        labels: {
-                            color: this.getTextColor(),
-                            usePointStyle: true,
-                            padding: 20,
-                            font: { family: "'Inter Variable', sans-serif" },
+                    cutout: "72%",
+                },
+            });
+        },
+
+        renderService(data) {
+            const ctx = document.getElementById("serviceBarChart");
+            if (!ctx) return;
+
+            this.serviceChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: data.services_labels,
+                    datasets: [
+                        {
+                            label: "Total",
+                            data: data.services_totals,
+                            backgroundColor: "#8b5cf6",
+                            borderRadius: 4,
+                        },
+                        {
+                            label: "Selesai",
+                            data: data.services_done ?? [],
+                            backgroundColor: "#10b981",
+                            borderRadius: 4,
+                        },
+                        {
+                            label: "Ditolak",
+                            data: data.services_reject ?? [],
+                            backgroundColor: "#ef4444",
+                            borderRadius: 4,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: "y",
+                    plugins: {
+                        legend: {
+                            position: "top",
+                            labels: {
+                                color: this.getTextColor(),
+                                usePointStyle: true,
+                                padding: 12,
+                            },
+                        },
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            grid: {
+                                color: this.getGridColor(),
+                                borderDash: [5, 5],
+                            },
+                            ticks: { color: this.getTextColor(), stepSize: 1 },
+                        },
+                        y: {
+                            grid: { display: false },
+                            ticks: {
+                                color: this.getTextColor(),
+                                font: { size: 11 },
+                            },
                         },
                     },
                 },
-                cutout: "75%",
-            },
-        });
-    },
+            });
+        },
 
-    // LAYANAN
-    renderService(data) {
-        const ctx = document.getElementById("serviceBarChart");
-        if (!ctx) return;
+        renderEntity(data) {
+            const ctx = document.getElementById("entityPieChart");
+            if (!ctx) return;
 
-        this.serviceChart = new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: data.services_labels,
-                datasets: [
-                    {
-                        label: "Total Tiket",
-                        data: data.services_totals,
-                        backgroundColor: "#8b5cf6", // Purple
-                        borderRadius: 4,
-                    },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                indexAxis: "y", // Menjadi Horizontal Bar
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: {
-                        beginAtZero: true,
-                        grid: {
-                            color: this.getGridColor(),
-                            borderDash: [5, 5],
+            const colors = data.entity_colors ?? [
+                "#3b82f6",
+                "#8b5cf6",
+                "#10b981",
+                "#14b8a6",
+                "#fb923c",
+                "#facc15",
+                "#9ca3af",
+            ];
+
+            this.entityChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels: data.entity_labels,
+                    datasets: [
+                        {
+                            data: data.entity_totals,
+                            backgroundColor: colors,
+                            borderWidth: 0,
+                            hoverOffset: 4,
                         },
-                        ticks: { color: this.getTextColor(), stepSize: 1 },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: this.isDark
+                                ? "#1e293b"
+                                : "#ffffff",
+                            titleColor: this.isDark ? "#fff" : "#0f172a",
+                            bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                            borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                            borderWidth: 1,
+                        },
                     },
-                    y: {
-                        grid: { display: false },
-                        ticks: { color: this.getTextColor() },
+                    cutout: "60%",
+                },
+            });
+        },
+
+        // ---- NEW: Monthly Trend (Bar) ----
+        renderMonthly(data) {
+            const ctx = document.getElementById("monthlyTrendChart");
+            if (!ctx) return;
+
+            this.monthlyTrendChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: data.monthly_labels,
+                    datasets: [
+                        {
+                            label: "Tiket per Bulan",
+                            data: data.monthly_totals,
+                            backgroundColor: (ctx) => {
+                                const g = ctx.chart.ctx.createLinearGradient(
+                                    0,
+                                    0,
+                                    0,
+                                    300,
+                                );
+                                g.addColorStop(0, "rgba(99, 102, 241, 0.85)");
+                                g.addColorStop(1, "rgba(99, 102, 241, 0.3)");
+                                return g;
+                            },
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: this.isDark ? "#1e293b" : "#fff",
+                            titleColor: this.isDark ? "#fff" : "#0f172a",
+                            bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                            borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                            borderWidth: 1,
+                        },
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: this.getGridColor(),
+                                borderDash: [5, 5],
+                            },
+                            ticks: { color: this.getTextColor(), stepSize: 1 },
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: this.getTextColor() },
+                        },
                     },
                 },
-            },
-        });
-    },
+            });
+        },
 
-    // --- CHART ENTITAS PENGGUNA ---
-    renderEntity(data) {
-        const ctx = document.getElementById("entityPieChart");
-        if (!ctx) return;
+        // ---- NEW: Duration histogram ----
+        renderDuration(data) {
+            const ctx = document.getElementById("durationChart");
+            if (!ctx) return;
 
-        // Warna dibaca dari chartData.entity_colors yang dikirim Blade,
-        // sehingga konsisten dengan dot/bar pada legend di bawah chart.
-        const colors = data.entity_colors ?? [
-            "#3b82f6", // Mahasiswa
-            "#8b5cf6", // Dosen
-            "#10b981", // Tendik
-            "#14b8a6", // Karyawan
-            "#fb923c", // Superuser
-            "#facc15", // Tamu
-            "#9ca3af", // Lainnya
-        ];
-
-        this.entityChart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-                labels: data.entity_labels,
-                datasets: [
-                    {
-                        data: data.entity_totals,
-                        backgroundColor: colors,
-                        borderWidth: 0,
-                        hoverOffset: 4,
+            this.durationChart = new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: Object.keys(data),
+                    datasets: [
+                        {
+                            label: "Jumlah Tiket",
+                            data: Object.values(data),
+                            backgroundColor: [
+                                "#10b981",
+                                "#3b82f6",
+                                "#f59e0b",
+                                "#f97316",
+                                "#ef4444",
+                            ],
+                            borderRadius: 6,
+                            borderSkipped: false,
+                        },
+                    ],
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: this.isDark ? "#1e293b" : "#fff",
+                            titleColor: this.isDark ? "#fff" : "#0f172a",
+                            bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                            borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                            borderWidth: 1,
+                        },
                     },
-                ],
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: {
-                    // Legend dimatikan karena sudah ada legend custom di Blade
-                    legend: { display: false },
-                    tooltip: {
-                        backgroundColor: this.isDark ? "#1e293b" : "#ffffff",
-                        titleColor: this.isDark ? "#fff" : "#0f172a",
-                        bodyColor: this.isDark ? "#cbd5e1" : "#334155",
-                        borderColor: this.isDark ? "#334155" : "#e2e8f0",
-                        borderWidth: 1,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: this.getGridColor(),
+                                borderDash: [5, 5],
+                            },
+                            ticks: { color: this.getTextColor(), precision: 0 },
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { color: this.getTextColor() },
+                        },
                     },
                 },
-                cutout: "60%",
-            },
-        });
-    },
+            });
+        },
 
-    updateChartsTheme() {
-        if (this.trendChart) {
-            this.trendChart.options.scales.y.grid.color = this.getGridColor();
-            this.trendChart.options.scales.y.ticks.color = this.getTextColor();
-            this.trendChart.options.scales.x.ticks.color = this.getTextColor();
-            this.trendChart.update();
-        }
-        if (this.statusChart) {
-            this.statusChart.options.plugins.legend.labels.color =
-                this.getTextColor();
-            this.statusChart.update();
-        }
-        if (this.serviceChart) {
-            this.serviceChart.options.scales.x.grid.color = this.getGridColor();
-            this.serviceChart.options.scales.x.ticks.color =
-                this.getTextColor();
-            this.serviceChart.options.scales.y.ticks.color =
-                this.getTextColor();
-            this.serviceChart.update();
-        }
-        if (this.entityChart) {
-            this.entityChart.options.plugins.legend.labels.color =
-                this.getTextColor();
-            this.entityChart.update();
-        }
-    },
-}));
+        // ---- NEW: Priority doughnut ----
+        renderPriority(data) {
+            const ctx = document.getElementById("priorityChart");
+            if (!ctx) return;
+
+            const labels = Object.keys(data);
+            const values = Object.values(data);
+            const colors = {
+                HIGH: "#ef4444",
+                MEDIUM: "#f59e0b",
+                LOW: "#10b981",
+            };
+            const bgColors = labels.map((l) => colors[l] ?? "#9ca3af");
+
+            this.priorityChart = new Chart(ctx, {
+                type: "doughnut",
+                data: {
+                    labels,
+                    datasets: [
+                        {
+                            data: values,
+                            backgroundColor: bgColors,
+                            borderWidth: 0,
+                            hoverOffset: 6,
+                        },
+                    ],
+                },
+                options: {
+                    plugins: {
+                        legend: {
+                            position: "bottom",
+                            labels: {
+                                color: this.getTextColor(),
+                                usePointStyle: true,
+                                padding: 12,
+                                font: { size: 11 },
+                            },
+                        },
+                    },
+                    cutout: "68%",
+                },
+            });
+        },
+
+        updateChartsTheme() {
+            const charts = [
+                this.trendChart,
+                this.serviceChart,
+                this.monthlyTrendChart,
+                this.durationChart,
+            ];
+            charts.forEach((chart) => {
+                if (!chart) return;
+                if (chart.options.scales?.y?.grid) {
+                    chart.options.scales.y.grid.color = this.getGridColor();
+                }
+                if (chart.options.scales?.y?.ticks) {
+                    chart.options.scales.y.ticks.color = this.getTextColor();
+                }
+                if (chart.options.scales?.x?.ticks) {
+                    chart.options.scales.x.ticks.color = this.getTextColor();
+                }
+                chart.update();
+            });
+
+            [this.statusChart, this.entityChart, this.priorityChart].forEach(
+                (chart) => {
+                    if (!chart) return;
+                    if (chart.options.plugins?.legend?.labels) {
+                        chart.options.plugins.legend.labels.color =
+                            this.getTextColor();
+                    }
+                    chart.update();
+                },
+            );
+        },
+    }),
+);
 
 Alpine.data(
     "sidebarCounter",
@@ -359,8 +562,6 @@ Alpine.data(
 
         init() {
             if (!fetchUrl) return;
-
-            // Lakukan polling setiap 15 detik (15000 ms)
             setInterval(() => {
                 fetch(fetchUrl)
                     .then((res) => res.json())
