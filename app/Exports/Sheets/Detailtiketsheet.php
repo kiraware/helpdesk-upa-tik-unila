@@ -93,6 +93,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
+                // Baris 1: Judul
                 $sheet->mergeCells('A1:L1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -101,6 +102,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
+                // Baris 2: Sub-judul periode
                 $sheet->mergeCells('A2:L2');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -108,17 +110,19 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                $sheet->getStyle('A4:L4')->applyFromArray([
+                // Baris 4: Header kolom tabel
+                $sheet->getStyle('A3:L3')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
-                $sheet->getRowDimension(4)->setRowHeight(30);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
-                $totalRows = count($this->tickets);
-                $dataStart = 5;
-                $dataEnd = $dataStart + $totalRows - 1;
+                // Hitung rentang data dari sheet secara langsung agar selalu akurat
+                $highestRow = $sheet->getHighestRow();
+                $dataStart = 4;
+                $dataEnd = $highestRow;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
                     $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
@@ -127,14 +131,22 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
-                    // Name column left-aligned
+                    // Kolom Nama rata kiri
                     $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    // Kolom Layanan & Petugas rata kiri
+                    $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
+
+                // Border luar tabel
+                $sheet->getStyle("A3:L{$dataEnd}")->applyFromArray([
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
+                ]);
 
                 $sheet->freezePane('A5');
 
-                // Auto-filter on header
-                $sheet->setAutoFilter('A4:L4');
+                // Auto-filter pada header
+                $sheet->setAutoFilter('A3:L4');
             },
         ];
     }

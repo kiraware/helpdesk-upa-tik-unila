@@ -39,6 +39,8 @@ class EnsureSurveyCompleted
                     'tickets.show',
                     'tickets.survey.store',
                     'logout',
+                    'api.notifications',
+                    'api.ticket.counts',
                 ];
 
                 $currentRoute = $request->route()->getName();

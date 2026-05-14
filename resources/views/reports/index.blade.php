@@ -283,11 +283,11 @@
             </div>
 
             {{-- ROW 2: Layanan & Entitas --}}
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="grid grid-cols-1 gap-6">
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                     <h3 class="font-bold text-lg mb-4">Tiket per Layanan</h3>
-                    <div class="h-72">
+                    <div class="overflow-y-auto" style="min-height: 260px;">
                         <canvas id="serviceBarChart"></canvas>
                     </div>
                 </div>
@@ -343,34 +343,70 @@
                         ];
                         $totalEnt = array_sum($chartData['entity_totals']) ?: 1;
                     @endphp
-                    <div class="flex flex-col sm:flex-row items-center gap-6">
-                        <div class="w-44 h-44 flex-shrink-0">
-                            <canvas id="entityPieChart"></canvas>
-                        </div>
-                        <div class="flex-1 w-full space-y-2">
-                            @foreach ($entityMeta as $i => $leg)
+                    <div class="flex items-center gap-4">
+
+                        {{-- Kolom kiri: entitas 0–2 (Mahasiswa, Dosen, Tendik) --}}
+                        <div class="flex-1 space-y-3 min-w-0">
+                            @foreach (array_slice($entityMeta, 0, 3) as $i => $leg)
                                 @php
                                     $cnt = $chartData['entity_totals'][$i] ?? 0;
                                     $pct = round(($cnt / $totalEnt) * 100, 1);
                                 @endphp
-                                <div class="flex items-center gap-2">
-                                    <div class="w-2.5 h-2.5 rounded-full flex-shrink-0 {{ $leg['dot'] }}"></div>
-                                    <div class="flex-1 min-w-0">
-                                        <p
-                                            class="text-xs font-semibold text-gray-700 dark:text-gray-200 leading-tight truncate">
-                                            {{ $leg['label'] }}</p>
+                                <div class="flex flex-col gap-0.5 min-w-0">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <div class="w-2 h-2 rounded-full flex-shrink-0 {{ $leg['dot'] }}"></div>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">{{ $leg['label'] }}</span>
                                     </div>
-                                    <div class="w-20 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
-                                        <div class="{{ $leg['bar'] }} h-full rounded-full"
-                                            style="width: {{ $pct }}%"></div>
+                                    <div class="flex items-center gap-1.5 pl-3.5">
+                                        <div
+                                            class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                            <div class="{{ $leg['bar'] }} h-full rounded-full"
+                                                style="width: {{ $pct }}%"></div>
+                                        </div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">{{ $cnt }}</span>
+                                        <span
+                                            class="text-[10px] text-gray-400 flex-shrink-0">{{ $pct }}%</span>
                                     </div>
-                                    <span
-                                        class="text-xs font-bold text-gray-700 dark:text-gray-200 w-6 text-right flex-shrink-0">{{ $cnt }}</span>
-                                    <span
-                                        class="text-[10px] text-gray-400 w-10 text-right flex-shrink-0">{{ $pct }}%</span>
                                 </div>
                             @endforeach
                         </div>
+
+                        {{-- Chart tengah --}}
+                        <div class="flex-shrink-0 w-40 h-40">
+                            <canvas id="entityPieChart"></canvas>
+                        </div>
+
+                        {{-- Kolom kanan: entitas 3–6 (Karyawan, Superuser, Tamu, Lainnya) --}}
+                        <div class="flex-1 space-y-3 min-w-0">
+                            @foreach (array_slice($entityMeta, 3) as $j => $leg)
+                                @php
+                                    $i = $j + 3;
+                                    $cnt = $chartData['entity_totals'][$i] ?? 0;
+                                    $pct = round(($cnt / $totalEnt) * 100, 1);
+                                @endphp
+                                <div class="flex flex-col gap-0.5 min-w-0">
+                                    <div class="flex items-center gap-1.5 min-w-0">
+                                        <div class="w-2 h-2 rounded-full flex-shrink-0 {{ $leg['dot'] }}"></div>
+                                        <span
+                                            class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">{{ $leg['label'] }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-1.5 pl-3.5">
+                                        <div
+                                            class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-1.5 overflow-hidden">
+                                            <div class="{{ $leg['bar'] }} h-full rounded-full"
+                                                style="width: {{ $pct }}%"></div>
+                                        </div>
+                                        <span
+                                            class="text-[10px] font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">{{ $cnt }}</span>
+                                        <span
+                                            class="text-[10px] text-gray-400 flex-shrink-0">{{ $pct }}%</span>
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -590,7 +626,7 @@
         {{-- ================================================= --}}
         {{-- TABEL TREN BULANAN --}}
         {{-- ================================================= --}}
-        @if (count($monthlyTrend) > 1)
+        @if (count($monthlyTrendFlat) > 1)
             <div
                 class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
                 <div class="p-6 border-b border-gray-100 dark:border-gray-800">
@@ -611,7 +647,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
-                            @foreach ($monthlyTrend as $label => $count)
+                            @foreach ($monthlyTrendFlat as $label => $count)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                                     <td class="px-6 py-3 font-semibold">{{ $label }}</td>
                                     <td class="px-6 py-3 text-center font-bold text-blue-600">{{ $count }}</td>

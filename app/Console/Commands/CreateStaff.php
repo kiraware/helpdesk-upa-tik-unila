@@ -29,9 +29,9 @@ class CreateStaff extends Command
      */
     public function handle()
     {
-        $this->info('--- Tambah Staff Baru (Admin/Superuser) ---');
+        $this->info('--- Tambah/Update Staff (Admin/Superuser) ---');
 
-        $username_sso = $this->askWithValidation('Username SSO', 'username_sso', 'required|string|max:255|unique:users');
+        $username_sso = $this->askWithValidation('Username SSO', 'username_sso', 'required|string|max:255');
 
         // Pilih Role
         $roleOptions = [UserRole::ADMIN->value, UserRole::SUPERUSER->value];
@@ -51,14 +51,26 @@ class CreateStaff extends Command
             }
         }
 
-        User::create([
-            'username_sso' => $username_sso,
-            'name' => $username_sso,
-            'role' => $role,
-            'division_id' => $division_id,
-        ]);
+        // Cek apakah user sudah ada di database
+        $user = User::where('username_sso', $username_sso)->first();
 
-        $this->info("Staff [$username_sso] berhasil dibuat! Data profil akan otomatis terisi saat yang bersangkutan login.");
+        if ($user) {
+            // Jika user sudah ada, update role dan divisi
+            $user->update([
+                'role' => $role,
+                'division_id' => $division_id,
+            ]);
+            $this->info("Berhasil! Hak akses [$role] telah ditambahkan ke user [$username_sso] yang sudah ada di database.");
+        } else {
+            // Jika user belum ada, buat data baru
+            User::create([
+                'username_sso' => $username_sso,
+                'name' => $username_sso,
+                'role' => $role,
+                'division_id' => $division_id,
+            ]);
+            $this->info("Staff baru [$username_sso] berhasil dibuat! Data profil akan otomatis terisi saat yang bersangkutan login.");
+        }
     }
 
     protected function askWithValidation($question, $field, $rules)

@@ -44,7 +44,7 @@ class TicketReportExport implements WithMultipleSheets
 
     private function prepareData(): array
     {
-        $tickets = Ticket::with(['service', 'user', 'guestDetail', 'assignee'])
+        $tickets = Ticket::with(['service', 'user', 'guestDetail', 'assignee', 'survey.answers'])
             ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -70,6 +70,9 @@ class TicketReportExport implements WithMultipleSheets
                 'waiting' => 0,
                 'progress' => 0,
                 'entities' => $emptyEntities,
+                // Akumulator untuk perhitungan CSI per layanan
+                '_csi_wScore' => 0,
+                '_csi_imp' => 0,
             ];
         }
 
@@ -114,6 +117,14 @@ class TicketReportExport implements WithMultipleSheets
 
             if (isset($reportData[$serviceId])) {
                 $reportData[$serviceId]['entities'][$entityCode]++;
+
+                // Akumulasi CSI per layanan dari survey tiket
+                if ($ticket->survey?->answers) {
+                    foreach ($ticket->survey->answers as $ans) {
+                        $reportData[$serviceId]['_csi_wScore'] += $ans->satisfaction_score * $ans->importance_score;
+                        $reportData[$serviceId]['_csi_imp'] += $ans->importance_score;
+                    }
+                }
             }
             $entityDist[$entityCode]++;
 
@@ -132,6 +143,16 @@ class TicketReportExport implements WithMultipleSheets
         }
 
         ksort($monthlyData);
+
+        // Hitung CSI final per layanan, lalu hapus akumulator sementara
+        foreach ($reportData as &$svc) {
+            $imp = $svc['_csi_imp'];
+            $star = $imp > 0 ? $svc['_csi_wScore'] / $imp : 0;
+            $svc['csi'] = $imp > 0 ? round(($star / 5) * 100, 2) : null;
+            unset($svc['_csi_wScore'], $svc['_csi_imp']);
+        }
+        unset($svc);
+
         usort($reportData, fn ($a, $b) => $b['total'] <=> $a['total']);
 
         foreach ($reportData as $svc) {
@@ -158,11 +179,34 @@ class TicketReportExport implements WithMultipleSheets
                 $done = $ts->where('status', TicketStatus::DONE)->count();
 
                 $times = $ts->whereNotNull('assigned_at')->whereNotNull('closed_at')
-                    ->map(fn ($t) => $t->assigned_at->diffInHours($t->closed_at));
+                    ->map(fn ($t) => $t->assigned_at->diffInMinutes($t->closed_at));
 
-                $avgTime = $times->count() > 0 ? round($times->avg(), 1) : 0;
+                $avgMinutes = $times->count() > 0 ? (int) round($times->avg()) : 0;
+
+                // Konversi menit ke format string "X hari X jam X menit"
+                $avgTimeStr = '0 menit';
+                if ($avgMinutes > 0) {
+                    $days = floor($avgMinutes / 1440);
+                    $hours = floor(($avgMinutes % 1440) / 60);
+                    $mins = $avgMinutes % 60;
+
+                    $parts = [];
+                    if ($days > 0) {
+                        $parts[] = "{$days} hari";
+                    }
+                    if ($hours > 0) {
+                        $parts[] = "{$hours} jam";
+                    }
+                    if ($mins > 0) {
+                        $parts[] = "{$mins} menit";
+                    }
+
+                    $avgTimeStr = implode(' ', $parts) ?: '0 menit';
+                }
+
                 $rate = $total > 0 ? round(($done / $total) * 100) : 0;
 
+                // Survey & CSI Logic
                 $wScore = 0;
                 $imp = 0;
                 $surveys = 0;
@@ -181,14 +225,14 @@ class TicketReportExport implements WithMultipleSheets
 
                 return [
                     'name' => $user->name,
-                    'assigned' => $total,
-                    'done' => $done,
-                    'reject' => $ts->where('status', TicketStatus::REJECT)->count(),
-                    'rate' => $rate,
-                    'avg_time' => $avgTime,
+                    'assigned' => (int) $total,
+                    'done' => (int) $done,
+                    'reject' => (int) $ts->where('status', TicketStatus::REJECT)->count(),
+                    'rate' => (int) $rate,
+                    'avg_time' => $avgTimeStr,
                     'star' => round($star, 2),
                     'csi' => round($csi, 2),
-                    'surveys' => $surveys,
+                    'surveys' => (int) $surveys,
                 ];
             })
             ->sortByDesc('csi')

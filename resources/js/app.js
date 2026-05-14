@@ -87,8 +87,7 @@ Alpine.data(
             if (chartData) {
                 this.renderService(chartData);
                 this.renderEntity(chartData);
-                if (chartData.monthly_labels?.length)
-                    this.renderMonthly(chartData);
+                this.renderMonthly(chartData);
             }
             if (durationData) this.renderDuration(durationData);
             if (priorityData) this.renderPriority(priorityData);
@@ -252,6 +251,16 @@ Alpine.data(
             const ctx = document.getElementById("serviceBarChart");
             if (!ctx) return;
 
+            // Dynamically set canvas height based on number of services
+            const serviceCount = data.services_labels?.length ?? 0;
+            const rowHeight = 42; // px per service row (3 datasets grouped)
+            const minHeight = 260;
+            const computedHeight = Math.max(
+                minHeight,
+                serviceCount * rowHeight + 60,
+            );
+            ctx.parentElement.style.height = computedHeight + "px";
+
             this.serviceChart = new Chart(ctx, {
                 type: "bar",
                 data: {
@@ -262,18 +271,21 @@ Alpine.data(
                             data: data.services_totals,
                             backgroundColor: "#8b5cf6",
                             borderRadius: 4,
+                            barThickness: 10,
                         },
                         {
                             label: "Selesai",
                             data: data.services_done ?? [],
                             backgroundColor: "#10b981",
                             borderRadius: 4,
+                            barThickness: 10,
                         },
                         {
                             label: "Ditolak",
                             data: data.services_reject ?? [],
                             backgroundColor: "#ef4444",
                             borderRadius: 4,
+                            barThickness: 10,
                         },
                     ],
                 },
@@ -287,8 +299,18 @@ Alpine.data(
                             labels: {
                                 color: this.getTextColor(),
                                 usePointStyle: true,
-                                padding: 12,
+                                padding: 16,
+                                font: { size: 11 },
                             },
+                        },
+                        tooltip: {
+                            backgroundColor: this.isDark
+                                ? "#1e293b"
+                                : "#ffffff",
+                            titleColor: this.isDark ? "#fff" : "#0f172a",
+                            bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                            borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                            borderWidth: 1,
                         },
                     },
                     scales: {
@@ -298,15 +320,23 @@ Alpine.data(
                                 color: this.getGridColor(),
                                 borderDash: [5, 5],
                             },
-                            ticks: { color: this.getTextColor(), stepSize: 1 },
+                            ticks: {
+                                color: this.getTextColor(),
+                                stepSize: 1,
+                                precision: 0,
+                            },
                         },
                         y: {
                             grid: { display: false },
                             ticks: {
                                 color: this.getTextColor(),
                                 font: { size: 11 },
+                                padding: 4,
                             },
                         },
+                    },
+                    layout: {
+                        padding: { top: 4, bottom: 4 },
                     },
                 },
             });
@@ -364,27 +394,131 @@ Alpine.data(
             const ctx = document.getElementById("monthlyTrendChart");
             if (!ctx) return;
 
+            // Build full 12-month skeleton from the data range
+            // Determine year range from labels (format "Jan 2025")
+            const allMonths = [];
+            const monthNames = [
+                "Jan",
+                "Feb",
+                "Mar",
+                "Apr",
+                "Mei",
+                "Jun",
+                "Jul",
+                "Agu",
+                "Sep",
+                "Okt",
+                "Nov",
+                "Des",
+            ];
+
+            // Find earliest and latest year in data
+            let minYear = new Date().getFullYear();
+            let maxYear = minYear;
+            (data.monthly_labels ?? []).forEach((lbl) => {
+                const parts = lbl.split(" ");
+                const yr = parseInt(parts[parts.length - 1]);
+                if (!isNaN(yr)) {
+                    minYear = Math.min(minYear, yr);
+                    maxYear = Math.max(maxYear, yr);
+                }
+            });
+
+            // If span ≤ 12 months show only those months in range, otherwise show 12
+            const labelToKey = {};
+            (data.monthly_labels ?? []).forEach((lbl, i) => {
+                labelToKey[lbl] = i;
+            });
+
+            // Always show 12 month slots: use current year if only 1 year
+            const showYear = minYear === maxYear ? minYear : null;
+            const fullLabels = monthNames.map((m) =>
+                showYear ? `${m} ${showYear}` : m,
+            );
+
+            // Map existing data onto the 12 slots
+            const totalArr = new Array(12).fill(0);
+            const doneArr = new Array(12).fill(0);
+            const rejectArr = new Array(12).fill(0);
+
+            (data.monthly_labels ?? []).forEach((lbl, i) => {
+                // Parse month index from label
+                const parts = lbl.split(" ");
+                const engMonths = [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December",
+                ];
+                const idMonths = [
+                    "Januari",
+                    "Februari",
+                    "Maret",
+                    "April",
+                    "Mei",
+                    "Juni",
+                    "Juli",
+                    "Agustus",
+                    "September",
+                    "Oktober",
+                    "November",
+                    "Desember",
+                ];
+                let mIdx = engMonths.findIndex((m) => lbl.startsWith(m));
+                if (mIdx === -1)
+                    mIdx = idMonths.findIndex((m) => lbl.startsWith(m));
+                if (mIdx === -1) mIdx = i % 12;
+                totalArr[mIdx] = data.monthly_totals?.[i] ?? 0;
+                doneArr[mIdx] = data.monthly_done?.[i] ?? 0;
+                rejectArr[mIdx] = data.monthly_reject?.[i] ?? 0;
+            });
+
             this.monthlyTrendChart = new Chart(ctx, {
                 type: "bar",
                 data: {
-                    labels: data.monthly_labels,
+                    labels: fullLabels,
                     datasets: [
                         {
-                            label: "Tiket per Bulan",
-                            data: data.monthly_totals,
+                            label: "Total Tiket",
+                            data: totalArr,
                             backgroundColor: (ctx) => {
                                 const g = ctx.chart.ctx.createLinearGradient(
                                     0,
                                     0,
                                     0,
-                                    300,
+                                    260,
                                 );
                                 g.addColorStop(0, "rgba(99, 102, 241, 0.85)");
-                                g.addColorStop(1, "rgba(99, 102, 241, 0.3)");
+                                g.addColorStop(1, "rgba(99, 102, 241, 0.25)");
                                 return g;
                             },
-                            borderRadius: 6,
+                            borderRadius: 5,
                             borderSkipped: false,
+                            barThickness: 14,
+                        },
+                        {
+                            label: "Selesai",
+                            data: doneArr,
+                            backgroundColor: "rgba(16, 185, 129, 0.75)",
+                            borderRadius: 5,
+                            borderSkipped: false,
+                            barThickness: 14,
+                        },
+                        {
+                            label: "Ditolak",
+                            data: rejectArr,
+                            backgroundColor: "rgba(239, 68, 68, 0.70)",
+                            borderRadius: 5,
+                            borderSkipped: false,
+                            barThickness: 14,
                         },
                     ],
                 },
@@ -392,7 +526,15 @@ Alpine.data(
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false },
+                        legend: {
+                            position: "top",
+                            labels: {
+                                color: this.getTextColor(),
+                                usePointStyle: true,
+                                padding: 14,
+                                font: { size: 11 },
+                            },
+                        },
                         tooltip: {
                             backgroundColor: this.isDark ? "#1e293b" : "#fff",
                             titleColor: this.isDark ? "#fff" : "#0f172a",
@@ -408,11 +550,18 @@ Alpine.data(
                                 color: this.getGridColor(),
                                 borderDash: [5, 5],
                             },
-                            ticks: { color: this.getTextColor(), stepSize: 1 },
+                            ticks: {
+                                color: this.getTextColor(),
+                                stepSize: 1,
+                                precision: 0,
+                            },
                         },
                         x: {
                             grid: { display: false },
-                            ticks: { color: this.getTextColor() },
+                            ticks: {
+                                color: this.getTextColor(),
+                                font: { size: 10 },
+                            },
                         },
                     },
                 },
@@ -482,23 +631,39 @@ Alpine.data(
 
             const labels = Object.keys(data);
             const values = Object.values(data);
-            const colors = {
+
+            // Map both lowercase (from PHP enum) and uppercase variants
+            const colorMap = {
+                high: "#ef4444",
                 HIGH: "#ef4444",
+                medium: "#f59e0b",
                 MEDIUM: "#f59e0b",
+                low: "#10b981",
                 LOW: "#10b981",
             };
-            const bgColors = labels.map((l) => colors[l] ?? "#9ca3af");
+            const labelMap = {
+                high: "High",
+                HIGH: "High",
+                medium: "Medium",
+                MEDIUM: "Medium",
+                low: "Low",
+                LOW: "Low",
+            };
+
+            const bgColors = labels.map((l) => colorMap[l] ?? "#9ca3af");
+            const displayLabels = labels.map((l) => labelMap[l] ?? l);
 
             this.priorityChart = new Chart(ctx, {
                 type: "doughnut",
                 data: {
-                    labels,
+                    labels: displayLabels,
                     datasets: [
                         {
                             data: values,
                             backgroundColor: bgColors,
-                            borderWidth: 0,
-                            hoverOffset: 6,
+                            borderWidth: 2,
+                            borderColor: this.isDark ? "#1e293b" : "#ffffff",
+                            hoverOffset: 8,
                         },
                     ],
                 },
@@ -509,12 +674,54 @@ Alpine.data(
                             labels: {
                                 color: this.getTextColor(),
                                 usePointStyle: true,
-                                padding: 12,
-                                font: { size: 11 },
+                                pointStyle: "circle",
+                                padding: 16,
+                                font: { size: 12, weight: "bold" },
+                                generateLabels: (chart) => {
+                                    const data = chart.data;
+                                    const total =
+                                        data.datasets[0].data.reduce(
+                                            (a, b) => a + b,
+                                            0,
+                                        ) || 1;
+                                    return data.labels.map((label, i) => ({
+                                        text: `${label}  ${data.datasets[0].data[i]} (${Math.round((data.datasets[0].data[i] / total) * 100)}%)`,
+                                        fillStyle:
+                                            data.datasets[0].backgroundColor[i],
+                                        strokeStyle:
+                                            data.datasets[0].backgroundColor[i],
+                                        fontColor: this.getTextColor(),
+                                        pointStyle: "circle",
+                                        index: i,
+                                        hidden: false,
+                                    }));
+                                },
+                            },
+                        },
+                        tooltip: {
+                            backgroundColor: this.isDark
+                                ? "#1e293b"
+                                : "#ffffff",
+                            titleColor: this.isDark ? "#fff" : "#0f172a",
+                            bodyColor: this.isDark ? "#cbd5e1" : "#334155",
+                            borderColor: this.isDark ? "#334155" : "#e2e8f0",
+                            borderWidth: 1,
+                            callbacks: {
+                                label(ctx) {
+                                    const total =
+                                        ctx.dataset.data.reduce(
+                                            (a, b) => a + b,
+                                            0,
+                                        ) || 1;
+                                    const pct = Math.round(
+                                        (ctx.parsed / total) * 100,
+                                    );
+                                    return ` ${ctx.parsed} tiket (${pct}%)`;
+                                },
                             },
                         },
                     },
-                    cutout: "68%",
+                    cutout: "65%",
                 },
             });
         },
@@ -546,6 +753,29 @@ Alpine.data(
                     if (chart.options.plugins?.legend?.labels) {
                         chart.options.plugins.legend.labels.color =
                             this.getTextColor();
+                        // Regenerate labels agar warna teks generateLabels ikut update
+                        if (
+                            chart.options.plugins.legend.labels.generateLabels
+                        ) {
+                            chart.options.plugins.legend.labels.generateLabels =
+                                chart.options.plugins.legend.labels.generateLabels;
+                        }
+                    }
+                    // Update tooltip colors
+                    if (chart.options.plugins?.tooltip) {
+                        chart.options.plugins.tooltip.backgroundColor = this
+                            .isDark
+                            ? "#1e293b"
+                            : "#ffffff";
+                        chart.options.plugins.tooltip.titleColor = this.isDark
+                            ? "#fff"
+                            : "#0f172a";
+                        chart.options.plugins.tooltip.bodyColor = this.isDark
+                            ? "#cbd5e1"
+                            : "#334155";
+                        chart.options.plugins.tooltip.borderColor = this.isDark
+                            ? "#334155"
+                            : "#e2e8f0";
                     }
                     chart.update();
                 },

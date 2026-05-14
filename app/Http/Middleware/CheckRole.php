@@ -33,6 +33,12 @@ class CheckRole
             return $next($request);
         }
 
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'message' => 'Anda tidak memiliki akses ke resource ini.',
+            ], 403);
+        }
+
         // 4. Jika tidak cocok, redirect ke beranda dengan pesan error
         return redirect('/')->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
     }

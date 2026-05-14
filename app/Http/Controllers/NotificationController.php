@@ -40,4 +40,24 @@ class NotificationController extends Controller
 
         return back()->with('success', 'Semua notifikasi telah ditandai sudah dibaca.');
     }
+
+    public function fetchJson()
+    {
+        $user = auth()->user();
+
+        // Ambil 5 notifikasi terbaru dan format datanya
+        $unreadNotifs = $user->unreadNotifications()->take(5)->get()->map(function ($notif) {
+            return [
+                'id' => $notif->id,
+                'data' => $notif->data,
+                'created_at' => $notif->created_at->diffForHumans(),
+                'read_url' => route('notifications.read', $notif->id),
+            ];
+        });
+
+        return response()->json([
+            'unreadCount' => $user->unreadNotifications()->count(),
+            'notifications' => $unreadNotifs,
+        ]);
+    }
 }

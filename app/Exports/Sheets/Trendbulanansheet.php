@@ -38,18 +38,38 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
         $rows[] = [];
         $rows[] = ['No', 'Bulan', 'Total Tiket', 'Selesai', 'Ditolak', 'Tingkat Selesai (%)', 'Tingkat Tolak (%)'];
 
+        // Tampilkan semua 12 bulan dari tahun referensi (ambil dari startDate atau tahun berjalan).
+        // Jika rentang periode melewati >1 tahun, iterasi per bulan dari startDate s.d. endDate.
+        $current = $this->startDate->copy()->startOfMonth();
+        $end = $this->endDate->copy()->startOfMonth();
+
+        // Pastikan selalu menampilkan minimal Januari–Desember tahun startDate
+        $yearStart = $this->startDate->copy()->startOfYear();
+        $yearEnd = $this->startDate->copy()->endOfYear()->startOfMonth();
+
+        // Jika rentang < 1 tahun dalam tahun yang sama, tampilkan semua bulan di tahun itu
+        if ($this->startDate->year === $this->endDate->year) {
+            $current = $yearStart->copy();
+            $end = $yearEnd->copy();
+        }
+
         $no = 1;
-        foreach ($this->monthlyData as $data) {
+        while ($current <= $end) {
+            $key = $current->format('Y-m');
+            $data = $this->monthlyData[$key] ?? ['total' => 0, 'done' => 0, 'reject' => 0];
             $total = $data['total'] ?: 1;
+
             $rows[] = [
                 $no++,
-                $data['label'],
-                $data['total'],
-                $data['done'],
-                $data['reject'],
+                $current->translatedFormat('F Y'),
+                (int) $data['total'],
+                (int) $data['done'],
+                (int) $data['reject'],
                 round(($data['done'] / $total) * 100, 1),
                 round(($data['reject'] / $total) * 100, 1),
             ];
+
+            $current->addMonth();
         }
 
         // Summary row
@@ -74,6 +94,7 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
+                // Baris 1: Judul utama
                 $sheet->mergeCells('A1:G1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -82,6 +103,7 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
+                // Baris 2: Sub-judul periode
                 $sheet->mergeCells('A2:G2');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '6D28D9']],
@@ -89,16 +111,24 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                $sheet->getStyle('A4:G4')->applyFromArray([
+                // Baris 4: Header tabel kolom
+                $sheet->getStyle('A3:G3')->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4C1D95']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
+                $sheet->getRowDimension(3)->setRowHeight(25);
 
-                $dataStart = 5;
-                $dataEnd = $dataStart + count($this->monthlyData) - 1;
+                // Hitung jumlah baris data dari isi sheet.
+                // Baris 1=judul, 2=periode, 3=kosong, 4=header → data mulai baris 5.
+                // Total row = baris terakhir sebelum akhir (ditandai kolom B = 'TOTAL').
+                $highestRow = $sheet->getHighestRow();
+                $dataStart = 4;
+                $dataEnd = $highestRow - 1; // baris data terakhir (sebelum TOTAL)
+                $totalRow = $highestRow;     // baris TOTAL
 
+                // Style baris data (baris 5 s.d. dataEnd)
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
                     $color = ($r % 2 === 0) ? 'F5F3FF' : 'FFFFFF';
                     $sheet->getStyle("A{$r}:G{$r}")->applyFromArray([
@@ -109,7 +139,7 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                $totalRow = $dataEnd + 1;
+                // Style baris TOTAL (baris terakhir tabel)
                 $sheet->getStyle("A{$totalRow}:G{$totalRow}")->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '7C3AED']],
@@ -117,6 +147,11 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM]],
                 ]);
                 $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+                // Border luar seluruh tabel (header s.d. total)
+                $sheet->getStyle("A4:G{$totalRow}")->applyFromArray([
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '7C3AED']]],
+                ]);
 
                 $sheet->freezePane('A5');
             },

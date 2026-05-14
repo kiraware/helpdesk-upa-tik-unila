@@ -14,6 +14,15 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, WithTitle
 {
+    // Marker baris untuk styling
+    private int $rowHeader = 5;
+
+    private int $rowDataStart = 6;
+
+    private int $rowDataEnd = 0;
+
+    private int $rowTotal = 0;
+
     public function __construct(
         protected Carbon $startDate,
         protected Carbon $endDate,
@@ -29,8 +38,8 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
     public function columnWidths(): array
     {
         return [
-            'A' => 5,  'B' => 32, 'C' => 10, 'D' => 10, 'E' => 10,
-            'F' => 10, 'G' => 10, 'H' => 14, 'I' => 14, 'J' => 14,
+            'A' => 5,  'B' => 35, 'C' => 12, 'D' => 12, 'E' => 12,
+            'F' => 12, 'G' => 12, 'H' => 14, 'I' => 14, 'J' => 14,
             'K' => 14, 'L' => 14, 'M' => 14, 'N' => 14, 'O' => 20,
         ];
     }
@@ -38,48 +47,65 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
     public function array(): array
     {
         $gt = $this->grandTotals;
-        $total = $gt['total'] ?: 1;
-
         $rows = [];
-        $rows[] = ['REKAPITULASI TIKET BERDASARKAN LAYANAN'];
-        $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
-        $rows[] = [];
 
-        // Header group row 1
-        $rows[] = ['No', 'Layanan', 'Total', 'Selesai', 'Ditolak', 'Menunggu', 'Proses',
-            'Mahasiswa', 'Dosen', 'Tendik', 'Karyawan', 'S.User', 'Tamu', 'Lainnya',
-            '% dari Total'];
+        // 1-3. Judul & Info
+        $rows[] = ['REKAPITULASI PELAYANAN HELPDESK TIK UNIVERSITAS LAMPUNG'];
+        $rows[] = ['Periode: '.$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
+        $rows[] = ['Dicetak: '.Carbon::now()->format('d F Y, H:i').' WIB'];
+        $rows[] = ['']; // Baris 4 kosong
 
-        $no = 1;
-        foreach ($this->reportData as $svc) {
-            $svcTotal = $svc['total'] ?: 1;
+        // 5. Header Tabel
+        $rows[] = [
+            'No', 'Jenis Layanan', 'Total', 'Waiting', 'Progress', 'Done', 'Reject',
+            'Mhs', 'Dosen', 'Tendik', 'Karyawan', 'S.User', 'Tamu', 'Lainnya', 'CSI Avg',
+        ];
+
+        // 6+. Data Layanan
+        foreach ($this->reportData as $idx => $item) {
             $rows[] = [
-                $no++,
-                $svc['name'],
-                $svc['total'],
-                $svc['done'],
-                $svc['reject'],
-                $svc['waiting'],
-                $svc['progress'],
-                $svc['entities']['mahasiswa'],
-                $svc['entities']['dosen'],
-                $svc['entities']['tendik'],
-                $svc['entities']['karyawan'],
-                $svc['entities']['superuser'],
-                $svc['entities']['tamu'],
-                $svc['entities']['lainnya'],
-                round(($svc['total'] / $total) * 100, 2).'%',
+                $idx + 1,
+                $item['name'],
+                (int) $item['total'],
+                (int) $item['waiting'],
+                (int) $item['progress'],
+                (int) $item['done'],
+                (int) $item['reject'],
+                // PERBAIKAN: Memanggil dari array 'entities' dengan nama key yang sesuai dari Export Data
+                (int) ($item['entities']['mahasiswa'] ?? 0),
+                (int) ($item['entities']['dosen'] ?? 0),
+                (int) ($item['entities']['tendik'] ?? 0),
+                (int) ($item['entities']['karyawan'] ?? 0),
+                (int) ($item['entities']['superuser'] ?? 0),
+                (int) ($item['entities']['tamu'] ?? 0),
+                (int) ($item['entities']['lainnya'] ?? 0),
+                // PERBAIKAN: Tambahkan fallback nilai untuk CSI jika tidak ada
+                isset($item['csi']) ? round($item['csi'], 2).'%' : '-',
             ];
         }
 
-        // Grand total row
+        $this->rowDataEnd = count($rows);
+
+        // Baris Total Akhir
         $rows[] = [
-            '', 'TOTAL KESELURUHAN',
-            $gt['total'], $gt['done'], $gt['reject'], $gt['waiting'], $gt['progress'],
-            $gt['mahasiswa'], $gt['dosen'], $gt['tendik'],
-            $gt['karyawan'], $gt['superuser'], $gt['tamu'], $gt['lainnya'],
-            '100%',
+            '', 'GRAND TOTAL',
+            (int) ($gt['total'] ?? 0),
+            (int) ($gt['waiting'] ?? 0),
+            (int) ($gt['progress'] ?? 0),
+            (int) ($gt['done'] ?? 0),
+            (int) ($gt['reject'] ?? 0),
+            // PERBAIKAN: Grand Totals memiliki key sejajar dengan string penuh (bukan mhs)
+            (int) ($gt['mahasiswa'] ?? 0),
+            (int) ($gt['dosen'] ?? 0),
+            (int) ($gt['tendik'] ?? 0),
+            (int) ($gt['karyawan'] ?? 0),
+            (int) ($gt['superuser'] ?? 0),
+            (int) ($gt['tamu'] ?? 0),
+            (int) ($gt['lainnya'] ?? 0),
+            '-',
         ];
+
+        $this->rowTotal = count($rows);
 
         return $rows;
     }
@@ -89,65 +115,58 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
+                $maxCol = 'O';
+                $lastRow = $this->rowTotal;
 
-                // Title
-                $sheet->mergeCells('A1:O1');
+                // ── STYLE HEADER JUDUL (Baris 1-3) ──
+                $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
+                    'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => '1E40AF']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                ]);
+
+                // ── STYLE HEADER TABEL (Baris 5) ──
+                $rh = $this->rowHeader; // Baris 5
+                $sheet->getStyle("A{$rh}:{$maxCol}{$rh}")->applyFromArray([
+                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E40AF']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
-                $sheet->getRowDimension(1)->setRowHeight(28);
+                $sheet->getRowDimension($rh)->setRowHeight(25);
 
-                $sheet->mergeCells('A2:O2');
-                $sheet->getStyle('A2')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '1E40AF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'DBEAFE']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                ]);
-
-                // Table header
-                $sheet->getStyle('A4:O4')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E3A5F']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER,
-                        'wrapText' => true],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => '374151']]],
-                ]);
-                $sheet->getRowDimension(4)->setRowHeight(30);
-
-                // Color the entity columns
-                $sheet->getStyle('H4:N4')->applyFromArray([
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
-                ]);
-
-                // Data rows
-                $dataStart = 5;
-                $dataEnd = $dataStart + count($this->reportData) - 1;
-
-                for ($r = $dataStart; $r <= $dataEnd; $r++) {
-                    $color = ($r % 2 === 0) ? 'F9FAFB' : 'FFFFFF';
-                    $sheet->getStyle("A{$r}:O{$r}")->applyFromArray([
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
+                // ── STYLE DATA (Baris 6 s.d. rowDataEnd) ──
+                for ($r = $this->rowDataStart; $r <= $this->rowDataEnd; $r++) {
+                    $isEven = ($r % 2 === 0);
+                    $sheet->getStyle("A{$r}:{$maxCol}{$r}")->applyFromArray([
+                        'fill' => [
+                            'fillType' => Fill::FILL_SOLID,
+                            'startColor' => ['rgb' => $isEven ? 'F9FAFB' : 'FFFFFF'],
+                        ],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E5E7EB']]],
                     ]);
-                    // Service name left-aligned
+                    // Kolom Nama Layanan rata kiri
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // Total row
-                $totalRow = $dataEnd + 1;
-                $sheet->getStyle("A{$totalRow}:O{$totalRow}")->applyFromArray([
+                // ── STYLE TOTAL (Baris Terakhir) ──
+                $rt = $this->rowTotal;
+                $sheet->getStyle("A{$rt}:{$maxCol}{$rt}")->applyFromArray([
                     'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E40AF']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1E3A8A']], // Biru lebih gelap
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '1E3A5F']]],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '1E293B']]],
                 ]);
-                $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                $sheet->getStyle("B{$rt}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                $sheet->mergeCells("A{$rt}:B{$rt}");
 
-                // Freeze top rows
-                $sheet->freezePane('A5');
+                // Border Luar
+                $sheet->getStyle("A{$rh}:{$maxCol}{$rt}")->applyFromArray([
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '1E40AF']]],
+                ]);
+
+                // Freeze Pane agar header tetap terlihat saat scroll
+                $sheet->freezePane('A6');
             },
         ];
     }

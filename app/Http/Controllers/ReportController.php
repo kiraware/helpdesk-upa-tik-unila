@@ -57,6 +57,12 @@ class ReportController extends Controller
         $weeklyTrend = $this->buildWeeklyTrend($ticketsQuery, $startDate, $endDate);
         $monthlyTrend = $this->buildMonthlyTrend($ticketsQuery, $startDate, $endDate);
 
+        // Convert monthlyTrend to label=>count for backward compat with blade table
+        $monthlyTrendFlat = array_combine(
+            array_map(fn ($v) => $v['label'], $monthlyTrend),
+            array_map(fn ($v) => $v['total'], $monthlyTrend)
+        );
+
         $statusDist = [
             'waiting' => $stats['waiting'],
             'progress' => $stats['progress'],
@@ -130,8 +136,10 @@ class ReportController extends Controller
             'entity_totals' => array_values($entityDist),
             'weekly_labels' => array_keys($weeklyTrend),
             'weekly_totals' => array_values($weeklyTrend),
-            'monthly_labels' => array_keys($monthlyTrend),
-            'monthly_totals' => array_values($monthlyTrend),
+            'monthly_labels' => array_values(array_map(fn ($v) => $v['label'], $monthlyTrend)),
+            'monthly_totals' => array_values(array_map(fn ($v) => $v['total'], $monthlyTrend)),
+            'monthly_done' => array_values(array_map(fn ($v) => $v['done'], $monthlyTrend)),
+            'monthly_reject' => array_values(array_map(fn ($v) => $v['reject'], $monthlyTrend)),
         ];
 
         // --- 6. PENGHITUNGAN CSI GLOBAL ---
@@ -244,7 +252,7 @@ class ReportController extends Controller
             'startDate', 'endDate', 'period',
             'stats', 'avgCSI', 'csiPredicate',
             'staffPerformance', 'dailyTrend', 'statusDist',
-            'serviceStats', 'chartData', 'weeklyTrend', 'monthlyTrend',
+            'serviceStats', 'chartData', 'weeklyTrend', 'monthlyTrendFlat',
             'durationStats', 'priorityStats'
         ));
     }
@@ -316,20 +324,26 @@ class ReportController extends Controller
 
     private function buildMonthlyTrend($baseQuery, Carbon $startDate, Carbon $endDate): array
     {
-        $raw = (clone $baseQuery)
-            // Use to_char for Postgres instead of DATE_FORMAT
-            ->selectRaw("to_char(created_at, 'YYYY-MM') as month, COUNT(*) as count")
-            ->groupBy('month')
-            ->orderBy('month')
-            ->pluck('count', 'month')
-            ->toArray();
+        $tickets = (clone $baseQuery)->with([])->select(['created_at', 'status'])->get();
 
         $result = [];
-        foreach ($raw as $key => $val) {
+        foreach ($tickets as $ticket) {
+            $key = $ticket->created_at->format('Y-m');
             $label = Carbon::parse($key.'-01')->format('M Y');
-            $result[$label] = $val;
+            if (! isset($result[$key])) {
+                $result[$key] = ['label' => $label, 'total' => 0, 'done' => 0, 'reject' => 0];
+            }
+            $result[$key]['total']++;
+            if ($ticket->status === TicketStatus::DONE) {
+                $result[$key]['done']++;
+            }
+            if ($ticket->status === TicketStatus::REJECT) {
+                $result[$key]['reject']++;
+            }
         }
+        ksort($result);
 
+        // Return as flat arrays for chartData
         return $result;
     }
 

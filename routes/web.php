@@ -76,6 +76,8 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
         ->name('notifications.read');
     Route::post('/notifications/mark-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])
         ->name('notifications.markAll');
+    Route::get('/api/notifications', [\App\Http\Controllers\NotificationController::class, 'fetchJson'])
+        ->name('api.notifications');
 
     // 3. GROUP ADMIN & SUPERUSER
     Route::middleware([
