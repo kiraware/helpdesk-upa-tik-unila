@@ -34,7 +34,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
         $rows[] = [
             'No', 'Kode Tiket', 'Tanggal Masuk', 'Nama Pemohon', 'Entitas',
             'Layanan', 'Petugas', 'Prioritas', 'Status',
-            'Tgl Ditugaskan', 'Tgl Selesai', 'Durasi', // Ubah nama header di sini
+            'Tanggal Ditugaskan', 'Tanggal Selesai', 'Durasi',
         ];
 
         foreach ($this->tickets as $idx => $t) {
@@ -165,7 +165,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
-                $sheet->freezePane('A4');
+                $sheet->freezePane('C4');
 
                 // Auto-filter pada header
                 $sheet->setAutoFilter('A3:L3');

@@ -39,9 +39,9 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
         $services = Service::all();
         $year = $this->startDate->year;
         $months = [
-            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
         // Struktur data penampung Tabel
@@ -75,7 +75,7 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
         // ==========================================
         // STRUKTUR TABEL REKAP BULANAN
         // ==========================================
-        $rows[] = ['REKAP TIKET BULANAN']; // Baris 1: Judul Utama
+        $rows[] = ['REKAPITULASI TIKET BULANAN']; // Baris 1: Judul Utama
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')]; // Baris 2: Sub-judul
         $rows[] = []; // Baris 3: Spasi Kosong
 
@@ -83,7 +83,7 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
         foreach ($months as $mName) {
             $headerT1[] = $mName;
         }
-        $headerT1[] = 'Summary '.$year;
+        $headerT1[] = 'Ringkasan '.$year;
 
         $this->rowMap['t1_header'] = count($rows) + 1; // Baris 4: Header
         $rows[] = $headerT1;
@@ -161,17 +161,17 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 }
 
                 // Baris Total (Baris terakhir) Font ditebalkan
-                $sheet->getStyle("A{$t1End}:O{$t1End}")->getFont()->setBold(true);
+                $sheet->getStyle("A{$t1End}:O{$t1End}")->applyFromArray([
+                    'font' => ['bold' => true],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
+                ]);
 
-                // Border luar seluruh tabel (Mulai dari Header sampai Total)
                 $sheet->getStyle("A3:O{$t1End}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
-                // Freeze Panel: Membekukan kolom A dan B, serta baris 1-4 (Header) agar tetap terlihat saat di-scroll
                 $sheet->freezePane('C4');
 
-                // Auto-filter pada header tabel
                 $sheet->setAutoFilter('A3:O3');
             },
         ];

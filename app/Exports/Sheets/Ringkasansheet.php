@@ -69,8 +69,8 @@ class RingkasanSheet implements FromArray, WithColumnWidths, WithEvents, WithTit
     {
         $gt = $this->grandTotals;
         $total = $gt['total'] ?: 1;
-        $compRate = round(($gt['done'] / $total) * 100, 1);
-        $rejectRate = round(($gt['reject'] / $total) * 100, 1);
+        $compRate = round(($gt['statuses']['done'] / $total) * 100, 1);
+        $rejectRate = round(($gt['statuses']['reject'] / $total) * 100, 1);
 
         $rows = [];
 
@@ -90,10 +90,10 @@ class RingkasanSheet implements FromArray, WithColumnWidths, WithEvents, WithTit
         $this->rowStatStart = count($rows) + 1;
         // Gunakan (int) untuk memastikan 0 tampil sebagai angka, bukan field kosong
         $rows[] = ['Total Tiket Masuk',    (int) $gt['total'],    '100%'];
-        $rows[] = ['  Menunggu',           (int) $gt['waiting'],  $this->pct((int) $gt['waiting'], $total)];
-        $rows[] = ['  Sedang Diproses',    (int) $gt['progress'], $this->pct((int) $gt['progress'], $total)];
-        $rows[] = ['  Selesai (Done)',     (int) $gt['done'],     $this->pct((int) $gt['done'], $total)];
-        $rows[] = ['  Ditolak (Reject)',   (int) $gt['reject'],   $this->pct((int) $gt['reject'], $total)];
+        $rows[] = ['  Menunggu',           (int) $gt['statuses']['waiting'],  $this->pct((int) $gt['statuses']['waiting'], $total)];
+        $rows[] = ['  Sedang Diproses',    (int) $gt['statuses']['progress'], $this->pct((int) $gt['statuses']['progress'], $total)];
+        $rows[] = ['  Selesai (Done)',     (int) $gt['statuses']['done'],     $this->pct((int) $gt['statuses']['done'], $total)];
+        $rows[] = ['  Ditolak (Reject)',   (int) $gt['statuses']['reject'],   $this->pct((int) $gt['statuses']['reject'], $total)];
         $rows[] = ['Tingkat Penyelesaian', $compRate.'%', '-'];
         $rows[] = ['Tingkat Penolakan',    $rejectRate.'%', '-'];
         $this->rowStatEnd = count($rows);
