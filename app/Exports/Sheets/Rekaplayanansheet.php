@@ -79,7 +79,7 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
         }
 
         $header[] = 'Jumlah Survei';
-        $header[] = 'Rata-Rata CSI';
+        $header[] = 'Rata-Rata CSI (%)';
         $rows[] = $header;
 
         // 4+. Data Layanan
@@ -102,7 +102,7 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
 
             $row[] = (int) ($item['survey_count'] ?? 0);
             $row[] = isset($item['csi'])
-                ? round($item['csi'], 2).'%'
+                ? round($item['csi'], 2)
                 : '-';
             $rows[] = $row;
         }

@@ -248,12 +248,17 @@ class ReportController extends Controller
             ->pluck('count', 'priority')
             ->toArray();
 
+        // --- ENUM CASES untuk view dinamis ---
+        $ticketStatuses = TicketStatus::cases();
+        $userEntities = UserEntity::cases();
+
         return view('reports.index', compact(
             'startDate', 'endDate', 'period',
             'stats', 'avgCSI', 'csiPredicate',
             'staffPerformance', 'dailyTrend', 'statusDist',
             'serviceStats', 'chartData', 'weeklyTrend', 'monthlyTrendFlat',
-            'durationStats', 'priorityStats'
+            'durationStats', 'priorityStats',
+            'ticketStatuses', 'userEntities'
         ));
     }
 

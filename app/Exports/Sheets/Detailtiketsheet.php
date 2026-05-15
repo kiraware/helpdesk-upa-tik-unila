@@ -35,10 +35,11 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             'No', 'Kode Tiket', 'Tanggal Masuk', 'Nama Pemohon', 'Entitas',
             'Layanan', 'Petugas', 'Prioritas', 'Status',
             'Tanggal Ditugaskan', 'Tanggal Selesai', 'Durasi',
+            'Skor CSI (%)', 'Saran',  // ← dua kolom baru
         ];
 
         foreach ($this->tickets as $idx => $t) {
-            // --- LOGIKA DURASI BARU ---
+            // --- LOGIKA DURASI ---
             $durationStr = '-';
             if ($t->assigned_at && $t->closed_at) {
                 $diffMinutes = $t->assigned_at->diffInMinutes($t->closed_at);
@@ -66,7 +67,8 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             }
 
             // Determine name
-            $name = $t->user ? $t->user->name
+            $name = $t->user
+                ? $t->user->name
                 : ($t->guestDetail ? $t->guestDetail->full_name : 'Tamu');
 
             // Determine entity
@@ -90,6 +92,33 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 };
             }
 
+            // --- LOGIKA CSI PER TIKET ---
+            // Gunakan csi_score yang tersimpan di survey jika ada,
+            // lalu fallback ke kalkulasi manual dari answers.
+            $csiScore = '-';
+            $feedback = '-';
+
+            if ($t->survey) {
+                $feedback = $t->survey->feedback ?? '-';
+
+                if ($t->survey->csi_score !== null) {
+                    // Nilai sudah tersimpan di kolom csi_score
+                    $csiScore = round((float) $t->survey->csi_score, 2);
+                } elseif ($t->survey->answers && $t->survey->answers->count() > 0) {
+                    // Hitung manual: CSI = (Σ satisfaction*importance / Σ importance) / 5 * 100
+                    $wScore = 0;
+                    $imp = 0;
+                    foreach ($t->survey->answers as $ans) {
+                        if ($ans->satisfaction_score === null || $ans->importance_score === null) {
+                            continue;
+                        }
+                        $wScore += $ans->satisfaction_score * $ans->importance_score;
+                        $imp += $ans->importance_score;
+                    }
+                    $csiScore = $imp > 0 ? round(($wScore / $imp / 5) * 100, 2) : '-';
+                }
+            }
+
             $rows[] = [
                 $idx + 1,
                 '#'.$t->ticket_code,
@@ -102,7 +131,9 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $t->status->name ?? '-',
                 $t->assigned_at ? $t->assigned_at->format('d/m/Y H:i') : '-',
                 $t->closed_at ? $t->closed_at->format('d/m/Y H:i') : '-',
-                $durationStr, // Gunakan string durasi yang baru di sini
+                $durationStr,
+                $csiScore,  // kolom M
+                $feedback,  // kolom N
             ];
         }
 
@@ -115,8 +146,10 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Baris 1: Judul
-                $sheet->mergeCells('A1:L1');
+                // -------------------------------------------------------
+                // Baris 1: Judul  (A–N = 14 kolom)
+                // -------------------------------------------------------
+                $sheet->mergeCells('A1:N1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
@@ -125,15 +158,17 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
                 // Baris 2: Sub-judul periode
-                $sheet->mergeCells('A2:L2');
+                $sheet->mergeCells('A2:N2');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header kolom tabel
-                $sheet->getStyle('A3:L3')->applyFromArray([
+                // -------------------------------------------------------
+                // Baris 3: Header kolom tabel
+                // -------------------------------------------------------
+                $sheet->getStyle('A3:N3')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
@@ -141,27 +176,33 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Hitung rentang data dari sheet secara langsung
+                // -------------------------------------------------------
+                // Baris data
+                // -------------------------------------------------------
                 $highestRow = $sheet->getHighestRow();
                 $dataStart = 4;
                 $dataEnd = $highestRow;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
                     $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
-                    $sheet->getStyle("A{$r}:L{$r}")->applyFromArray([
+                    $sheet->getStyle("A{$r}:N{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
-                    // Kolom Nama rata kiri
+                    // Nama rata kiri
                     $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Kolom Layanan & Petugas rata kiri
+                    // Layanan & Petugas rata kiri
                     $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                     $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    // Saran (N) rata kiri + wrap agar teks panjang terbaca
+                    $sheet->getStyle("N{$r}")->getAlignment()
+                        ->setHorizontal(Alignment::HORIZONTAL_LEFT)
+                        ->setWrapText(true);
                 }
 
                 // Border luar tabel
-                $sheet->getStyle("A4:L{$dataEnd}")->applyFromArray([
+                $sheet->getStyle("A4:N{$dataEnd}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 

@@ -483,6 +483,41 @@
         {{-- ================================================= --}}
         {{-- TABEL REKAP LAYANAN & ENTITAS --}}
         {{-- ================================================= --}}
+        @php
+            /**
+             * Konfigurasi tampilan per status tiket — otomatis mengikuti TicketStatus enum.
+             * Tambah/hapus case di enum → otomatis muncul/hilang di tabel.
+             */
+            $statusMeta = [
+                'waiting' => ['label' => 'Waiting', 'color' => 'text-amber-500', 'bg' => 'bg-amber-50/40'],
+                'progress' => ['label' => 'Progress', 'color' => 'text-blue-600', 'bg' => ''],
+                'done' => ['label' => 'Done', 'color' => 'text-emerald-600', 'bg' => 'bg-emerald-50/40'],
+                'reject' => ['label' => 'Reject', 'color' => 'text-red-500', 'bg' => 'bg-red-50/40'],
+            ];
+
+            /**
+             * Konfigurasi tampilan per entitas pengguna — otomatis mengikuti UserEntity enum.
+             * Kolom abbreviasi & tooltip diatur di sini; nilai data dibaca dari $service['entities'][value].
+             */
+            $entityMeta = [
+                'superuser' => ['abbr' => 'Superuser', 'title' => 'Superuser'],
+                'mahasiswa' => ['abbr' => 'Mahasiswa', 'title' => 'Mahasiswa'],
+                'dosen' => ['abbr' => 'Dosen', 'title' => 'Dosen'],
+                'tendik' => ['abbr' => 'Tenaga Kependidikan', 'title' => 'Tenaga Kependidikan'],
+                'karyawan' => ['abbr' => 'Karyawan', 'title' => 'Karyawan'],
+                'tamu' => ['abbr' => 'Tamu', 'title' => 'Tamu'],
+                'lainnya' => ['abbr' => 'Lainnya', 'title' => 'Lainnya'],
+            ];
+
+            // Hanya render status & entitas yang ada di enum (order enum = order kolom)
+            $activeStatuses = collect($ticketStatuses)->filter(fn($s) => isset($statusMeta[$s->value]))->values();
+
+            $activeEntities = collect($userEntities)->filter(fn($e) => isset($entityMeta[$e->value]))->values();
+
+            $statusColspan = $activeStatuses->count() + 1; // +1 untuk kolom Total
+            $entityColspan = $activeEntities->count();
+        @endphp
+
         <div
             class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
             <div class="p-6 border-b border-gray-100 dark:border-gray-800">
@@ -495,134 +530,162 @@
                 <table class="w-full text-sm text-left whitespace-nowrap">
                     <thead
                         class="bg-gray-50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-300 font-bold tracking-wider text-xs">
+
+                        {{-- ── Baris header atas: grup kolom ── --}}
                         <tr>
                             <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700" rowspan="2">No</th>
                             <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700" rowspan="2">Layanan
                             </th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest bg-blue-50/60 dark:bg-blue-900/20"
-                                colspan="4">Status Penyelesaian</th>
+
+                            {{-- Status penyelesaian (dinamis dari TicketStatus) --}}
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest"
+                                colspan="{{ $statusColspan }}">
+                                Status Penyelesaian
+                            </th>
+
+                            {{-- Entitas (dinamis dari UserEntity) --}}
                             <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest bg-slate-50 dark:bg-slate-800"
-                                colspan="7">Entitas Pembuat Tiket</th>
+                                colspan="{{ $entityColspan }}">
+                                Entitas Pembuat Tiket
+                            </th>
+
                             <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 text-center"
                                 rowspan="2">% Total</th>
                             <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 text-center"
                                 rowspan="2">Rate Selesai</th>
                         </tr>
+
+                        {{-- ── Baris header bawah: label per kolom ── --}}
                         <tr>
-                            <th
-                                class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-blue-600 bg-blue-50/40">
-                                Total</th>
-                            <th
-                                class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-emerald-600 bg-emerald-50/40">
-                                Done</th>
-                            <th
-                                class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-amber-500 bg-amber-50/40">
-                                Wait</th>
-                            <th
-                                class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center text-red-500 bg-red-50/40">
-                                Reject</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Mahasiswa">Mhs</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Dosen">Dosen</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Tenaga Kependidikan">Tendik</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Karyawan">Kary.</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Superuser">S.User</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Tamu">Tamu</th>
-                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
-                                title="Lainnya">Lain.</th>
+                            {{-- Total selalu tampil pertama --}}
+                            <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center">
+                                Total
+                            </th>
+
+                            {{-- Satu kolom per TicketStatus --}}
+                            @foreach ($activeStatuses as $status)
+                                @php $sm = $statusMeta[$status->value]; @endphp
+                                <th
+                                    class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center {{ $sm['color'] }}">
+                                    {{ $sm['label'] }}
+                                </th>
+                            @endforeach
+
+                            {{-- Satu kolom per UserEntity --}}
+                            @foreach ($activeEntities as $entity)
+                                @php $em = $entityMeta[$entity->value]; @endphp
+                                <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
+                                    title="{{ $em['title'] }}">
+                                    {{ $em['abbr'] }}
+                                </th>
+                            @endforeach
                         </tr>
                     </thead>
+
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800 text-sm">
                         @php
                             $no = 1;
                             $grandTotal = collect($serviceStats)->sum('total') ?: 1;
                         @endphp
+
                         @forelse ($serviceStats as $service)
                             @php
                                 $cr =
                                     $service['total'] > 0 ? round(($service['done'] / $service['total']) * 100, 1) : 0;
                                 $crColor =
                                     $cr >= 80 ? 'text-emerald-600' : ($cr >= 50 ? 'text-blue-600' : 'text-amber-600');
+                                $sharePct = round(($service['total'] / $grandTotal) * 100, 1);
                             @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors">
                                 <td class="px-4 py-3 text-gray-400">{{ $no++ }}</td>
                                 <td class="px-4 py-3 font-semibold text-text-light dark:text-text-dark">
                                     {{ $service['name'] }}</td>
-                                <td class="px-3 py-3 text-center font-bold text-blue-600">{{ $service['total'] }}</td>
-                                <td class="px-3 py-3 text-center font-bold text-emerald-600">{{ $service['done'] }}
-                                </td>
-                                <td class="px-3 py-3 text-center font-bold text-amber-500">{{ $service['waiting'] }}
-                                </td>
-                                <td class="px-3 py-3 text-center font-bold text-red-500">{{ $service['reject'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['mahasiswa'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['dosen'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['tendik'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['karyawan'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['superuser'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['tamu'] }}</td>
-                                <td class="px-3 py-3 text-center">{{ $service['entities']['lainnya'] }}</td>
+
+                                {{-- Total --}}
+                                <td class="px-3 py-3 text-center font-bold">{{ $service['total'] }}</td>
+
+                                {{-- Nilai per status (dinamis) --}}
+                                @foreach ($activeStatuses as $status)
+                                    @php
+                                        $sm = $statusMeta[$status->value];
+                                        $val = $service['statuses'][$status->value] ?? ($service[$status->value] ?? 0);
+                                    @endphp
+                                    <td class="px-3 py-3 text-center font-bold {{ $sm['color'] }}">
+                                        {{ $val }}</td>
+                                @endforeach
+
+                                {{-- Nilai per entitas (dinamis) --}}
+                                @foreach ($activeEntities as $entity)
+                                    <td class="px-3 py-3 text-center">
+                                        {{ $service['entities'][$entity->value] ?? 0 }}
+                                    </td>
+                                @endforeach
+
                                 <td class="px-3 py-3 text-center text-xs font-semibold text-gray-500">
-                                    {{ round(($service['total'] / $grandTotal) * 100, 1) }}%
-                                </td>
+                                    {{ $sharePct }}%</td>
                                 <td class="px-3 py-3 text-center font-bold {{ $crColor }}">{{ $cr }}%
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="15" class="px-6 py-10 text-center text-gray-400">
+                                <td colspan="{{ 4 + $activeStatuses->count() + $activeEntities->count() }}"
+                                    class="px-6 py-10 text-center text-gray-400">
                                     <span class="material-icons-round text-4xl mb-2 opacity-40">inbox</span>
                                     <p>Tidak ada data layanan pada periode ini.</p>
                                 </td>
                             </tr>
                         @endforelse
                     </tbody>
-                    {{-- FOOTER TOTAL --}}
+
+                    {{-- ── FOOTER TOTAL ── --}}
                     @php
-                        $totals = [
-                            'total' => collect($serviceStats)->sum('total'),
-                            'done' => collect($serviceStats)->sum('done'),
-                            'waiting' => collect($serviceStats)->sum('waiting'),
-                            'reject' => collect($serviceStats)->sum('reject'),
-                            'mahasiswa' => collect($serviceStats)->sum(fn($s) => $s['entities']['mahasiswa']),
-                            'dosen' => collect($serviceStats)->sum(fn($s) => $s['entities']['dosen']),
-                            'tendik' => collect($serviceStats)->sum(fn($s) => $s['entities']['tendik']),
-                            'karyawan' => collect($serviceStats)->sum(fn($s) => $s['entities']['karyawan']),
-                            'superuser' => collect($serviceStats)->sum(fn($s) => $s['entities']['superuser']),
-                            'tamu' => collect($serviceStats)->sum(fn($s) => $s['entities']['tamu']),
-                            'lainnya' => collect($serviceStats)->sum(fn($s) => $s['entities']['lainnya']),
-                        ];
-                        $totalDone = $totals['total'] > 0 ? round(($totals['done'] / $totals['total']) * 100, 1) : 0;
+                        $totals = ['total' => collect($serviceStats)->sum('total')];
+
+                        foreach ($activeStatuses as $status) {
+                            $totals[$status->value] = collect($serviceStats)->sum(
+                                fn($s) => $s['statuses'][$status->value] ?? ($s[$status->value] ?? 0),
+                            );
+                        }
+                        foreach ($activeEntities as $entity) {
+                            $totals[$entity->value] = collect($serviceStats)->sum(
+                                fn($s) => $s['entities'][$entity->value] ?? 0,
+                            );
+                        }
+
+                        $totalDone =
+                            $totals['total'] > 0 ? round((($totals['done'] ?? 0) / $totals['total']) * 100, 1) : 0;
                     @endphp
                     <tfoot
                         class="bg-gray-100 dark:bg-slate-700/60 text-xs font-bold uppercase text-gray-600 dark:text-gray-300">
                         <tr>
                             <td class="px-4 py-3" colspan="2">Total Keseluruhan</td>
-                            <td class="px-3 py-3 text-center text-blue-600">{{ $totals['total'] }}</td>
-                            <td class="px-3 py-3 text-center text-emerald-600">{{ $totals['done'] }}</td>
-                            <td class="px-3 py-3 text-center text-amber-500">{{ $totals['waiting'] }}</td>
-                            <td class="px-3 py-3 text-center text-red-500">{{ $totals['reject'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['mahasiswa'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['dosen'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['tendik'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['karyawan'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['superuser'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['tamu'] }}</td>
-                            <td class="px-3 py-3 text-center">{{ $totals['lainnya'] }}</td>
+
+                            {{-- Total --}}
+                            <td class="px-3 py-3 text-center">{{ $totals['total'] }}</td>
+
+                            {{-- Total per status --}}
+                            @foreach ($activeStatuses as $status)
+                                @php $sm = $statusMeta[$status->value]; @endphp
+                                <td class="px-3 py-3 text-center {{ $sm['color'] }}">
+                                    {{ $totals[$status->value] ?? 0 }}
+                                </td>
+                            @endforeach
+
+                            {{-- Total per entitas --}}
+                            @foreach ($activeEntities as $entity)
+                                <td class="px-3 py-3 text-center">{{ $totals[$entity->value] ?? 0 }}</td>
+                            @endforeach
+
                             <td class="px-3 py-3 text-center">100%</td>
                             <td
                                 class="px-3 py-3 text-center {{ $totalDone >= 80 ? 'text-emerald-600' : 'text-amber-600' }}">
-                                {{ $totalDone }}%</td>
+                                {{ $totalDone }}%
+                            </td>
                         </tr>
                     </tfoot>
                 </table>
             </div>
         </div>
-
         {{-- ================================================= --}}
         {{-- TABEL TREN BULANAN --}}
         {{-- ================================================= --}}
