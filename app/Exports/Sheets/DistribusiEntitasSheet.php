@@ -45,21 +45,25 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
         $rows = [];
         $total = array_sum($this->entityDist) ?: 1;
 
+        // Baris 1: Judul
         $rows[] = ['DISTRIBUSI ENTITAS PENGGUNA'];
+
+        // Baris 2: Sub-judul periode
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
-        $rows[] = [];
+
+        // Baris 3: Header — langsung tanpa baris kosong (pola DetailTiketSheet)
         $rows[] = ['No', 'Entitas', 'Jumlah Tiket', 'Persentase (%)'];
 
+        // Baris 4+: Data
         $no = 1;
         foreach ($this->entityLabels as $key => $label) {
             $cnt = (int) ($this->entityDist[$key] ?? 0);
-            $pct = $total > 0 ? round(($cnt / $total) * 100, 2) : 0;
-            $rows[] = [$no++, $label, $cnt, $pct.'%'];
+            $pct = $total > 0 ? round(($cnt / $total) * 100, 2).'%' : '0%';
+            $rows[] = [$no++, $label, $cnt, $pct];
         }
 
         // Baris total
-        $grandTotal = array_sum($this->entityDist);
-        $rows[] = ['', 'TOTAL', (int) $grandTotal, '100%'];
+        $rows[] = ['', 'TOTAL', (int) array_sum($this->entityDist), '100%'];
 
         return $rows;
     }
@@ -71,60 +75,63 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                 $sheet = $event->sheet->getDelegate();
                 $maxCol = 'D';
 
-                // Baris 1: Judul
+                // ── Baris 1: Judul ──────────────────────────────────────
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '6D28D9']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // Baris 2: Sub-judul
+                // ── Baris 2: Sub-judul periode ──────────────────────────
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '5B21B6']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'EDE9FE']],
+                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header kolom tabel
-                $sheet->getStyle('A4:D4')->applyFromArray([
+                // ── Baris 3: Header kolom tabel ─────────────────────────
+                $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4C1D95']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
-                $sheet->getRowDimension(4)->setRowHeight(28);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
+                // ── Baris data ──────────────────────────────────────────
                 $highestRow = $sheet->getHighestRow();
-                $dataStart = 5;
+                $dataStart = 4;
                 $dataEnd = $highestRow - 1;
                 $totalRow = $highestRow;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
-                    $color = ($r % 2 === 0) ? 'F5F3FF' : 'FFFFFF';
-                    $sheet->getStyle("A{$r}:D{$r}")->applyFromArray([
+                    $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
+                    $sheet->getStyle("A{$r}:{$maxCol}{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'DDD6FE']]],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // Baris TOTAL
-                $sheet->getStyle("A{$totalRow}:D{$totalRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '6D28D9']],
+                // ── Baris TOTAL ─────────────────────────────────────────
+                $sheet->getStyle("A{$totalRow}:{$maxCol}{$totalRow}")->applyFromArray([
+                    'font' => ['bold' => true],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
                 $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                // Border luar tabel
-                $sheet->getStyle("A4:D{$totalRow}")->applyFromArray([
-                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '6D28D9']]],
+                // ── Border luar tabel ───────────────────────────────────
+                $sheet->getStyle("A4:{$maxCol}{$totalRow}")->applyFromArray([
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
+
+                $sheet->freezePane('C4');
             },
         ];
     }

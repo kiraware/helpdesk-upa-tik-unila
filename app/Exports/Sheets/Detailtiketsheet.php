@@ -132,8 +132,8 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $t->assigned_at ? $t->assigned_at->format('d/m/Y H:i') : '-',
                 $t->closed_at ? $t->closed_at->format('d/m/Y H:i') : '-',
                 $durationStr,
-                $csiScore,  // kolom M
-                $feedback,  // kolom N
+                $csiScore,
+                $feedback,
             ];
         }
 

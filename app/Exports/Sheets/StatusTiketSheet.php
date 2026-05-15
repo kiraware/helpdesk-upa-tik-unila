@@ -16,7 +16,7 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithTitle
 {
-    /** Warna aksen per status */
+    /** Warna aksen header per status */
     private array $statusColors = [
         'waiting' => 'F59E0B',
         'progress' => '3B82F6',
@@ -31,8 +31,8 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
     public function __construct(
         protected Carbon $startDate,
         protected Carbon $endDate,
-        protected array $reportData,   // dari prepareData() — per-layanan
-        protected array $grandTotals,  // dari prepareData()
+        protected array $reportData,
+        protected array $grandTotals,
     ) {
         $this->statuses = TicketStatus::cases();
     }
@@ -59,11 +59,13 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
         $gt = $this->grandTotals;
         $rows = [];
 
+        // Baris 1: Judul
         $rows[] = ['REKAPITULASI TIKET BERDASARKAN STATUS'];
-        $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
-        $rows[] = [];
 
-        // Header
+        // Baris 2: Sub-judul periode
+        $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
+
+        // Baris 3: Header — langsung tanpa baris kosong (pola DetailTiketSheet)
         $header = ['No', 'Jenis Layanan', 'Total'];
         foreach ($this->statuses as $status) {
             $header[] = ucfirst($status->value);
@@ -71,7 +73,7 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
         $header[] = '% Selesai';
         $rows[] = $header;
 
-        // Data per layanan
+        // Baris 4+: Data per layanan
         foreach ($this->reportData as $idx => $item) {
             $total = (int) $item['total'];
             $done = (int) ($item['statuses']['done'] ?? 0);
@@ -85,7 +87,7 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
             $rows[] = $row;
         }
 
-        // Grand Total
+        // Baris total
         $gtTotal = (int) ($gt['total'] ?? 0);
         $gtDone = (int) ($gt['statuses']['done'] ?? 0);
         $gtDoneRate = $gtTotal > 0 ? round(($gtDone / $gtTotal) * 100, 1).'%' : '0%';
@@ -111,72 +113,72 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                 $maxCol = Coordinate::stringFromColumnIndex($totalCols);
                 $rt = $this->rowTotal;
 
-                // Baris 1: Judul
+                // ── Baris 1: Judul ──────────────────────────────────────
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '0F766E']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // Baris 2: Sub-judul
+                // ── Baris 2: Sub-judul periode ──────────────────────────
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '0F766E']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'CCFBF1']],
+                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header tabel
-                $sheet->getStyle("A4:{$maxCol}4")->applyFromArray([
+                // ── Baris 3: Header kolom tabel ─────────────────────────
+                $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '134E4A']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
-                $sheet->getRowDimension(4)->setRowHeight(30);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Warna header per-kolom status (D–G)
-                $statusCol = 4; // kolom D (index 4 = 1-based)
+                // Warna aksen per kolom status pada header (D s.d. G)
+                $statusColIdx = 4; // kolom D = index 4
                 foreach ($this->statuses as $status) {
-                    $colLetter = Coordinate::stringFromColumnIndex($statusCol);
-                    $hexColor = $this->statusColors[$status->value] ?? '6B7280';
-                    $sheet->getStyle("{$colLetter}4")->applyFromArray([
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $hexColor]],
+                    $colLetter = Coordinate::stringFromColumnIndex($statusColIdx);
+                    $hex = $this->statusColors[$status->value] ?? '6B7280';
+                    $sheet->getStyle("{$colLetter}3")->applyFromArray([
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $hex]],
                     ]);
-                    $statusCol++;
+                    $statusColIdx++;
                 }
 
-                // Baris data
-                $dataStart = 5;
+                // ── Baris data ──────────────────────────────────────────
+                $dataStart = 4;
                 $dataEnd = $rt - 1;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
-                    $color = ($r % 2 === 0) ? 'F0FDFA' : 'FFFFFF';
+                    $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
                     $sheet->getStyle("A{$r}:{$maxCol}{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'CCFBF1']]],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // Baris TOTAL
+                // ── Baris TOTAL ─────────────────────────────────────────
                 $sheet->getStyle("A{$rt}:{$maxCol}{$rt}")->applyFromArray([
-                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '0F766E']],
+                    'font' => ['bold' => true],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'ECFDF5']]],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
                 $sheet->getStyle("B{$rt}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                // Border luar
+                // ── Border luar tabel ───────────────────────────────────
                 $sheet->getStyle("A4:{$maxCol}{$rt}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '0F766E']]],
                 ]);
 
-                $sheet->freezePane('C5');
+                $sheet->freezePane('C4');
             },
         ];
     }

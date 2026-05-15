@@ -28,22 +28,21 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
     public function array(): array
     {
         $rows = [];
+
+        // Baris 1: Judul
         $rows[] = ['KINERJA PETUGAS HELPDESK'];
+
+        // Baris 2: Sub-judul periode
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
-        $rows[] = [];
+
+        // Baris 3: Header — langsung tanpa baris kosong (pola DetailTiketSheet)
         $rows[] = [
-            'No',
-            'Nama Petugas',
-            'Ditugaskan',
-            'Selesai',
-            'Ditolak',
-            'Tingkat Selesai (%)',
-            'Rata-rata Waktu Penyelesaian',
-            'Rating Bintang',
-            'Skor CSI (%)',
-            'Jumlah Survei',
+            'No', 'Nama Petugas', 'Ditugaskan', 'Selesai', 'Ditolak',
+            'Tingkat Selesai (%)', 'Rata-rata Waktu Penyelesaian',
+            'Rating Bintang', 'Skor CSI (%)', 'Jumlah Survei',
         ];
 
+        // Baris 4+: Data
         foreach ($this->staffData as $idx => $s) {
             $rows[] = [
                 $idx + 1,
@@ -51,10 +50,10 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                 (int) $s['assigned'],
                 (int) $s['done'],
                 (int) $s['reject'],
-                $s['rate'].'%',
+                $s['rate'],
                 $s['avg_time'],
                 $s['star'],
-                $s['csi'].'%',
+                $s['csi'],
                 (int) $s['surveys'],
             ];
         }
@@ -66,10 +65,7 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
             array_sum(array_column($this->staffData, 'assigned')),
             array_sum(array_column($this->staffData, 'done')),
             array_sum(array_column($this->staffData, 'reject')),
-            '-',
-            '-',
-            '-',
-            '-',
+            '-', '-', '-', '-',
             array_sum(array_column($this->staffData, 'surveys')),
         ];
 
@@ -81,69 +77,66 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
         return [
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
-                $maxCol = 'J'; // 10 kolom: A–J
+                $maxCol = 'J'; // A–J = 10 kolom
 
-                // Baris 1: Judul
+                // ── Baris 1: Judul ──────────────────────────────────────
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'B45309']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // Baris 2: Sub-judul periode
+                // ── Baris 2: Sub-judul periode ──────────────────────────
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => 'B45309']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FEF3C7']],
+                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header kolom tabel (baris 3 kosong, header di baris 4 setelah array())
-                // array() menghasilkan: baris 1=judul, 2=periode, 3=kosong, 4=header
-                $sheet->getStyle("A4:{$maxCol}4")->applyFromArray([
+                // ── Baris 3: Header kolom tabel ─────────────────────────
+                $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '78350F']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
-                $sheet->getRowDimension(4)->setRowHeight(32);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Baris data: 5 s.d. highestRow-1, baris total = highestRow
+                // ── Baris data ──────────────────────────────────────────
                 $highestRow = $sheet->getHighestRow();
-                $dataStart = 5;
-                $dataEnd = $highestRow - 1;
+                $dataStart = 4;
+                $dataEnd = $highestRow - 1; // baris terakhir = total
                 $totalRow = $highestRow;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
-                    $color = ($r % 2 === 0) ? 'FEF9EE' : 'FFFFFF';
+                    $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
                     $sheet->getStyle("A{$r}:{$maxCol}{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'FDE68A']]],
+                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
-                    // Nama petugas rata kiri
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Rata-rata waktu rata kiri
                     $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // Baris TOTAL
+                // ── Baris TOTAL ─────────────────────────────────────────
                 $sheet->getStyle("A{$totalRow}:{$maxCol}{$totalRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'B45309']],
+                    'font' => ['bold' => true],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
+                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
                 $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                // Border luar tabel
+                // ── Border luar tabel ───────────────────────────────────
                 $sheet->getStyle("A4:{$maxCol}{$totalRow}")->applyFromArray([
-                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => 'B45309']]],
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
-                $sheet->freezePane('C5');
+                $sheet->freezePane('C4');
             },
         ];
     }

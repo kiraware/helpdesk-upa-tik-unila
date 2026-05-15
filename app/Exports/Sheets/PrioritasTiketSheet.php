@@ -129,7 +129,7 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
         $totalRow[] = $gtDoneRate;
         $rows[] = $totalRow;
 
-        $this->rowTotal = count($rows);
+        $this->rowTotal = count($rows) - 1;
 
         return $rows;
     }
@@ -147,7 +147,7 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'DC2626']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
@@ -155,57 +155,44 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                 // Baris 2: Sub-judul
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => 'B91C1C']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'FEE2E2']],
+                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header tabel
-                $sheet->getStyle("A4:{$maxCol}4")->applyFromArray([
+                // Baris 3: Header tabel
+                $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '991B1B']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
-                $sheet->getRowDimension(4)->setRowHeight(30);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Baris data: 5 s.d. rt-1
-                $dataStart = 5;
+                // Baris data: 4 s.d. rt-1
+                $dataStart = 4;
                 $dataEnd = $rt - 1;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
-                    // Ambil nilai prioritas dari kolom A untuk warna aksen
-                    $pVal = strtolower($sheet->getCell("A{$r}")->getValue());
-                    $accent = $this->priorityColors[$pVal] ?? 'E5E7EB';
-
-                    // Baris data dengan strip prioritas di kolom A
-                    $sheet->getStyle("A{$r}")->applyFromArray([
-                        'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $accent]],
-                        'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
-                    ]);
-
-                    // Kolom B–maxCol
-                    $color = ($r % 2 === 0) ? 'FFF7F7' : 'FFFFFF';
-                    $sheet->getStyle("B{$r}:{$maxCol}{$r}")->applyFromArray([
+                    $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
+                    $sheet->getStyle("A{$r}:{$maxCol}{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'FECACA']]],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
                 }
 
                 // Baris TOTAL
                 $sheet->getStyle("A{$rt}:{$maxCol}{$rt}")->applyFromArray([
-                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'DC2626']],
+                    'font' => ['bold' => true],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
 
                 // Border luar
                 $sheet->getStyle("A4:{$maxCol}{$rt}")->applyFromArray([
-                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => 'DC2626']]],
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
             },
         ];
