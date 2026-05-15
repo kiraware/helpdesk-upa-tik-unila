@@ -149,6 +149,7 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
+                $sheet->getRowDimension(1)->setRowHeight(28);
 
                 // Style Sub-judul
                 $sheet->mergeCells("A2:{$maxCol}2");
@@ -165,6 +166,7 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
                 // Zebra Striping & Data Style
                 for ($r = $this->rowDataStart; $r <= $rt; $r++) {
@@ -191,7 +193,6 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 ]);
 
                 $sheet->freezePane('C4');
-                $sheet->setAutoFilter("A{$rh}:{$maxCol}{$rh}");
             },
         ];
     }

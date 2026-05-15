@@ -37,7 +37,7 @@ class TicketReportExport implements WithMultipleSheets
         return [
             new Sheets\RingkasanSheet($this->startDate, $this->endDate, $this->period, $grandTotals, $entityDist, $staffData),
             new Sheets\RekapLayananSheet($this->startDate, $this->endDate, $reportData, $grandTotals),
-            new Sheets\TrendBulananSheet($this->startDate, $this->endDate, $tickets),
+            new Sheets\RekapBulananSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\DetailTiketSheet($this->startDate, $this->endDate, $tickets),
         ];
     }

@@ -13,7 +13,7 @@ use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Fill;
 
-class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, WithTitle
+class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, WithTitle
 {
     protected array $rowMap = [];
 
@@ -171,8 +171,6 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 ]);
 
                 $sheet->freezePane('C4');
-
-                $sheet->setAutoFilter('A3:O3');
             },
         ];
     }

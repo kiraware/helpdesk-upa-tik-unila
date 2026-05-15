@@ -168,7 +168,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $sheet->freezePane('C4');
 
                 // Auto-filter pada header
-                $sheet->setAutoFilter('A3:L3');
+                $sheet->setAutoFilter('E3:I3');
             },
         ];
     }
