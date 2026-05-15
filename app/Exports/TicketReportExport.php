@@ -32,11 +32,14 @@ class TicketReportExport implements WithMultipleSheets
 
     public function sheets(): array
     {
-        [$tickets, $reportData, $grandTotals, $entityDist, $staffData, $monthlyData] = $this->prepareData();
+        [$tickets, $reportData, $grandTotals, $entityDist, $staffData] = $this->prepareData();
 
         return [
-            new Sheets\RingkasanSheet($this->startDate, $this->endDate, $this->period, $grandTotals, $entityDist, $staffData),
             new Sheets\RekapLayananSheet($this->startDate, $this->endDate, $reportData, $grandTotals),
+            new Sheets\KinerjaPetugasSheet($this->startDate, $this->endDate, $staffData),
+            new Sheets\DistribusiEntitasSheet($this->startDate, $this->endDate, $entityDist),
+            new Sheets\StatusTiketSheet($this->startDate, $this->endDate, $reportData, $grandTotals),
+            new Sheets\PrioritasTiketSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\RekapBulananSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\DetailTiketSheet($this->startDate, $this->endDate, $tickets),
         ];
@@ -69,7 +72,6 @@ class TicketReportExport implements WithMultipleSheets
             '_csi_wScore' => 0,
             '_csi_imp' => 0,
         ] + $emptyEntities;
-        $monthlyData = [];
 
         foreach ($services as $service) {
             $reportData[$service->id] = [
@@ -117,7 +119,6 @@ class TicketReportExport implements WithMultipleSheets
             if (isset($reportData[$serviceId])) {
                 $reportData[$serviceId]['entities'][$entityCode]++;
 
-                // Akumulasi CSI per layanan dari survey tiket
                 if (
                     $ticket->survey &&
                     $ticket->survey->answers &&
@@ -125,61 +126,27 @@ class TicketReportExport implements WithMultipleSheets
                 ) {
                     $reportData[$serviceId]['_survey_count']++;
                     foreach ($ticket->survey->answers as $ans) {
-
-                        // skip jika ada data kosong
-                        if (
-                            $ans->satisfaction_score === null ||
-                            $ans->importance_score === null
-                        ) {
+                        if ($ans->satisfaction_score === null || $ans->importance_score === null) {
                             continue;
                         }
-
-                        $reportData[$serviceId]['_csi_wScore'] +=
-                            ($ans->satisfaction_score * $ans->importance_score);
-
-                        $reportData[$serviceId]['_csi_imp'] +=
-                            $ans->importance_score;
+                        $reportData[$serviceId]['_csi_wScore'] += ($ans->satisfaction_score * $ans->importance_score);
+                        $reportData[$serviceId]['_csi_imp'] += $ans->importance_score;
                     }
                 }
             }
-            $entityDist[$entityCode]++;
 
-            // Monthly trend
-            $monthKey = $ticket->created_at->format('Y-m');
-            if (! isset($monthlyData[$monthKey])) {
-                $monthlyData[$monthKey] = ['label' => $ticket->created_at->format('F Y'), 'total' => 0, 'done' => 0, 'reject' => 0];
-            }
-            $monthlyData[$monthKey]['total']++;
-            if ($ticket->status === TicketStatus::DONE) {
-                $monthlyData[$monthKey]['done']++;
-            }
-            if ($ticket->status === TicketStatus::REJECT) {
-                $monthlyData[$monthKey]['reject']++;
-            }
+            $entityDist[$entityCode]++;
         }
 
-        ksort($monthlyData);
-
-        // Hitung CSI final per layanan, lalu hapus akumulator sementara
+        // Hitung CSI final per layanan
         foreach ($reportData as &$svc) {
             $imp = (float) $svc['_csi_imp'];
             $wScore = (float) $svc['_csi_wScore'];
 
-            if ($imp > 0) {
-                $star = $wScore / $imp;
-                $svc['csi'] = round(($star / 5) * 100, 2);
-            } else {
-
-                // Tidak ada survey valid
-                $svc['csi'] = 0;
-            }
+            $svc['csi'] = $imp > 0 ? round(($wScore / $imp / 5) * 100, 2) : 0;
             $svc['survey_count'] = $svc['_survey_count'];
 
-            unset(
-                $svc['_csi_wScore'],
-                $svc['_csi_imp'],
-                $svc['_survey_count']
-            );
+            unset($svc['_csi_wScore'], $svc['_csi_imp'], $svc['_survey_count']);
         }
         unset($svc);
 
@@ -194,6 +161,7 @@ class TicketReportExport implements WithMultipleSheets
                 $grandTotals[$key] += $svc['entities'][$key];
             }
         }
+        unset($grandTotals['_csi_wScore'], $grandTotals['_csi_imp']);
 
         // Staff data
         $staffData = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
@@ -212,13 +180,11 @@ class TicketReportExport implements WithMultipleSheets
 
                 $avgMinutes = $times->count() > 0 ? (int) round($times->avg()) : 0;
 
-                // Konversi menit ke format string "X hari X jam X menit"
                 $avgTimeStr = '0 menit';
                 if ($avgMinutes > 0) {
                     $days = floor($avgMinutes / 1440);
                     $hours = floor(($avgMinutes % 1440) / 60);
                     $mins = $avgMinutes % 60;
-
                     $parts = [];
                     if ($days > 0) {
                         $parts[] = "{$days} hari";
@@ -229,39 +195,24 @@ class TicketReportExport implements WithMultipleSheets
                     if ($mins > 0) {
                         $parts[] = "{$mins} menit";
                     }
-
                     $avgTimeStr = implode(' ', $parts) ?: '0 menit';
                 }
 
                 $rate = $total > 0 ? round(($done / $total) * 100) : 0;
 
-                // Survey & CSI Logic
                 $wScore = 0;
                 $imp = 0;
                 $surveys = 0;
                 foreach ($ts as $ticket) {
-                    if (
-                        ! $ticket->survey ||
-                        ! $ticket->survey->answers ||
-                        $ticket->survey->answers->count() === 0
-                    ) {
+                    if (! $ticket->survey || ! $ticket->survey->answers || $ticket->survey->answers->count() === 0) {
                         continue;
                     }
-
                     $surveys++;
-
                     foreach ($ticket->survey->answers as $ans) {
-
-                        if (
-                            $ans->satisfaction_score === null ||
-                            $ans->importance_score === null
-                        ) {
+                        if ($ans->satisfaction_score === null || $ans->importance_score === null) {
                             continue;
                         }
-
-                        $wScore +=
-                            ($ans->satisfaction_score * $ans->importance_score);
-
+                        $wScore += ($ans->satisfaction_score * $ans->importance_score);
                         $imp += $ans->importance_score;
                     }
                 }
@@ -285,6 +236,6 @@ class TicketReportExport implements WithMultipleSheets
             ->values()
             ->toArray();
 
-        return [$tickets, $reportData, $grandTotals, $entityDist, $staffData, $monthlyData];
+        return [$tickets, $reportData, $grandTotals, $entityDist, $staffData];
     }
 }

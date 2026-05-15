@@ -22,7 +22,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
 
     public function title(): string
     {
-        return '4. Detail Tiket';
+        return '7. Detail Tiket';
     }
 
     public function array(): array

@@ -354,7 +354,7 @@
                                 @endphp
                                 <div class="flex flex-col gap-0.5 min-w-0">
                                     <div class="flex items-center gap-1.5 min-w-0">
-                                        <div class="w-2 h-2 rounded-full flex-shrink-0 {{ $leg['dot'] }}"></div>
+                                        <div class="w-2 h-2 rounded-full shrink-0 {{ $leg['dot'] }}"></div>
                                         <span
                                             class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">{{ $leg['label'] }}</span>
                                     </div>
@@ -365,20 +365,18 @@
                                                 style="width: {{ $pct }}%"></div>
                                         </div>
                                         <span
-                                            class="text-[10px] font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">{{ $cnt }}</span>
-                                        <span
-                                            class="text-[10px] text-gray-400 flex-shrink-0">{{ $pct }}%</span>
+                                            class="text-[10px] font-bold text-gray-600 dark:text-gray-300 shrink-0">{{ $cnt }}</span>
+                                        <span class="text-[10px] text-gray-400 shrink-0">{{ $pct }}%</span>
                                     </div>
                                 </div>
                             @endforeach
                         </div>
 
                         {{-- Chart tengah --}}
-                        <div class="flex-shrink-0 w-40 h-40">
+                        <div class="shrink-0 w-40 h-40">
                             <canvas id="entityPieChart"></canvas>
                         </div>
 
-                        {{-- Kolom kanan: entitas 3–6 (Karyawan, Superuser, Tamu, Lainnya) --}}
                         <div class="flex-1 space-y-3 min-w-0">
                             @foreach (array_slice($entityMeta, 3) as $j => $leg)
                                 @php
@@ -388,7 +386,7 @@
                                 @endphp
                                 <div class="flex flex-col gap-0.5 min-w-0">
                                     <div class="flex items-center gap-1.5 min-w-0">
-                                        <div class="w-2 h-2 rounded-full flex-shrink-0 {{ $leg['dot'] }}"></div>
+                                        <div class="w-2 h-2 rounded-full shrink-0 {{ $leg['dot'] }}"></div>
                                         <span
                                             class="text-xs font-semibold text-gray-700 dark:text-gray-200 truncate">{{ $leg['label'] }}</span>
                                     </div>
@@ -399,9 +397,8 @@
                                                 style="width: {{ $pct }}%"></div>
                                         </div>
                                         <span
-                                            class="text-[10px] font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">{{ $cnt }}</span>
-                                        <span
-                                            class="text-[10px] text-gray-400 flex-shrink-0">{{ $pct }}%</span>
+                                            class="text-[10px] font-bold text-gray-600 dark:text-gray-300 shrink-0">{{ $cnt }}</span>
+                                        <span class="text-[10px] text-gray-400 shrink-0">{{ $pct }}%</span>
                                     </div>
                                 </div>
                             @endforeach

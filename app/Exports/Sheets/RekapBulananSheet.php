@@ -25,7 +25,7 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
 
     public function title(): string
     {
-        return '3. Rekap Bulanan';
+        return '6. Rekap Bulanan';
     }
 
     public function columnWidths(): array
