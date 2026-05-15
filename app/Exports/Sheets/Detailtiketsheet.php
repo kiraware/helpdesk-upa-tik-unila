@@ -32,10 +32,10 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
         $rows[] = [];
         $rows[] = [
-            'No', 'Kode Tiket', 'Tanggal Masuk', 'Nama Pemohon', 'Entitas',
+            'No', 'Kode Tiket', 'Tanggal Masuk', 'Nama Pemohon', 'No. Identitas', 'Tamu?', 'Fakultas/Unit Kerja', 'Entitas',
             'Layanan', 'Petugas', 'Prioritas', 'Status',
             'Tanggal Ditugaskan', 'Tanggal Selesai', 'Durasi',
-            'Skor CSI (%)', 'Saran',  // ← dua kolom baru
+            'Skor CSI (%)', 'Saran',
         ];
 
         foreach ($this->tickets as $idx => $t) {
@@ -71,6 +71,24 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ? $t->user->name
                 : ($t->guestDetail ? $t->guestDetail->full_name : 'Tamu');
 
+            // Determine identity number & guest flag
+            $identityNumber = '-';
+            $isGuest = 'Tidak';
+            if ($t->user) {
+                $identityNumber = $t->user->identity_number ?? '-';
+            } elseif ($t->guestDetail) {
+                $identityNumber = $t->guestDetail->identity_number ?? '-';
+                $isGuest = 'Ya';
+            }
+
+            // Determine faculty / work unit
+            $department = '-';
+            if ($t->user) {
+                $department = $t->user->department?->name ?? '-';
+            } elseif ($t->guestDetail) {
+                $department = $t->guestDetail->department?->name ?? '-';
+            }
+
             // Determine entity
             $entity = 'Lainnya';
             if ($t->user) {
@@ -93,8 +111,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             }
 
             // --- LOGIKA CSI PER TIKET ---
-            // Gunakan csi_score yang tersimpan di survey jika ada,
-            // lalu fallback ke kalkulasi manual dari answers.
             $csiScore = '-';
             $feedback = '-';
 
@@ -102,10 +118,8 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $feedback = $t->survey->feedback ?? '-';
 
                 if ($t->survey->csi_score !== null) {
-                    // Nilai sudah tersimpan di kolom csi_score
                     $csiScore = round((float) $t->survey->csi_score, 2);
                 } elseif ($t->survey->answers && $t->survey->answers->count() > 0) {
-                    // Hitung manual: CSI = (Σ satisfaction*importance / Σ importance) / 5 * 100
                     $wScore = 0;
                     $imp = 0;
                     foreach ($t->survey->answers as $ans) {
@@ -124,6 +138,9 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 '#'.$t->ticket_code,
                 $t->created_at->format('d/m/Y H:i'),
                 $name,
+                $identityNumber,
+                $isGuest,
+                $department,
                 $entity,
                 $t->service->name ?? '-',
                 $t->assignee->name ?? 'Belum Ditugaskan',
@@ -146,10 +163,8 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // -------------------------------------------------------
-                // Baris 1: Judul  (A–N = 14 kolom)
-                // -------------------------------------------------------
-                $sheet->mergeCells('A1:N1');
+                // Baris 1: Judul (A–Q = 17 kolom)
+                $sheet->mergeCells('A1:Q1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
@@ -158,17 +173,15 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
                 // Baris 2: Sub-judul periode
-                $sheet->mergeCells('A2:N2');
+                $sheet->mergeCells('A2:Q2');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // -------------------------------------------------------
-                // Baris 3: Header kolom tabel
-                // -------------------------------------------------------
-                $sheet->getStyle('A3:N3')->applyFromArray([
+                // Baris 3: Header kolom
+                $sheet->getStyle('A3:Q3')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
@@ -176,40 +189,42 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // -------------------------------------------------------
                 // Baris data
-                // -------------------------------------------------------
                 $highestRow = $sheet->getHighestRow();
                 $dataStart = 4;
                 $dataEnd = $highestRow;
 
                 for ($r = $dataStart; $r <= $dataEnd; $r++) {
                     $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
-                    $sheet->getStyle("A{$r}:N{$r}")->applyFromArray([
+                    $sheet->getStyle("A{$r}:Q{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
-                    // Nama rata kiri
+                    // Nama (D) rata kiri
                     $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Layanan & Petugas rata kiri
-                    $sheet->getStyle("F{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    // No. Identitas (E) rata kiri
+                    $sheet->getStyle("E{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    // Fakultas/Unit Kerja (G) rata kiri
                     $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Saran (N) rata kiri + wrap agar teks panjang terbaca
-                    $sheet->getStyle("N{$r}")->getAlignment()
+                    // Layanan (I) & Petugas (J) rata kiri
+                    $sheet->getStyle("I{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    $sheet->getStyle("J{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                    // Saran (Q) rata kiri + wrap
+                    $sheet->getStyle("Q{$r}")->getAlignment()
                         ->setHorizontal(Alignment::HORIZONTAL_LEFT)
                         ->setWrapText(true);
                 }
 
                 // Border luar tabel
-                $sheet->getStyle("A4:N{$dataEnd}")->applyFromArray([
+                $sheet->getStyle("A4:Q{$dataEnd}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
                 $sheet->freezePane('C4');
 
-                // Auto-filter pada header
-                $sheet->setAutoFilter('E3:I3');
+                // Auto-filter: Tamu?(F) s.d. Status(L)
+                $sheet->setAutoFilter('F3:L3');
             },
         ];
     }

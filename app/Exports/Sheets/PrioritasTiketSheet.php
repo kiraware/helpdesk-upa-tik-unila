@@ -108,7 +108,7 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
         foreach ($this->priorities as $p) {
             $pTotal = $data[$p->value]['total'];
             $pDone = $data[$p->value]['done'] ?? 0;
-            $doneRate = $pTotal > 0 ? round(($pDone / $pTotal) * 100, 1).'%' : '0%';
+            $doneRate = $pTotal > 0 ? round(($pDone / $pTotal) * 100, 1) : '0';
 
             $row = [ucfirst($p->value), $pTotal];
             foreach ($this->statuses as $s) {
@@ -120,7 +120,7 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
 
         // Grand total
         $gtDone = $grandStatus['done'] ?? 0;
-        $gtDoneRate = $grandTotal > 0 ? round(($gtDone / $grandTotal) * 100, 1).'%' : '0%';
+        $gtDoneRate = $grandTotal > 0 ? round(($gtDone / $grandTotal) * 100, 1) : '0';
 
         $totalRow = ['TOTAL', $grandTotal];
         foreach ($this->statuses as $s) {

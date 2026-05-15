@@ -47,7 +47,7 @@ class TicketReportExport implements WithMultipleSheets
 
     private function prepareData(): array
     {
-        $tickets = Ticket::with(['service', 'user', 'guestDetail', 'assignee', 'survey.answers'])
+        $tickets = Ticket::with(['service', 'user.department', 'guestDetail.department', 'assignee', 'survey.answers'])
             ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->orderBy('created_at', 'desc')
             ->get();

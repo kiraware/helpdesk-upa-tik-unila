@@ -58,12 +58,12 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
         $no = 1;
         foreach ($this->entityLabels as $key => $label) {
             $cnt = (int) ($this->entityDist[$key] ?? 0);
-            $pct = $total > 0 ? round(($cnt / $total) * 100, 2).'%' : '0%';
+            $pct = $total > 0 ? round(($cnt / $total) * 100, 2) : 0;
             $rows[] = [$no++, $label, $cnt, $pct];
         }
 
         // Baris total
-        $rows[] = ['', 'TOTAL', (int) array_sum($this->entityDist), '100%'];
+        $rows[] = ['', 'TOTAL', (int) array_sum($this->entityDist), 100];
 
         return $rows;
     }
