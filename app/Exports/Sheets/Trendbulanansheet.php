@@ -2,6 +2,7 @@
 
 namespace App\Exports\Sheets;
 
+use App\Models\Service;
 use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
@@ -14,76 +15,97 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, WithTitle
 {
+    protected array $rowMap = [];
+
     public function __construct(
         protected Carbon $startDate,
         protected Carbon $endDate,
-        protected array $monthlyData,
+        protected $tickets,
     ) {}
 
     public function title(): string
     {
-        return '3. Tren Bulanan';
+        return '3. Rekap Bulanan';
     }
 
     public function columnWidths(): array
     {
-        return ['A' => 5, 'B' => 24, 'C' => 16, 'D' => 16, 'E' => 16, 'F' => 20, 'G' => 20];
+        // Hanya Set kolom No & Layanan, sisanya auto
+        return ['A' => 5, 'B' => 30];
     }
 
     public function array(): array
     {
-        $rows = [];
-        $rows[] = ['TREN TIKET BULANAN'];
-        $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
-        $rows[] = [];
-        $rows[] = ['No', 'Bulan', 'Total Tiket', 'Selesai', 'Ditolak', 'Tingkat Selesai (%)', 'Tingkat Tolak (%)'];
-
-        // Tampilkan semua 12 bulan dari tahun referensi (ambil dari startDate atau tahun berjalan).
-        // Jika rentang periode melewati >1 tahun, iterasi per bulan dari startDate s.d. endDate.
-        $current = $this->startDate->copy()->startOfMonth();
-        $end = $this->endDate->copy()->startOfMonth();
-
-        // Pastikan selalu menampilkan minimal Januari–Desember tahun startDate
-        $yearStart = $this->startDate->copy()->startOfYear();
-        $yearEnd = $this->startDate->copy()->endOfYear()->startOfMonth();
-
-        // Jika rentang < 1 tahun dalam tahun yang sama, tampilkan semua bulan di tahun itu
-        if ($this->startDate->year === $this->endDate->year) {
-            $current = $yearStart->copy();
-            $end = $yearEnd->copy();
-        }
-
-        $no = 1;
-        while ($current <= $end) {
-            $key = $current->format('Y-m');
-            $data = $this->monthlyData[$key] ?? ['total' => 0, 'done' => 0, 'reject' => 0];
-            $total = $data['total'] ?: 1;
-
-            $rows[] = [
-                $no++,
-                $current->translatedFormat('F Y'),
-                (int) $data['total'],
-                (int) $data['done'],
-                (int) $data['reject'],
-                round(($data['done'] / $total) * 100, 1),
-                round(($data['reject'] / $total) * 100, 1),
-            ];
-
-            $current->addMonth();
-        }
-
-        // Summary row
-        $grandTotal = array_sum(array_column($this->monthlyData, 'total'));
-        $grandDone = array_sum(array_column($this->monthlyData, 'done'));
-        $grandReject = array_sum(array_column($this->monthlyData, 'reject'));
-        $gt = $grandTotal ?: 1;
-
-        $rows[] = [
-            '', 'TOTAL',
-            $grandTotal, $grandDone, $grandReject,
-            round(($grandDone / $gt) * 100, 1),
-            round(($grandReject / $gt) * 100, 1),
+        $services = Service::all();
+        $year = $this->startDate->year;
+        $months = [
+            1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
+            5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
+            9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December',
         ];
+
+        // Struktur data penampung Tabel
+        $dataT1 = [];
+        $grandTotalsT1 = array_fill(1, 12, 0);
+        $grandTotalsT1['total'] = 0;
+
+        foreach ($services as $service) {
+            $dataT1[$service->id] = array_fill(1, 12, 0);
+            $dataT1[$service->id]['total'] = 0;
+        }
+
+        // Proses Raw Tickets ke dalam matriks per bulan
+        foreach ($this->tickets as $ticket) {
+            $m = $ticket->created_at->month;
+            $sId = $ticket->service_id;
+
+            if (! isset($dataT1[$sId])) {
+                continue;
+            }
+
+            // Update Tabel
+            $dataT1[$sId][$m]++;
+            $dataT1[$sId]['total']++;
+            $grandTotalsT1[$m]++;
+            $grandTotalsT1['total']++;
+        }
+
+        $rows = [];
+
+        // ==========================================
+        // STRUKTUR TABEL REKAP BULANAN
+        // ==========================================
+        $rows[] = ['REKAP TIKET BULANAN']; // Baris 1: Judul Utama
+        $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')]; // Baris 2: Sub-judul
+        $rows[] = []; // Baris 3: Spasi Kosong
+
+        $headerT1 = ['No', 'Layanan'];
+        foreach ($months as $mName) {
+            $headerT1[] = $mName;
+        }
+        $headerT1[] = 'Summary '.$year;
+
+        $this->rowMap['t1_header'] = count($rows) + 1; // Baris 4: Header
+        $rows[] = $headerT1;
+
+        $this->rowMap['t1_start'] = count($rows) + 1; // Baris 5: Data dimulai
+        $no = 1;
+        foreach ($services as $service) {
+            $row = [$no++, $service->name];
+            for ($m = 1; $m <= 12; $m++) {
+                $row[] = $dataT1[$service->id][$m];
+            }
+            $row[] = $dataT1[$service->id]['total'];
+            $rows[] = $row;
+        }
+
+        $rowTotalT1 = ['', 'TOTAL'];
+        for ($m = 1; $m <= 12; $m++) {
+            $rowTotalT1[] = $grandTotalsT1[$m];
+        }
+        $rowTotalT1[] = $grandTotalsT1['total'];
+        $rows[] = $rowTotalT1;
+        $this->rowMap['t1_total'] = count($rows); // Baris terakhir (Total)
 
         return $rows;
     }
@@ -94,66 +116,63 @@ class TrendBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Baris 1: Judul utama
-                $sheet->mergeCells('A1:G1');
+                // Kolom dari A sampai O (15 kolom: No + Layanan + 12 Bulan + Summary)
+
+                // Baris 1: Judul
+                $sheet->mergeCells('A1:O1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '7C3AED']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '065F46']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'vertical' => Alignment::VERTICAL_CENTER],
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
                 // Baris 2: Sub-judul periode
-                $sheet->mergeCells('A2:G2');
+                $sheet->mergeCells('A2:O2');
                 $sheet->getStyle('A2')->applyFromArray([
-                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '6D28D9']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'EDE9FE']],
+                    'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header tabel kolom
-                $sheet->getStyle('A3:G3')->applyFromArray([
-                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '4C1D95']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
+                // Baris 4: Header kolom tabel
+                $t1HRow = 3;
+                $sheet->getStyle('A3:O3')->applyFromArray([
+                    'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
+                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
+                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER, 'wrapText' => true],
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
-                $sheet->getRowDimension(3)->setRowHeight(25);
+                $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Hitung jumlah baris data dari isi sheet.
-                // Baris 1=judul, 2=periode, 3=kosong, 4=header → data mulai baris 5.
-                // Total row = baris terakhir sebelum akhir (ditandai kolom B = 'TOTAL').
-                $highestRow = $sheet->getHighestRow();
-                $dataStart = 4;
-                $dataEnd = $highestRow - 1; // baris data terakhir (sebelum TOTAL)
-                $totalRow = $highestRow;     // baris TOTAL
+                $t1Start = 4;
+                $t1End = $this->rowMap['t1_total'] - 1;
 
-                // Style baris data (baris 5 s.d. dataEnd)
-                for ($r = $dataStart; $r <= $dataEnd; $r++) {
-                    $color = ($r % 2 === 0) ? 'F5F3FF' : 'FFFFFF';
-                    $sheet->getStyle("A{$r}:G{$r}")->applyFromArray([
+                // Zebra striping untuk row data dan row total
+                for ($r = $t1Start; $r <= $t1End; $r++) {
+                    $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
+                    $sheet->getStyle("A{$r}:O{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $color]],
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'E5E7EB']]],
+                        'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
+                    // Kolom Layanan (B) rata kiri
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // Style baris TOTAL (baris terakhir tabel)
-                $sheet->getStyle("A{$totalRow}:G{$totalRow}")->applyFromArray([
-                    'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                    'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '7C3AED']],
-                    'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_MEDIUM]],
-                ]);
-                $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+                // Baris Total (Baris terakhir) Font ditebalkan
+                $sheet->getStyle("A{$t1End}:O{$t1End}")->getFont()->setBold(true);
 
-                // Border luar seluruh tabel (header s.d. total)
-                $sheet->getStyle("A4:G{$totalRow}")->applyFromArray([
-                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '7C3AED']]],
+                // Border luar seluruh tabel (Mulai dari Header sampai Total)
+                $sheet->getStyle("A3:O{$t1End}")->applyFromArray([
+                    'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
-                $sheet->freezePane('A5');
+                // Freeze Panel: Membekukan kolom A dan B, serta baris 1-4 (Header) agar tetap terlihat saat di-scroll
+                $sheet->freezePane('C4');
+
+                // Auto-filter pada header tabel
+                $sheet->setAutoFilter('A3:O3');
             },
         ];
     }

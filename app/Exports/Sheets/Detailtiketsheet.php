@@ -34,13 +34,35 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
         $rows[] = [
             'No', 'Kode Tiket', 'Tanggal Masuk', 'Nama Pemohon', 'Entitas',
             'Layanan', 'Petugas', 'Prioritas', 'Status',
-            'Tgl Ditugaskan', 'Tgl Selesai', 'Durasi (Jam)',
+            'Tgl Ditugaskan', 'Tgl Selesai', 'Durasi', // Ubah nama header di sini
         ];
 
         foreach ($this->tickets as $idx => $t) {
-            $duration = 0;
+            // --- LOGIKA DURASI BARU ---
+            $durationStr = '-';
             if ($t->assigned_at && $t->closed_at) {
-                $duration = $t->assigned_at->diffInHours($t->closed_at);
+                $diffMinutes = $t->assigned_at->diffInMinutes($t->closed_at);
+
+                if ($diffMinutes > 0) {
+                    $days = floor($diffMinutes / 1440);
+                    $hours = floor(($diffMinutes % 1440) / 60);
+                    $mins = $diffMinutes % 60;
+
+                    $parts = [];
+                    if ($days > 0) {
+                        $parts[] = "{$days} hari";
+                    }
+                    if ($hours > 0) {
+                        $parts[] = "{$hours} jam";
+                    }
+                    if ($mins > 0) {
+                        $parts[] = "{$mins} menit";
+                    }
+
+                    $durationStr = implode(' ', $parts) ?: '0 menit';
+                } else {
+                    $durationStr = '0 menit';
+                }
             }
 
             // Determine name
@@ -80,7 +102,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $t->status->name ?? '-',
                 $t->assigned_at ? $t->assigned_at->format('d/m/Y H:i') : '-',
                 $t->closed_at ? $t->closed_at->format('d/m/Y H:i') : '-',
-                $duration,
+                $durationStr, // Gunakan string durasi yang baru di sini
             ];
         }
 
@@ -119,7 +141,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Hitung rentang data dari sheet secara langsung agar selalu akurat
+                // Hitung rentang data dari sheet secara langsung
                 $highestRow = $sheet->getHighestRow();
                 $dataStart = 4;
                 $dataEnd = $highestRow;
@@ -139,14 +161,14 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 }
 
                 // Border luar tabel
-                $sheet->getStyle("A3:L{$dataEnd}")->applyFromArray([
+                $sheet->getStyle("A4:L{$dataEnd}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
-                $sheet->freezePane('A5');
+                $sheet->freezePane('A4');
 
                 // Auto-filter pada header
-                $sheet->setAutoFilter('A3:L4');
+                $sheet->setAutoFilter('A3:L3');
             },
         ];
     }
