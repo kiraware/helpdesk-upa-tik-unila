@@ -103,10 +103,10 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 };
             } elseif ($t->guestDetail) {
                 $entity = match ($t->guestDetail->entity_type?->value ?? '') {
-                    'mahasiswa' => 'Mahasiswa (Tamu)',
-                    'dosen' => 'Dosen (Tamu)',
-                    'tendik' => 'Tendik (Tamu)',
-                    default => 'Tamu',
+                    'mahasiswa' => 'Mahasiswa',
+                    'dosen' => 'Dosen',
+                    'tendik' => 'Tendik',
+                    default => 'Lainnya',
                 };
             }
 

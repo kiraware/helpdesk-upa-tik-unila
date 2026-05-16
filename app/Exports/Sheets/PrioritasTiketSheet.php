@@ -187,7 +187,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
-                    'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
 
                 // Border luar
