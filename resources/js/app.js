@@ -790,4 +790,33 @@ Alpine.data(
     }),
 );
 
+Alpine.data(
+    "notificationManager",
+    (initialCount = 0, initialNotifs = [], fetchUrl = "") => ({
+        notifOpen: false,
+        unreadCount: initialCount,
+        notifications: initialNotifs,
+
+        init() {
+            if (!fetchUrl) return;
+            setInterval(() => {
+                fetch(fetchUrl, {
+                    headers: {
+                        Accept: "application/json",
+                        "X-Requested-With": "XMLHttpRequest",
+                    },
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        this.unreadCount = data.unreadCount;
+                        this.notifications = data.notifications;
+                    })
+                    .catch((err) =>
+                        console.error("Gagal mengambil data notifikasi:", err),
+                    );
+            }, 15000);
+        },
+    }),
+);
+
 Alpine.start();

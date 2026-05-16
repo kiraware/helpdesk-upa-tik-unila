@@ -207,31 +207,3 @@
         </div>
     </div>
 </header>
-
-<script>
-    document.addEventListener('alpine:init', () => {
-        Alpine.data('notificationManager', (initialCount, initialNotifs, fetchUrl) => ({
-            notifOpen: false,
-            unreadCount: initialCount,
-            notifications: initialNotifs,
-
-            init() {
-                setInterval(() => {
-                    fetch(fetchUrl, {
-                            headers: {
-                                'Accept': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            this.unreadCount = data.unreadCount;
-                            this.notifications = data.notifications;
-                        })
-                        .catch(err => console.error('Gagal mengambil data notifikasi:',
-                            err));
-                }, 15000);
-            }
-        }));
-    });
-</script>
