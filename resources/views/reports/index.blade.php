@@ -260,25 +260,16 @@
                  @json($priorityStats)
              )'>
 
-            {{-- ROW 1: Tren & Status --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div
-                    class="lg:col-span-2 p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="font-bold text-lg">Tren Tiket Harian</h3>
-                        <span class="text-xs text-gray-400">{{ $startDate->format('d M') }} —
-                            {{ $endDate->format('d M Y') }}</span>
-                    </div>
-                    <div class="relative h-72">
-                        <canvas id="trendChart"></canvas>
-                    </div>
+            {{-- ROW 1: Tren Tiket Harian (full width) --}}
+            <div
+                class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="font-bold text-lg">Tren Tiket Harian</h3>
+                    <span class="text-xs text-gray-400">{{ $startDate->format('d M') }} —
+                        {{ $endDate->format('d M Y') }}</span>
                 </div>
-                <div
-                    class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                    <h3 class="font-bold text-lg mb-2">Status Tiket</h3>
-                    <div class="h-64 flex items-center justify-center">
-                        <canvas id="statusChart"></canvas>
-                    </div>
+                <div class="relative h-72">
+                    <canvas id="trendChart"></canvas>
                 </div>
             </div>
 
@@ -287,7 +278,8 @@
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                     <h3 class="font-bold text-lg mb-4">Tiket per Layanan</h3>
-                    <div class="overflow-y-auto" style="min-height: 260px;">
+                    @php $serviceCount = count($serviceStats); @endphp
+                    <div class="relative w-full" style="height: {{ max(320, $serviceCount * 44) }}px;">
                         <canvas id="serviceBarChart"></canvas>
                     </div>
                 </div>
@@ -429,8 +421,8 @@
                 </div>
             </div>
 
-            {{-- ROW 4: Prioritas --}}
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- ROW 4: Komposisi Prioritas & Status Tiket berdampingan --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                     <h3 class="font-bold text-lg mb-4">Komposisi Prioritas</h3>
@@ -439,39 +431,46 @@
                     </div>
                 </div>
 
-                {{-- Completion Rate per Layanan (mini table) --}}
                 <div
-                    class="lg:col-span-2 p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
-                    <h3 class="font-bold text-lg mb-4">Tingkat Penyelesaian per Layanan</h3>
-                    <div class="space-y-3">
-                        @foreach ($serviceStats as $svc)
-                            @php
-                                $compRate = $svc['total'] > 0 ? round(($svc['done'] / $svc['total']) * 100, 1) : 0;
-                                $barColor =
-                                    $compRate >= 80
-                                        ? 'bg-emerald-500'
-                                        : ($compRate >= 50
-                                            ? 'bg-blue-500'
-                                            : 'bg-amber-500');
-                            @endphp
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs text-gray-600 dark:text-gray-300 w-36 truncate shrink-0"
-                                    title="{{ $svc['name'] }}">
-                                    {{ $svc['name'] }}
-                                </span>
-                                <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-2.5 overflow-hidden">
-                                    <div class="{{ $barColor }} h-full rounded-full"
+                    class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <h3 class="font-bold text-lg mb-2">Status Tiket</h3>
+                    <div class="h-56 flex items-center justify-center">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ROW 5: Tingkat Penyelesaian per Layanan (full width) --}}
+            <div
+                class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
+                <h3 class="font-bold text-lg mb-4">Tingkat Penyelesaian per Layanan</h3>
+                <div class="space-y-4">
+                    @foreach ($serviceStats as $svc)
+                        @php
+                            $compRate = $svc['total'] > 0 ? round(($svc['done'] / $svc['total']) * 100, 1) : 0;
+                            $barColor =
+                                $compRate >= 80 ? 'bg-emerald-500' : ($compRate >= 50 ? 'bg-blue-500' : 'bg-amber-500');
+                        @endphp
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3">
+                            <span
+                                class="text-xs font-semibold text-gray-600 dark:text-gray-300 sm:w-44 sm:shrink-0 truncate"
+                                title="{{ $svc['name'] }}">
+                                {{ $svc['name'] }}
+                            </span>
+                            <div class="flex items-center gap-2 flex-1 min-w-0">
+                                <div class="flex-1 bg-gray-100 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
+                                    <div class="{{ $barColor }} h-full rounded-full transition-all duration-500"
                                         style="width: {{ $compRate }}%"></div>
                                 </div>
-                                <div class="text-right shrink-0 w-32">
+                                <div class="text-right shrink-0">
                                     <span
                                         class="text-xs font-bold text-gray-700 dark:text-gray-200">{{ $compRate }}%</span>
                                     <span
                                         class="text-[10px] text-gray-400 ml-1">({{ $svc['done'] }}/{{ $svc['total'] }})</span>
                                 </div>
                             </div>
-                        @endforeach
-                    </div>
+                        </div>
+                    @endforeach
                 </div>
             </div>
 

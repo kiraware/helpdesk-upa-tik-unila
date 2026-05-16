@@ -251,10 +251,12 @@ Alpine.data(
             const ctx = document.getElementById("serviceBarChart");
             if (!ctx) return;
 
-            // Dynamically set canvas height based on number of services
+            // Responsive height & thickness based on screen width
+            const isMobile = window.innerWidth < 640;
             const serviceCount = data.services_labels?.length ?? 0;
-            const rowHeight = 42; // px per service row (3 datasets grouped)
-            const minHeight = 260;
+            const rowHeight = isMobile ? 64 : 42; // more space per row on mobile
+            const barThick = isMobile ? 14 : 10;
+            const minHeight = isMobile ? 320 : 260;
             const computedHeight = Math.max(
                 minHeight,
                 serviceCount * rowHeight + 60,
@@ -271,21 +273,21 @@ Alpine.data(
                             data: data.services_totals,
                             backgroundColor: "#8b5cf6",
                             borderRadius: 4,
-                            barThickness: 10,
+                            barThickness: barThick,
                         },
                         {
                             label: "Selesai",
                             data: data.services_done ?? [],
                             backgroundColor: "#10b981",
                             borderRadius: 4,
-                            barThickness: 10,
+                            barThickness: barThick,
                         },
                         {
                             label: "Ditolak",
                             data: data.services_reject ?? [],
                             backgroundColor: "#ef4444",
                             borderRadius: 4,
-                            barThickness: 10,
+                            barThickness: barThick,
                         },
                     ],
                 },
@@ -324,14 +326,15 @@ Alpine.data(
                                 color: this.getTextColor(),
                                 stepSize: 1,
                                 precision: 0,
+                                maxTicksLimit: isMobile ? 5 : 10,
                             },
                         },
                         y: {
                             grid: { display: false },
                             ticks: {
                                 color: this.getTextColor(),
-                                font: { size: 11 },
-                                padding: 4,
+                                font: { size: isMobile ? 10 : 11 },
+                                padding: isMobile ? 6 : 4,
                             },
                         },
                     },
@@ -661,8 +664,7 @@ Alpine.data(
                         {
                             data: values,
                             backgroundColor: bgColors,
-                            borderWidth: 2,
-                            borderColor: this.isDark ? "#1e293b" : "#ffffff",
+                            borderWidth: 0,
                             hoverOffset: 8,
                         },
                     ],
@@ -676,26 +678,7 @@ Alpine.data(
                                 usePointStyle: true,
                                 pointStyle: "circle",
                                 padding: 16,
-                                font: { size: 12, weight: "bold" },
-                                generateLabels: (chart) => {
-                                    const data = chart.data;
-                                    const total =
-                                        data.datasets[0].data.reduce(
-                                            (a, b) => a + b,
-                                            0,
-                                        ) || 1;
-                                    return data.labels.map((label, i) => ({
-                                        text: `${label}  ${data.datasets[0].data[i]} (${Math.round((data.datasets[0].data[i] / total) * 100)}%)`,
-                                        fillStyle:
-                                            data.datasets[0].backgroundColor[i],
-                                        strokeStyle:
-                                            data.datasets[0].backgroundColor[i],
-                                        fontColor: this.getTextColor(),
-                                        pointStyle: "circle",
-                                        index: i,
-                                        hidden: false,
-                                    }));
-                                },
+                                font: { size: 11 },
                             },
                         },
                         tooltip: {
