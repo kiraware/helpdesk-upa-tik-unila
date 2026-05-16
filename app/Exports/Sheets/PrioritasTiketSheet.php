@@ -24,6 +24,14 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
         'high' => 'EF4444',
     ];
 
+    /** Warna aksen header per status */
+    private array $statusColors = [
+        'waiting' => 'F59E0B',
+        'progress' => '3B82F6',
+        'done' => '10B981',
+        'reject' => 'EF4444',
+    ];
+
     private array $priorities = [];
 
     private array $statuses = [];
@@ -108,7 +116,8 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
         foreach ($this->priorities as $p) {
             $pTotal = $data[$p->value]['total'];
             $pDone = $data[$p->value]['done'] ?? 0;
-            $doneRate = $pTotal > 0 ? round(($pDone / $pTotal) * 100, 1) : '0';
+            $pReject = $data[$p->value]['reject'] ?? 0;
+            $doneRate = $pTotal > 0 ? round((($pDone + $pReject) / $pTotal) * 100, 1) : '0';
 
             $row = [ucfirst($p->value), $pTotal];
             foreach ($this->statuses as $s) {
@@ -120,7 +129,8 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
 
         // Grand total
         $gtDone = $grandStatus['done'] ?? 0;
-        $gtDoneRate = $grandTotal > 0 ? round(($gtDone / $grandTotal) * 100, 1) : '0';
+        $gtReject = $grandStatus['reject'] ?? 0;
+        $gtDoneRate = $grandTotal > 0 ? round((($gtDone + $gtReject) / $grandTotal) * 100, 1) : '0';
 
         $totalRow = ['TOTAL', $grandTotal];
         foreach ($this->statuses as $s) {
@@ -168,6 +178,17 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
+
+                // Warna aksen per kolom status pada header (kolom C dan seterusnya, setelah Prioritas + Total)
+                $statusColIdx = 3; // kolom C = index 3
+                foreach ($this->statuses as $status) {
+                    $colLetter = Coordinate::stringFromColumnIndex($statusColIdx);
+                    $hex = $this->statusColors[$status->value] ?? '6B7280';
+                    $sheet->getStyle("{$colLetter}3")->applyFromArray([
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $hex]],
+                    ]);
+                    $statusColIdx++;
+                }
 
                 // Baris data: 4 s.d. rt-1
                 $dataStart = 4;

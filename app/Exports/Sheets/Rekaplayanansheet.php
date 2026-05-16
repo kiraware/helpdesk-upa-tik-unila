@@ -28,6 +28,14 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
 
     private array $entities = [];
 
+    /** Warna aksen header per status */
+    private array $statusColors = [
+        'waiting' => 'F59E0B',
+        'progress' => '3B82F6',
+        'done' => '10B981',
+        'reject' => 'EF4444',
+    ];
+
     public function __construct(
         protected Carbon $startDate,
         protected Carbon $endDate,
@@ -167,6 +175,17 @@ class RekapLayananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
+
+                // Warna aksen per kolom status pada header (kolom D dan seterusnya, setelah No + Layanan + Total)
+                $statusColIdx = 4; // kolom D = index 4
+                foreach ($this->statuses as $status) {
+                    $colLetter = Coordinate::stringFromColumnIndex($statusColIdx);
+                    $hex = $this->statusColors[$status->value] ?? '6B7280';
+                    $sheet->getStyle("{$colLetter}{$rh}")->applyFromArray([
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $hex]],
+                    ]);
+                    $statusColIdx++;
+                }
 
                 // Zebra Striping & Data Style
                 for ($r = $this->rowDataStart; $r <= $rt; $r++) {

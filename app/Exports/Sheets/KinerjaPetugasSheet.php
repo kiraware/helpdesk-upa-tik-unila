@@ -14,6 +14,13 @@ use PhpOffice\PhpSpreadsheet\Style\Fill;
 
 class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, WithTitle
 {
+    /** Warna aksen header kolom tiket */
+    private array $columnColors = [
+        'assigned' => '3B82F6',  // Ditugaskan — biru (progress)
+        'done' => '10B981',  // Selesai — hijau (done)
+        'reject' => 'EF4444',  // Ditolak — merah (reject)
+    ];
+
     public function __construct(
         protected Carbon $startDate,
         protected Carbon $endDate,
@@ -104,6 +111,13 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                     'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN]],
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
+
+                // Warna aksen kolom Ditugaskan (C), Selesai (D), Ditolak (E)
+                foreach (['C' => 'assigned', 'D' => 'done', 'E' => 'reject'] as $col => $key) {
+                    $sheet->getStyle("{$col}3")->applyFromArray([
+                        'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => $this->columnColors[$key]]],
+                    ]);
+                }
 
                 // ── Baris data ──────────────────────────────────────────
                 $highestRow = $sheet->getHighestRow();

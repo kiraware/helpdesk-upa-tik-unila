@@ -174,6 +174,7 @@ class TicketReportExport implements WithMultipleSheets
                 $ts = $user->assignedTickets;
                 $total = $ts->count();
                 $done = $ts->where('status', TicketStatus::DONE)->count();
+                $reject = $ts->where('status', TicketStatus::REJECT)->count();
 
                 $times = $ts->whereNotNull('assigned_at')->whereNotNull('closed_at')
                     ->map(fn ($t) => $t->assigned_at->diffInMinutes($t->closed_at));
@@ -198,7 +199,7 @@ class TicketReportExport implements WithMultipleSheets
                     $avgTimeStr = implode(' ', $parts) ?: '0 menit';
                 }
 
-                $rate = $total > 0 ? round(($done / $total) * 100) : 0;
+                $rate = $total > 0 ? round((($done + $reject) / $total) * 100) : 0;
 
                 $wScore = 0;
                 $imp = 0;

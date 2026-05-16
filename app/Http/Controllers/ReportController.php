@@ -34,7 +34,7 @@ class ReportController extends Controller
             'reject' => (clone $ticketsQuery)->where('status', TicketStatus::REJECT)->count(),
         ];
         $stats['completion_rate'] = $stats['total'] > 0
-            ? round(($stats['done'] / $stats['total']) * 100, 1) : 0;
+            ? round((($stats['done'] + $stats['reject']) / $stats['total']) * 100, 1) : 0;
 
         // --- 3. DATA TREN HARIAN & STATUS ---
         $currentDate = $startDate->copy();
@@ -123,7 +123,7 @@ class ReportController extends Controller
         // Hitung completion rate per layanan
         foreach ($serviceStats as &$svc) {
             $svc['completion_rate'] = $svc['total'] > 0
-                ? round(($svc['done'] / $svc['total']) * 100, 1) : 0;
+                ? round((($svc['done'] + $svc['reject']) / $svc['total']) * 100, 1) : 0;
         }
         unset($svc);
 
@@ -186,6 +186,7 @@ class ReportController extends Controller
                 $assignedTickets = $user->assignedTickets;
                 $totalCount = $assignedTickets->count();
                 $doneCount = $assignedTickets->where('status', TicketStatus::DONE)->count();
+                $rejectCount = $assignedTickets->where('status', TicketStatus::REJECT)->count();
 
                 $userTimes = $assignedTickets
                     ->whereNotNull('assigned_at')
@@ -193,7 +194,7 @@ class ReportController extends Controller
                     ->map(fn ($t) => $t->assigned_at->diffInHours($t->closed_at));
 
                 $avgUserTime = $userTimes->count() > 0 ? round($userTimes->avg(), 1) : 0;
-                $rate = $totalCount > 0 ? round(($doneCount / $totalCount) * 100) : 0;
+                $rate = $totalCount > 0 ? round((($doneCount + $rejectCount) / $totalCount) * 100) : 0;
 
                 $staffWeightScore = 0;
                 $staffImportance = 0;

@@ -588,7 +588,9 @@
                         @forelse ($serviceStats as $service)
                             @php
                                 $cr =
-                                    $service['total'] > 0 ? round(($service['done'] / $service['total']) * 100, 1) : 0;
+                                    $service['total'] > 0
+                                        ? round((($service['done'] + $service['reject']) / $service['total']) * 100, 1)
+                                        : 0;
                                 $crColor =
                                     $cr >= 80 ? 'text-emerald-600' : ($cr >= 50 ? 'text-blue-600' : 'text-amber-600');
                                 $sharePct = round(($service['total'] / $grandTotal) * 100, 1);
@@ -650,7 +652,12 @@
                         }
 
                         $totalDone =
-                            $totals['total'] > 0 ? round((($totals['done'] ?? 0) / $totals['total']) * 100, 1) : 0;
+                            $totals['total'] > 0
+                                ? round(
+                                    ((($totals['done'] ?? 0) + ($totals['reject'] ?? 0)) / $totals['total']) * 100,
+                                    1,
+                                )
+                                : 0;
                     @endphp
                     <tfoot
                         class="bg-gray-100 dark:bg-slate-700/60 text-xs font-bold uppercase text-gray-600 dark:text-gray-300">

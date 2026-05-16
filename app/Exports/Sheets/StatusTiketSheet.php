@@ -77,7 +77,8 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
         foreach ($this->reportData as $idx => $item) {
             $total = (int) $item['total'];
             $done = (int) ($item['statuses']['done'] ?? 0);
-            $doneRate = $total > 0 ? round(($done / $total) * 100, 1) : '0';
+            $reject = (int) ($item['statuses']['reject'] ?? 0);
+            $doneRate = $total > 0 ? round((($done + $reject) / $total) * 100, 1) : '0';
 
             $row = [$idx + 1, $item['name'], $total];
             foreach ($this->statuses as $status) {
@@ -90,7 +91,8 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
         // Baris total
         $gtTotal = (int) ($gt['total'] ?? 0);
         $gtDone = (int) ($gt['statuses']['done'] ?? 0);
-        $gtDoneRate = $gtTotal > 0 ? round(($gtDone / $gtTotal) * 100, 1) : '0';
+        $gtReject = (int) ($gt['statuses']['reject'] ?? 0);
+        $gtDoneRate = $gtTotal > 0 ? round((($gtDone + $gtReject) / $gtTotal) * 100, 1) : '0';
 
         $totalRow = ['', 'TOTAL', $gtTotal];
         foreach ($this->statuses as $status) {
