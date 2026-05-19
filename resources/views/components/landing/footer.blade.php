@@ -37,23 +37,23 @@
                     <li>
                         <a href="https://uptltsit.unila.ac.id/" target="_blank"
                             class="text-sm text-muted-light dark:text-muted-dark hover:text-brand transition-colors">
-                            UPA Laboratorium Terpadu
+                            UPA Laboratorium Terpadu dan Sentra Inovasi Teknologi
                         </a>
                     </li>
                     <li>
                         <a href="https://cced.unila.ac.id/" target="_blank"
                             class="text-sm text-muted-light dark:text-muted-dark hover:text-brand transition-colors">
-                            UPA PKK
+                            UPA Pengembangan Karir dan Kewirausahaan
                         </a>
                     </li>
                     <li>
-                        <a href="#"
+                        <a href="https://upa-bk.unila.ac.id/" target="_blank"
                             class="text-sm text-muted-light dark:text-muted-dark hover:text-brand transition-colors">
                             UPA Bimbingan dan Konseling
                         </a>
                     </li>
                     <li>
-                        <a href="#"
+                        <a href="https://upa-luk.unila.ac.id/" target="_blank"
                             class="text-sm text-muted-light dark:text-muted-dark hover:text-brand transition-colors">
                             UPA Layanan Uji Kompetensi
                         </a>

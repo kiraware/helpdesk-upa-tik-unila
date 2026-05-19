@@ -19,6 +19,19 @@ use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureSurveyCompleted;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/sitemap.xml', function () {
+    $urls = [
+        ['loc' => url('/'),              'priority' => '1.0', 'changefreq' => 'monthly'],
+        ['loc' => url('/faq'),           'priority' => '0.8', 'changefreq' => 'monthly'],
+        ['loc' => url('/tracking'),      'priority' => '0.6', 'changefreq' => 'yearly'],
+        ['loc' => url('/create-ticket'), 'priority' => '0.7', 'changefreq' => 'yearly'],
+    ];
+
+    return response()
+        ->view('sitemap', ['urls' => $urls])
+        ->header('Content-Type', 'application/xml');
+})->name('sitemap');
+
 Route::get('/', function () {
     return view('welcome');
 });
