@@ -7,6 +7,7 @@ use App\Enums\TicketStatus;
 use App\Enums\UserEntity;
 use App\Enums\UserRole;
 use App\Exports\TicketReportExport;
+use App\Helpers\OffHoursHelper;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
@@ -19,7 +20,7 @@ class ReportController extends Controller
     public function index(Request $request)
     {
         // --- 1. FILTER RENTANG WAKTU & PERIODE ---
-        $period = $request->period ?? 'custom'; // daily, weekly, monthly, yearly, custom
+        $period = $request->period ?? 'custom';
 
         [$startDate, $endDate] = $this->resolveDateRange($request, $period);
 
@@ -36,7 +37,7 @@ class ReportController extends Controller
         $stats['completion_rate'] = $stats['total'] > 0
             ? round((($stats['done'] + $stats['reject']) / $stats['total']) * 100, 1) : 0;
 
-        // --- 3. DATA TREN HARIAN & STATUS ---
+        // --- 3. DATA TREN HARIAN ---
         $currentDate = $startDate->copy();
         $periodMap = collect();
         while ($currentDate <= $endDate) {
@@ -53,11 +54,10 @@ class ReportController extends Controller
         $dailyTrend = array_merge($periodMap->toArray(), $rawData);
         ksort($dailyTrend);
 
-        // --- 4. TREN MINGGUAN & BULANAN untuk chart tambahan ---
+        // --- 4. TREN MINGGUAN & BULANAN ---
         $weeklyTrend = $this->buildWeeklyTrend($ticketsQuery, $startDate, $endDate);
         $monthlyTrend = $this->buildMonthlyTrend($ticketsQuery, $startDate, $endDate);
 
-        // Convert monthlyTrend to label=>count for backward compat with blade table
         $monthlyTrendFlat = array_combine(
             array_map(fn ($v) => $v['label'], $monthlyTrend),
             array_map(fn ($v) => $v['total'], $monthlyTrend)
@@ -120,7 +120,6 @@ class ReportController extends Controller
 
         usort($serviceStats, fn ($a, $b) => $b['total'] <=> $a['total']);
 
-        // Hitung completion rate per layanan
         foreach ($serviceStats as &$svc) {
             $svc['completion_rate'] = $svc['total'] > 0
                 ? round((($svc['done'] + $svc['reject']) / $svc['total']) * 100, 1) : 0;
@@ -175,8 +174,8 @@ class ReportController extends Controller
             default => 'Belum Ada Data',
         };
 
-        // --- 7. KINERJA PER STAFF ---
-        $staffPerformance = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
+        // --- 7. KINERJA PER STAFF (dengan bonus dedikasi off-hours) ---
+        $staffRaw = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
             ->with(['assignedTickets' => function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('created_at', [$startDate, $endDate])
                     ->with('survey.answers');
@@ -188,14 +187,18 @@ class ReportController extends Controller
                 $doneCount = $assignedTickets->where('status', TicketStatus::DONE)->count();
                 $rejectCount = $assignedTickets->where('status', TicketStatus::REJECT)->count();
 
+                // Waktu resolusi rata-rata (dalam jam, bukan menit — sesuai tampilan blade lama)
                 $userTimes = $assignedTickets
                     ->whereNotNull('assigned_at')
                     ->whereNotNull('closed_at')
                     ->map(fn ($t) => $t->assigned_at->diffInHours($t->closed_at));
 
                 $avgUserTime = $userTimes->count() > 0 ? round($userTimes->avg(), 1) : 0;
-                $rate = $totalCount > 0 ? round((($doneCount + $rejectCount) / $totalCount) * 100) : 0;
+                $rate = $totalCount > 0
+                    ? round((($doneCount + $rejectCount) / $totalCount) * 100)
+                    : 0;
 
+                // CSI dari survei (murni, tidak dipengaruhi off-hours)
                 $staffWeightScore = 0;
                 $staffImportance = 0;
                 $surveyCount = 0;
@@ -212,13 +215,15 @@ class ReportController extends Controller
 
                 $staffCSI = 0;
                 $staffStar = 0;
-
                 if ($staffImportance > 0) {
                     $staffStar = $staffWeightScore / $staffImportance;
                     $staffCSI = ($staffStar / 5) * 100;
                 }
 
-                return (object) [
+                // ── Hitung bonus dedikasi off-hours ──────────────────
+                $dedikasiData = OffHoursHelper::calcDedikasi($assignedTickets);
+
+                return [
                     'name' => $user->name,
                     'avatar' => $user->avatar_path,
                     'assigned' => $totalCount,
@@ -228,16 +233,34 @@ class ReportController extends Controller
                     'rating_star' => round($staffStar, 2),
                     'csi_score' => round($staffCSI, 2),
                     'survey_count' => $surveyCount,
+                    // Data dedikasi (akan dipakai untuk normalisasi antar-staf)
+                    'csi' => round($staffCSI, 2),   // alias untuk applyRankingScore()
+                    'raw_points' => $dedikasiData['raw_points'],
+                    'weekend_tickets' => $dedikasiData['weekend_count'],
+                    'offhour_tickets' => $dedikasiData['offhour_count'],
+                    'onhour_tickets' => $dedikasiData['onhour_count'],
                 ];
             })
-            ->sort(function ($a, $b) {
-                if ($a->csi_score == $b->csi_score) {
-                    return $b->done <=> $a->done;
-                }
+            ->values()
+            ->toArray();
 
-                return $b->csi_score <=> $a->csi_score;
-            })
-            ->values();
+        // Normalisasi bonus & hitung ranking_score gabungan
+        $staffRaw = OffHoursHelper::applyRankingScore($staffRaw);
+
+        // Sort: ranking_score DESC → CSI DESC (tie-breaker) → done DESC
+        usort($staffRaw, function ($a, $b) {
+            if ($a['ranking_score'] !== $b['ranking_score']) {
+                return $b['ranking_score'] <=> $a['ranking_score'];
+            }
+            if ($a['csi_score'] !== $b['csi_score']) {
+                return $b['csi_score'] <=> $a['csi_score'];
+            }
+
+            return $b['done'] <=> $a['done'];
+        });
+
+        // Konversi ke object supaya blade tidak perlu diubah besar-besaran
+        $staffPerformance = collect(array_map(fn ($s) => (object) $s, $staffRaw));
 
         // --- 8. STATISTIK DURASI RESOLUSI (histogram) ---
         $durationStats = $this->buildDurationStats($allTickets);
@@ -249,7 +272,6 @@ class ReportController extends Controller
             ->pluck('count', 'priority')
             ->toArray();
 
-        // --- ENUM CASES untuk view dinamis ---
         $ticketStatuses = TicketStatus::cases();
         $userEntities = UserEntity::cases();
 
@@ -283,23 +305,11 @@ class ReportController extends Controller
         $now = Carbon::now();
 
         return match ($period) {
-            'daily' => [
-                $now->copy()->startOfDay(),
-                $now->copy()->endOfDay(),
-            ],
-            'weekly' => [
-                $now->copy()->startOfWeek(),
-                $now->copy()->endOfWeek(),
-            ],
-            'monthly' => [
-                $now->copy()->startOfMonth(),
-                $now->copy()->endOfMonth(),
-            ],
-            'yearly' => [
-                $now->copy()->startOfYear(),
-                $now->copy()->endOfYear(),
-            ],
-            default => [ // custom
+            'daily' => [$now->copy()->startOfDay(), $now->copy()->endOfDay()],
+            'weekly' => [$now->copy()->startOfWeek(), $now->copy()->endOfWeek()],
+            'monthly' => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
+            'yearly' => [$now->copy()->startOfYear(), $now->copy()->endOfYear()],
+            default => [
                 $request->start_date
                     ? Carbon::parse($request->start_date)->startOfDay()
                     : $now->copy()->startOfMonth(),
@@ -313,7 +323,6 @@ class ReportController extends Controller
     private function buildWeeklyTrend($baseQuery, Carbon $startDate, Carbon $endDate): array
     {
         $raw = (clone $baseQuery)
-            // Use to_char for Postgres instead of YEARWEEK
             ->selectRaw("to_char(created_at, 'IYYYIW') as yw, MIN(DATE(created_at)) as week_start, COUNT(*) as count")
             ->groupBy('yw')
             ->orderBy('yw')
@@ -349,7 +358,6 @@ class ReportController extends Controller
         }
         ksort($result);
 
-        // Return as flat arrays for chartData
         return $result;
     }
 
