@@ -6,6 +6,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketStatus;
 use App\Enums\UserEntity;
 use App\Enums\UserRole;
+use App\Helpers\OffHoursHelper;
 use App\Models\Service;
 use App\Models\Ticket;
 use App\Models\User;
@@ -90,12 +91,10 @@ class TicketReportExport implements WithMultipleSheets
             if (isset($reportData[$serviceId])) {
                 $reportData[$serviceId]['total']++;
                 if ($ticket->status) {
-                    $statusKey = $ticket->status->value;
-                    $reportData[$serviceId]['statuses'][$statusKey]++;
+                    $reportData[$serviceId]['statuses'][$ticket->status->value]++;
                 }
             }
 
-            // Entity detection
             $entityCode = 'lainnya';
             if ($ticket->user) {
                 $entityCode = match ($ticket->user->entity) {
@@ -119,11 +118,7 @@ class TicketReportExport implements WithMultipleSheets
             if (isset($reportData[$serviceId])) {
                 $reportData[$serviceId]['entities'][$entityCode]++;
 
-                if (
-                    $ticket->survey &&
-                    $ticket->survey->answers &&
-                    $ticket->survey->answers->count() > 0
-                ) {
+                if ($ticket->survey && $ticket->survey->answers && $ticket->survey->answers->count() > 0) {
                     $reportData[$serviceId]['_survey_count']++;
                     foreach ($ticket->survey->answers as $ans) {
                         if ($ans->satisfaction_score === null || $ans->importance_score === null) {
@@ -138,14 +133,11 @@ class TicketReportExport implements WithMultipleSheets
             $entityDist[$entityCode]++;
         }
 
-        // Hitung CSI final per layanan
         foreach ($reportData as &$svc) {
             $imp = (float) $svc['_csi_imp'];
             $wScore = (float) $svc['_csi_wScore'];
-
             $svc['csi'] = $imp > 0 ? round(($wScore / $imp / 5) * 100, 2) : 0;
             $svc['survey_count'] = $svc['_survey_count'];
-
             unset($svc['_csi_wScore'], $svc['_csi_imp'], $svc['_survey_count']);
         }
         unset($svc);
@@ -163,8 +155,8 @@ class TicketReportExport implements WithMultipleSheets
         }
         unset($grandTotals['_csi_wScore'], $grandTotals['_csi_imp']);
 
-        // Staff data
-        $staffData = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
+        // ── Staff data dengan off-hours bonus ──────────────────────────
+        $staffRaw = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
             ->with(['assignedTickets' => function ($q) {
                 $q->whereBetween('created_at', [$this->startDate, $this->endDate])
                     ->with('survey.answers');
@@ -176,11 +168,11 @@ class TicketReportExport implements WithMultipleSheets
                 $done = $ts->where('status', TicketStatus::DONE)->count();
                 $reject = $ts->where('status', TicketStatus::REJECT)->count();
 
+                // Rata-rata waktu dalam menit (untuk string deskriptif di Excel)
                 $times = $ts->whereNotNull('assigned_at')->whereNotNull('closed_at')
                     ->map(fn ($t) => $t->assigned_at->diffInMinutes($t->closed_at));
 
                 $avgMinutes = $times->count() > 0 ? (int) round($times->avg()) : 0;
-
                 $avgTimeStr = '0 menit';
                 if ($avgMinutes > 0) {
                     $days = floor($avgMinutes / 1440);
@@ -201,6 +193,7 @@ class TicketReportExport implements WithMultipleSheets
 
                 $rate = $total > 0 ? round((($done + $reject) / $total) * 100) : 0;
 
+                // CSI murni dari survei
                 $wScore = 0;
                 $imp = 0;
                 $surveys = 0;
@@ -221,21 +214,40 @@ class TicketReportExport implements WithMultipleSheets
                 $star = $imp > 0 ? $wScore / $imp : 0;
                 $csi = $imp > 0 ? ($star / 5) * 100 : 0;
 
+                // Hitung bonus off-hours
+                $dedikasiData = OffHoursHelper::calcDedikasi($ts);
+
                 return [
                     'name' => $user->name,
                     'assigned' => (int) $total,
                     'done' => (int) $done,
-                    'reject' => (int) $ts->where('status', TicketStatus::REJECT)->count(),
+                    'reject' => (int) $reject,
                     'rate' => (int) $rate,
                     'avg_time' => $avgTimeStr,
                     'star' => round($star, 2),
                     'csi' => round($csi, 2),
                     'surveys' => (int) $surveys,
+                    'raw_points' => $dedikasiData['raw_points'],
+                    'weekend_tickets' => $dedikasiData['weekend_count'],
+                    'offhour_tickets' => $dedikasiData['offhour_count'],
                 ];
             })
-            ->sortByDesc('csi')
             ->values()
             ->toArray();
+
+        // Terapkan normalisasi bonus & ranking_score
+        $staffRaw = OffHoursHelper::applyRankingScore($staffRaw);
+
+        // Sort berdasarkan ranking_score gabungan (bukan raw CSI)
+        usort($staffRaw, function ($a, $b) {
+            if ($a['ranking_score'] !== $b['ranking_score']) {
+                return $b['ranking_score'] <=> $a['ranking_score'];
+            }
+
+            return $b['csi'] <=> $a['csi'];
+        });
+
+        $staffData = array_values($staffRaw);
 
         return [$tickets, $reportData, $grandTotals, $entityDist, $staffData];
     }

@@ -735,8 +735,24 @@
             class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
             <div class="p-6 border-b border-gray-100 dark:border-gray-800">
                 <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Papan Peringkat Kinerja Petugas</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Diurutkan berdasarkan skor kepuasan (CSI)
-                    tertinggi.</p>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+                    Diurutkan berdasarkan <span class="font-semibold text-blue-600 dark:text-blue-400">Skor
+                        Ranking</span>
+                    = CSI (85%) + Dedikasi Luar Jam (15%).
+                    CSI tetap murni dari survei pengguna.
+                </p>
+                <div class="flex flex-wrap gap-3 mt-3 text-xs">
+                    <span
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 font-medium border border-violet-200 dark:border-violet-700">
+                        <span class="w-2 h-2 rounded-full bg-violet-500"></span>
+                        Tiket hari libur / weekend = +2 poin dedikasi
+                    </span>
+                    <span
+                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 font-medium border border-amber-200 dark:border-amber-700">
+                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                        Tiket di luar jam kerja (weekday) = +1 poin dedikasi
+                    </span>
+                </div>
             </div>
             <div class="overflow-x-auto w-full">
                 <table class="w-full text-sm text-left whitespace-nowrap">
@@ -751,6 +767,8 @@
                             <th class="px-6 py-4 text-center w-1/5">Efektivitas</th>
                             <th class="px-6 py-4 text-center">Rating ⭐</th>
                             <th class="px-6 py-4 text-center">Skor CSI</th>
+                            <th class="px-6 py-4 text-center">Dedikasi 🌙</th>
+                            <th class="px-6 py-4 text-center">Skor Ranking</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
@@ -776,7 +794,7 @@
                                                 {{ $staff->name }}</p>
                                             <p class="text-[10px] text-gray-400">{{ $staff->survey_count }} survei
                                                 diterima</p>
-                                            @if ($idx === 0 && $staff->csi_score > 80)
+                                            @if ($idx === 0 && ($staff->ranking_score ?? $staff->csi_score) > 80)
                                                 <span
                                                     class="text-[10px] bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full font-bold border border-yellow-200 inline-flex items-center gap-1 mt-1">
                                                     Pelayanan Terbaik
@@ -830,10 +848,50 @@
                                         {{ number_format($staff->csi_score, 2) }}%
                                     </span>
                                 </td>
+
+                                {{-- Kolom Dedikasi --}}
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex flex-col items-center gap-1">
+                                        @if (($staff->weekend_tickets ?? 0) > 0)
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-300 text-[10px] font-bold border border-violet-200 dark:border-violet-700">
+                                                🗓️ {{ $staff->weekend_tickets }} libur
+                                            </span>
+                                        @endif
+                                        @if (($staff->offhour_tickets ?? 0) > 0)
+                                            <span
+                                                class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300 text-[10px] font-bold border border-amber-200 dark:border-amber-700">
+                                                🌙 {{ $staff->offhour_tickets }} luar jam
+                                            </span>
+                                        @endif
+                                        @if (($staff->weekend_tickets ?? 0) === 0 && ($staff->offhour_tickets ?? 0) === 0)
+                                            <span class="text-gray-300 dark:text-gray-600 text-xs">—</span>
+                                        @endif
+                                    </div>
+                                </td>
+
+                                {{-- Kolom Skor Ranking --}}
+                                <td class="px-6 py-4 text-center">
+                                    @php
+                                        $rs = $staff->ranking_score ?? $staff->csi_score;
+                                        $rsColor = match (true) {
+                                            $rs >= 80 => 'bg-blue-600 text-white',
+                                            $rs >= 60
+                                                => 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
+                                            $rs >= 40
+                                                => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
+                                            default => 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400',
+                                        };
+                                    @endphp
+                                    <span
+                                        class="px-3 py-1 rounded-full text-sm font-black border-0 {{ $rsColor }}">
+                                        {{ number_format($rs, 2) }}
+                                    </span>
+                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="px-6 py-12 text-center text-gray-400">
+                                <td colspan="10" class="px-6 py-12 text-center text-gray-400">
                                     <span class="material-icons-round text-4xl mb-2 opacity-50">search_off</span>
                                     <p>Tidak ada data kinerja petugas pada periode ini.</p>
                                 </td>

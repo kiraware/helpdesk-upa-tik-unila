@@ -80,7 +80,51 @@ class TicketController extends Controller
                 }
             })
 
-            ->latest()
+            // -------------------------------------------------------------------------
+            // ORDERING STRATEGY
+            //
+            // Tujuan: Tiket yang paling butuh perhatian muncul paling atas.
+            //
+            // 1. Status (aktif dulu, selesai belakangan):
+            //    waiting(0) → progress(1) → done(2) → reject(3)
+            //
+            // 2. Priority dalam status aktif (waiting/progress):
+            //    high(0) → medium(1) → low(2)
+            //    Tiket closed tidak perlu diurutkan berdasarkan priority.
+            //
+            // 3. Waktu buat:
+            //    - Tiket aktif  → terlama di atas (sudah nunggu paling lama)
+            //    - Tiket closed → terbaru di atas (riwayat terkini lebih relevan)
+            // -------------------------------------------------------------------------
+            ->orderByRaw("
+                CASE status
+                    WHEN 'waiting'  THEN 0
+                    WHEN 'progress' THEN 1
+                    WHEN 'done'     THEN 2
+                    WHEN 'reject'   THEN 3
+                    ELSE 4
+                END ASC
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN status IN ('waiting', 'progress') THEN
+                        CASE priority
+                            WHEN 'high'   THEN 0
+                            WHEN 'medium' THEN 1
+                            WHEN 'low'    THEN 2
+                            ELSE 3
+                        END
+                    ELSE 0
+                END ASC
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN status IN ('waiting', 'progress') THEN EXTRACT(EPOCH FROM created_at)
+                    ELSE NULL
+                END ASC NULLS LAST
+            ")
+            ->orderBy('created_at', 'desc')
+
             ->paginate(10)
             ->withQueryString();
 

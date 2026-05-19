@@ -1,2 +1,31 @@
 User-agent: *
-Disallow:
+
+Allow: /$
+Allow: /faq
+Allow: /tracking
+Allow: /create-ticket
+
+Disallow: /dashboard
+Disallow: /tickets
+Disallow: /profile
+Disallow: /notifications
+Disallow: /reports
+Disallow: /users
+Disallow: /services
+Disallow: /divisions
+Disallow: /departments
+Disallow: /configurations
+Disallow: /sso-users
+
+Disallow: /api/
+
+Disallow: /login
+Disallow: /logout
+
+Disallow: /tracking/
+
+Disallow: /storage/
+Disallow: /.env
+Disallow: /vendor/
+
+Sitemap: https://helpdesktik.unila.ac.id/sitemap.xml

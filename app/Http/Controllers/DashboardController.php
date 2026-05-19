@@ -61,20 +61,27 @@ class DashboardController extends Controller
                 'service',
                 'guestDetail',
             ])
-                ->withCount('comments') // <-- TAMBAHAN
+                ->withCount('comments')
                 ->where(function ($q) {
                     $q->whereNull('assigned_to')
                         ->orWhere('status', TicketStatus::WAITING);
                 })
                 ->orderByRaw("
-                    CASE priority
-                        WHEN 'high' THEN 1
-                        WHEN 'medium' THEN 2
-                        WHEN 'low' THEN 3
-                        ELSE 4
-                    END
+                    CASE status
+                        WHEN 'waiting'  THEN 0
+                        WHEN 'progress' THEN 1
+                        ELSE 2
+                    END ASC
                 ")
-                ->latest()
+                ->orderByRaw("
+                    CASE priority
+                        WHEN 'high'   THEN 0
+                        WHEN 'medium' THEN 1
+                        WHEN 'low'    THEN 2
+                        ELSE 3
+                    END ASC
+                ")
+                ->oldest()
                 ->take(10)
                 ->get();
 
