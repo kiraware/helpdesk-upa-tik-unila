@@ -35,7 +35,7 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             'No', 'Kode Tiket', 'Tanggal Masuk', 'Nama Pemohon', 'No. Identitas', 'Tamu?', 'Fakultas/Unit Kerja', 'Entitas',
             'Layanan', 'Petugas', 'Prioritas', 'Status',
             'Tanggal Ditugaskan', 'Tanggal Selesai', 'Durasi',
-            'Skor CSI (%)', 'Saran',
+            'Skor Kepuasan (%)', 'Saran',
         ];
 
         foreach ($this->tickets as $idx => $t) {
@@ -110,7 +110,11 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 };
             }
 
-            // --- LOGIKA CSI PER TIKET ---
+            // --- LOGIKA SKOR KEPUASAN PER TIKET ---
+            // Catatan: Ini BUKAN CSI metodologis (yang membutuhkan agregasi banyak responden).
+            // Ini adalah skor kepuasan tertimbang per-tiket tunggal:
+            //   = Σ(satisfaction × importance) / (Σimportance × 5) × 100
+            // Cukup disebut "Skor Kepuasan (%)" agar tidak menyesatkan secara metodologis.
             $csiScore = '-';
             $feedback = '-';
 

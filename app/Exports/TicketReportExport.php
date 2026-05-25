@@ -43,12 +43,19 @@ class TicketReportExport implements WithMultipleSheets
             new Sheets\PrioritasTiketSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\RekapBulananSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\DetailTiketSheet($this->startDate, $this->endDate, $tickets),
+            new Sheets\DetailSurveySheet($this->startDate, $this->endDate, $tickets), // ← Sheet baru
         ];
     }
 
     private function prepareData(): array
     {
-        $tickets = Ticket::with(['service', 'user.department', 'guestDetail.department', 'assignee', 'survey.answers'])
+        $tickets = Ticket::with([
+            'service',
+            'user.department',
+            'guestDetail.department',
+            'assignee',
+            'survey.answers.question', // ← eager-load relasi question untuk DetailSurveySheet
+        ])
             ->whereBetween('created_at', [$this->startDate, $this->endDate])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -168,7 +175,6 @@ class TicketReportExport implements WithMultipleSheets
                 $done = $ts->where('status', TicketStatus::DONE)->count();
                 $reject = $ts->where('status', TicketStatus::REJECT)->count();
 
-                // Rata-rata waktu dalam menit (untuk string deskriptif di Excel)
                 $times = $ts->whereNotNull('assigned_at')->whereNotNull('closed_at')
                     ->map(fn ($t) => $t->assigned_at->diffInMinutes($t->closed_at));
 
@@ -193,7 +199,6 @@ class TicketReportExport implements WithMultipleSheets
 
                 $rate = $total > 0 ? round((($done + $reject) / $total) * 100) : 0;
 
-                // CSI murni dari survei
                 $wScore = 0;
                 $imp = 0;
                 $surveys = 0;
@@ -214,7 +219,6 @@ class TicketReportExport implements WithMultipleSheets
                 $star = $imp > 0 ? $wScore / $imp : 0;
                 $csi = $imp > 0 ? ($star / 5) * 100 : 0;
 
-                // Hitung bonus off-hours
                 $dedikasiData = OffHoursHelper::calcDedikasi($ts);
 
                 return [
@@ -235,10 +239,8 @@ class TicketReportExport implements WithMultipleSheets
             ->values()
             ->toArray();
 
-        // Terapkan normalisasi bonus & ranking_score
         $staffRaw = OffHoursHelper::applyRankingScore($staffRaw);
 
-        // Sort berdasarkan ranking_score gabungan (bukan raw CSI)
         usort($staffRaw, function ($a, $b) {
             if ($a['ranking_score'] !== $b['ranking_score']) {
                 return $b['ranking_score'] <=> $a['ranking_score'];
