@@ -181,6 +181,7 @@
                         <h3 class="text-3xl font-black text-text-light dark:text-text-dark mt-1">
                             {{ number_format($avgCSI, 2) }}<span class="text-lg text-gray-400 font-normal">%</span>
                         </h3>
+                        <p class="text-[10px] text-gray-400 mt-0.5">Rata-rata tertimbang dari seluruh survei masuk</p>
                         @php
                             $badgeColor = match (true) {
                                 $avgCSI >= 81 => 'bg-emerald-100 text-emerald-700 border-emerald-200',
@@ -697,8 +698,11 @@
                 class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
                 <div class="p-6 border-b border-gray-100 dark:border-gray-800">
                     <h3 class="font-bold text-lg text-text-light dark:text-text-dark">Rekap Tiket per Bulan</h3>
-                    <p class="text-sm text-gray-500 mt-1">Ringkasan jumlah tiket masuk dan penyelesaian per bulan dalam
-                        periode terpilih.</p>
+                    <p class="text-sm text-gray-500 mt-1">
+                        Ringkasan jumlah tiket masuk per bulan dalam periode terpilih.
+                        Detail penyelesaian dan status per bulan tersedia pada sheet
+                        <span class="font-medium text-emerald-600">Rekap Bulanan</span> di file Excel.
+                    </p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left">
@@ -706,23 +710,30 @@
                             class="bg-gray-50 dark:bg-slate-800/50 text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                             <tr>
                                 <th class="px-6 py-3">Bulan</th>
-                                <th class="px-6 py-3 text-center">Total Tiket</th>
-                                <th class="px-6 py-3 text-center">Selesai</th>
-                                <th class="px-6 py-3 text-center">Ditolak</th>
-                                <th class="px-6 py-3 text-center">Tingkat Selesai</th>
+                                <th class="px-6 py-3 text-center">Total Tiket Masuk</th>
+                                <th class="px-6 py-3 text-center">Persentase</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
+                            @php $grandMonthly = array_sum($monthlyTrendFlat) ?: 1; @endphp
                             @foreach ($monthlyTrendFlat as $label => $count)
                                 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50">
                                     <td class="px-6 py-3 font-semibold">{{ $label }}</td>
                                     <td class="px-6 py-3 text-center font-bold text-blue-600">{{ $count }}</td>
-                                    <td class="px-6 py-3 text-center text-gray-400">—</td>
-                                    <td class="px-6 py-3 text-center text-gray-400">—</td>
-                                    <td class="px-6 py-3 text-center text-gray-400">—</td>
+                                    <td class="px-6 py-3 text-center text-gray-500 text-xs">
+                                        {{ round(($count / $grandMonthly) * 100, 1) }}%
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
+                        <tfoot
+                            class="bg-gray-100 dark:bg-slate-700/60 text-xs font-bold text-gray-600 dark:text-gray-300">
+                            <tr>
+                                <td class="px-6 py-3">Total</td>
+                                <td class="px-6 py-3 text-center">{{ array_sum($monthlyTrendFlat) }}</td>
+                                <td class="px-6 py-3 text-center">100%</td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -738,8 +749,8 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
                     Diurutkan berdasarkan <span class="font-semibold text-blue-600 dark:text-blue-400">Skor
                         Ranking</span>
-                    = CSI (85%) + Dedikasi Luar Jam (15%).
-                    CSI tetap murni dari survei pengguna.
+                    = Kepuasan Agregat (85%) + Dedikasi Luar Jam (15%).
+                    Skor kepuasan dihitung dari seluruh survei yang diterima masing-masing petugas.
                 </p>
                 <div class="flex flex-wrap gap-3 mt-3 text-xs">
                     <span
@@ -766,7 +777,12 @@
                             <th class="px-6 py-4 text-center">Rata-rata Waktu</th>
                             <th class="px-6 py-4 text-center w-1/5">Efektivitas</th>
                             <th class="px-6 py-4 text-center">Rating ⭐</th>
-                            <th class="px-6 py-4 text-center">Skor CSI</th>
+                            <th class="px-6 py-4 text-center"
+                                title="Skor kepuasan tertimbang agregat dari seluruh survei yang diterima petugas ini. Dihitung: Σ(satisfaction×importance) / (Σimportance×5) × 100. Disebut CSI karena bersumber dari banyak responden (tiket) berbeda.">
+                                Skor Kepuasan (%) <span
+                                    class="normal-case font-normal text-[10px] text-gray-400 block">agregat
+                                    survei</span>
+                            </th>
                             <th class="px-6 py-4 text-center">Dedikasi 🌙</th>
                             <th class="px-6 py-4 text-center">Skor Ranking</th>
                         </tr>
