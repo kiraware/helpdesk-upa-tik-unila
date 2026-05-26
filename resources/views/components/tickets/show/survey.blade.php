@@ -25,6 +25,65 @@
 @endphp
 
 @if (in_array($ticket->status, $finishedStatuses))
+    <style>
+        .star-icon path {
+            transition: fill 0.15s ease, transform 0.15s ease;
+        }
+
+        .star-filled-importance path {
+            fill: #3b82f6;
+            stroke: #2563eb;
+            stroke-width: 0.5;
+        }
+
+        .star-filled-satisfaction path {
+            fill: #f59e0b;
+            stroke: #d97706;
+            stroke-width: 0.5;
+        }
+
+        .star-empty path {
+            fill: none;
+            stroke: #cbd5e1;
+            stroke-width: 1.5;
+        }
+
+        .dark .star-empty path {
+            stroke: #475569;
+        }
+
+        label:has(.star-icon):hover .star-icon {
+            transform: scale(1.2);
+        }
+
+        label:has(.star-icon):active .star-icon {
+            transform: scale(0.92);
+        }
+
+        @keyframes starPop {
+            0% {
+                transform: scale(1);
+            }
+
+            40% {
+                transform: scale(1.35);
+            }
+
+            70% {
+                transform: scale(0.9);
+            }
+
+            100% {
+                transform: scale(1.1);
+            }
+        }
+
+        .star-filled-importance,
+        .star-filled-satisfaction {
+            animation: starPop 0.25s ease forwards;
+        }
+    </style>
+
     <div class="mt-8 scroll-mt-24" id="survey-section">
 
         {{-- BAGIAN 1: HASIL SURVEI --}}
@@ -138,58 +197,97 @@
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     {{-- 1. Tingkat Kepentingan --}}
-                                    <div class="flex flex-col h-full">
+                                    <div class="flex flex-col h-full" x-data="{
+                                        hovered: 0,
+                                        selected: 0,
+                                        labels: ['Sangat Tidak Penting', 'Tidak Penting', 'Cukup Penting', 'Penting', 'Sangat Penting'],
+                                        get activeLabel() {
+                                            let idx = this.hovered || this.selected;
+                                            return idx ? this.labels[idx - 1] : '&nbsp;';
+                                        }
+                                    }">
                                         <label
                                             class="text-sm font-semibold text-text-light dark:text-text-dark block mb-3 grow">
                                             {{ $q->importance_question }} <span class="text-red-500">*</span>
                                         </label>
                                         <div class="space-y-2">
-                                            <div
-                                                class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-1.5 border border-border-light dark:border-border-dark shadow-sm">
+                                            <div class="flex items-center justify-center gap-1 py-2">
                                                 @foreach (range(1, 5) as $val)
-                                                    <label class="flex-1 text-center cursor-pointer group relative">
+                                                    <label
+                                                        class="cursor-pointer star-label-importance-{{ $q->id }}-{{ $val }} relative"
+                                                        @mouseenter="hovered = {{ $val }}"
+                                                        @mouseleave="hovered = 0"
+                                                        @click="selected = {{ $val }}">
                                                         <input type="radio" name="importance[{{ $q->id }}]"
-                                                            value="{{ $val }}" required class="peer sr-only">
-                                                        <div
-                                                            class="w-full py-2 rounded-md text-sm font-medium text-muted-light dark:text-muted-dark transition-all duration-200 peer-checked:bg-blue-500 peer-checked:text-white peer-checked:shadow-sm hover:bg-gray-100 dark:hover:bg-slate-800">
-                                                            {{ $val }}
-                                                        </div>
+                                                            value="{{ $val }}" required class="sr-only"
+                                                            x-model="selected">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                            class="star-icon w-10 h-10 transition-all duration-150 drop-shadow-sm"
+                                                            :class="{
+                                                                'star-filled-importance scale-110': (hovered >=
+                                                                    {{ $val }}) || (!hovered &&
+                                                                    selected >= {{ $val }}),
+                                                                'star-empty': (hovered < {{ $val }}) && (
+                                                                    selected < {{ $val }} || hovered > 0
+                                                                ) || (!hovered && selected <
+                                                                    {{ $val }})
+                                                            }"
+                                                            style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15))">
+                                                            <path
+                                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                                        </svg>
                                                     </label>
                                                 @endforeach
                                             </div>
-                                            <div
-                                                class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark px-1">
-                                                <span>Sangat Tidak Penting</span>
-                                                <span>Sangat Penting</span>
-                                            </div>
+                                            <p class="text-center text-xs font-medium text-blue-500 dark:text-blue-400 h-4 transition-all duration-150"
+                                                x-html="activeLabel"></p>
                                         </div>
                                     </div>
 
                                     {{-- 2. Tingkat Kepuasan --}}
-                                    <div class="flex flex-col h-full">
+                                    <div class="flex flex-col h-full" x-data="{
+                                        hovered: 0,
+                                        selected: 0,
+                                        labels: ['Sangat Buruk', 'Buruk', 'Cukup', 'Baik', 'Sangat Baik'],
+                                        get activeLabel() {
+                                            let idx = this.hovered || this.selected;
+                                            return idx ? this.labels[idx - 1] : '&nbsp;';
+                                        }
+                                    }">
                                         <label
                                             class="text-sm font-semibold text-text-light dark:text-text-dark block mb-3 grow">
                                             {{ $q->satisfaction_question }} <span class="text-red-500">*</span>
                                         </label>
                                         <div class="space-y-2">
-                                            <div
-                                                class="flex items-center justify-between bg-white dark:bg-slate-900 rounded-lg p-1.5 border border-border-light dark:border-border-dark shadow-sm">
+                                            <div class="flex items-center justify-center gap-1 py-2">
                                                 @foreach (range(1, 5) as $val)
-                                                    <label class="flex-1 text-center cursor-pointer group relative">
+                                                    <label class="cursor-pointer relative"
+                                                        @mouseenter="hovered = {{ $val }}"
+                                                        @mouseleave="hovered = 0"
+                                                        @click="selected = {{ $val }}">
                                                         <input type="radio" name="satisfaction[{{ $q->id }}]"
-                                                            value="{{ $val }}" required class="peer sr-only">
-                                                        <div
-                                                            class="w-full py-2 rounded-md text-sm font-medium text-muted-light dark:text-muted-dark transition-all duration-200 peer-checked:bg-yellow-500 peer-checked:text-white peer-checked:shadow-sm hover:bg-gray-100 dark:hover:bg-slate-800">
-                                                            {{ $val }}
-                                                        </div>
+                                                            value="{{ $val }}" required class="sr-only"
+                                                            x-model="selected">
+                                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+                                                            class="star-icon w-10 h-10 transition-all duration-150"
+                                                            :class="{
+                                                                'star-filled-satisfaction scale-110': (hovered >=
+                                                                    {{ $val }}) || (!hovered &&
+                                                                    selected >= {{ $val }}),
+                                                                'star-empty': (hovered < {{ $val }}) && (
+                                                                    selected < {{ $val }} || hovered > 0
+                                                                ) || (!hovered && selected <
+                                                                    {{ $val }})
+                                                            }"
+                                                            style="filter: drop-shadow(0 1px 2px rgba(0,0,0,0.15))">
+                                                            <path
+                                                                d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                                                        </svg>
                                                     </label>
                                                 @endforeach
                                             </div>
-                                            <div
-                                                class="flex justify-between text-[10px] text-muted-light dark:text-muted-dark px-1">
-                                                <span>Sangat Buruk</span>
-                                                <span>Sangat Baik</span>
-                                            </div>
+                                            <p class="text-center text-xs font-medium text-yellow-500 dark:text-yellow-400 h-4 transition-all duration-150"
+                                                x-html="activeLabel"></p>
                                         </div>
                                     </div>
                                 </div>
