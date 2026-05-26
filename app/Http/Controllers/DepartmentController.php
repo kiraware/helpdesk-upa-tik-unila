@@ -27,7 +27,7 @@ class DepartmentController extends Controller
 
         Department::create(['name' => $validated['name']]);
 
-        return redirect()->route('departments.index')->with('success', 'Departemen berhasil ditambahkan.');
+        return redirect()->route('departments.index')->with('success', 'Unit Kerja berhasil ditambahkan.');
     }
 
     public function update(Request $request, Department $department)
@@ -38,13 +38,13 @@ class DepartmentController extends Controller
 
         $department->update(['name' => $validated['name']]);
 
-        return redirect()->route('departments.index')->with('success', 'Departemen berhasil diperbarui.');
+        return redirect()->route('departments.index')->with('success', 'Unit Kerja berhasil diperbarui.');
     }
 
     public function destroy(Department $department)
     {
         $department->delete();
 
-        return redirect()->route('departments.index')->with('success', 'Departemen berhasil dihapus.');
+        return redirect()->route('departments.index')->with('success', 'Unit Kerja berhasil dihapus.');
     }
 }

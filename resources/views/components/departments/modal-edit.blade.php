@@ -3,7 +3,7 @@
     <div class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
         <div
             class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Edit Departemen</h3>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Edit Unit Kerja</h3>
             <button type="button" onclick="closeEditDepartmentModal()"
                 class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
                 <span class="material-icons-round">close</span>
@@ -15,8 +15,8 @@
             @method('PUT')
             <div class="p-6 space-y-6">
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama
-                        Departemen</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Unit
+                        Kerja</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><span
                                 class="material-icons-round text-lg">layers</span></span>

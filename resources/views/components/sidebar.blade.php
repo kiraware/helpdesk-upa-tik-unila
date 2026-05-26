@@ -205,7 +205,7 @@
                     class="material-icons-round text-[18px] mr-2.5 {{ request()->routeIs('divisions.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
                     business
                 </span>
-                Penanggung Jawab
+                Unit Fungsi
             </a>
 
             <a href="{{ route('departments.index') }}"
@@ -217,7 +217,7 @@
                     class="material-icons-round text-[18px] mr-2.5 {{ request()->routeIs('departments.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
                     apartment
                 </span>
-                Departemen
+                Unit Kerja
             </a>
         @endif
 
