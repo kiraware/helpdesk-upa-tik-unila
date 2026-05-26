@@ -16,7 +16,7 @@
                     </span>
                 </a>
                 <p class="text-sm text-muted-light dark:text-muted-dark leading-relaxed">
-                    Unit Pelaksana Akademik Teknologi Informasi dan Komunikasi Universitas Lampung.
+                    Unit Penunjang Akademik Teknologi Informasi dan Komunikasi Universitas Lampung.
                 </p>
             </div>
 
