@@ -8,14 +8,19 @@
 
             {{-- LOGO --}}
             <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                <div class="text-brand">
-                    <span class="material-icons-round icon-lg">support_agent</span>
+
+                <div class="p-1 rounded-lg">
+                    <img src="{{ asset('img/logo-unila.png') }}" alt="Logo Unila" class="w-8 h-8 object-contain">
                 </div>
+
                 <div class="flex flex-col">
                     <h1 class="text-lg font-bold leading-tight tracking-tight text-text-light dark:text-surface-light">
                         Helpdesk UPA TIK
                     </h1>
-                    <span class="text-xs font-medium text-muted-light dark:text-muted-dark">Universitas Lampung</span>
+
+                    <span class="text-xs font-medium text-muted-light dark:text-muted-dark">
+                        Universitas Lampung
+                    </span>
                 </div>
             </a>
 
