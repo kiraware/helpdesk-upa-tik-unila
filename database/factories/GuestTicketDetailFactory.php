@@ -4,11 +4,12 @@ namespace Database\Factories;
 
 use App\Enums\IdentityType;
 use App\Models\Department;
+use App\Models\GuestTicketDetail;
 use App\Models\Ticket;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\GuestTicketDetail>
+ * @extends Factory<GuestTicketDetail>
  */
 class GuestTicketDetailFactory extends Factory
 {

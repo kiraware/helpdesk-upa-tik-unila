@@ -43,7 +43,7 @@ class TicketReportExport implements WithMultipleSheets
             new Sheets\PrioritasTiketSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\RekapBulananSheet($this->startDate, $this->endDate, $tickets),
             new Sheets\DetailTiketSheet($this->startDate, $this->endDate, $tickets),
-            new Sheets\DetailSurveySheet($this->startDate, $this->endDate, $tickets), // ← Sheet baru
+            new Sheets\DetailSurveySheet($this->startDate, $this->endDate, $tickets),
         ];
     }
 

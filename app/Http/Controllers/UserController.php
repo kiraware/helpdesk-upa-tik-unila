@@ -6,6 +6,7 @@ use App\Enums\UserRole;
 use App\Models\Division;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class UserController extends Controller
 {
@@ -35,7 +36,7 @@ class UserController extends Controller
         $request->validate([
             'username_sso' => 'required|string|max:255',
             'phone' => 'nullable|string|max:255',
-            'role' => ['required', new \Illuminate\Validation\Rules\Enum(UserRole::class)],
+            'role' => ['required', new Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
         ]);
 
@@ -71,7 +72,7 @@ class UserController extends Controller
         $request->validate([
             'username_sso' => 'required|string|max:255|unique:users,username_sso,'.$user->id,
             'phone' => 'nullable|string|max:255',
-            'role' => ['required', new \Illuminate\Validation\Rules\Enum(UserRole::class)],
+            'role' => ['required', new Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
         ]);
 

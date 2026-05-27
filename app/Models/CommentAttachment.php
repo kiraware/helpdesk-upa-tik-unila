@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\CommentAttachmentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -9,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 
 class CommentAttachment extends Model
 {
-    /** @use HasFactory<\Database\Factories\CommentAttachmentFactory> */
+    /** @use HasFactory<CommentAttachmentFactory> */
     use HasFactory;
 
     protected $fillable = [

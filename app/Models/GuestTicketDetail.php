@@ -3,13 +3,14 @@
 namespace App\Models;
 
 use App\Enums\IdentityType;
+use Database\Factories\GuestTicketDetailFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GuestTicketDetail extends Model
 {
-    /** @use HasFactory<\Database\Factories\GuestTicketDetailFactory> */
+    /** @use HasFactory<GuestTicketDetailFactory> */
     use HasFactory;
 
     protected $table = 'guest_ticket_details';

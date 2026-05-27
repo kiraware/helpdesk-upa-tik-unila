@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Http\Controllers\Auth\SsoAuthController;
 use App\Http\Controllers\ConfigurationController;
@@ -8,6 +9,7 @@ use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DivisionController;
 use App\Http\Controllers\GuestTicketCommentController;
 use App\Http\Controllers\GuestTicketController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
@@ -17,6 +19,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketSurveyController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureSurveyCompleted;
+use App\Models\Ticket;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/sitemap.xml', function () {
@@ -87,13 +90,13 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 
     // ROUTE NOTIFIKASI
-    Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index'])
+    Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
-    Route::get('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsReadAndRedirect'])
+    Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsReadAndRedirect'])
         ->name('notifications.read');
-    Route::post('/notifications/mark-all', [\App\Http\Controllers\NotificationController::class, 'markAllRead'])
+    Route::post('/notifications/mark-all', [NotificationController::class, 'markAllRead'])
         ->name('notifications.markAll');
-    Route::get('/api/notifications', [\App\Http\Controllers\NotificationController::class, 'fetchJson'])
+    Route::get('/api/notifications', [NotificationController::class, 'fetchJson'])
         ->name('api.notifications');
 
     // 3. GROUP ADMIN & SUPERUSER
@@ -105,9 +108,9 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
             $user = auth()->user();
 
             return response()->json([
-                'waitingCount' => \App\Models\Ticket::where('status', \App\Enums\TicketStatus::WAITING)->count(),
-                'assignedProgressCount' => \App\Models\Ticket::where('assigned_to', $user->id)
-                    ->where('status', \App\Enums\TicketStatus::PROGRESS)
+                'waitingCount' => Ticket::where('status', TicketStatus::WAITING)->count(),
+                'assignedProgressCount' => Ticket::where('assigned_to', $user->id)
+                    ->where('status', TicketStatus::PROGRESS)
                     ->count(),
             ]);
         })->name('api.ticket.counts');

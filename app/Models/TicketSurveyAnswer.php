@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
+use Database\Factories\TicketSurveyAnswerFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class TicketSurveyAnswer extends Model
 {
-    /** @use HasFactory<\Database\Factories\TicketSurveyAnswerFactory> */
+    /** @use HasFactory<TicketSurveyAnswerFactory> */
     use HasFactory;
 
     protected $fillable = [
