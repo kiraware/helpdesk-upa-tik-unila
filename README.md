@@ -270,7 +270,7 @@ MAIL_PORT=587                 # Port SMTP (587 untuk TLS, 465 untuk SSL)
 MAIL_USERNAME=                # Username SMTP
 MAIL_PASSWORD=                # Password SMTP
 MAIL_ENCRYPTION=tls           # tls | ssl | null
-MAIL_FROM_ADDRESS="noreply@upa.unila.ac.id"
+MAIL_FROM_ADDRESS="noreply@helpdesktik.unila.ac.id"
 MAIL_FROM_NAME="${APP_NAME}"
 ```
 
@@ -462,7 +462,7 @@ Sistem memiliki tiga role pengguna (`UserRole` enum):
 ```env
 APP_ENV=production
 APP_DEBUG=false
-APP_URL=https://helpdesk.upa.unila.ac.id
+APP_URL=https://helpdesktik.unila.ac.id
 
 DB_CONNECTION=pgsql
 # ... isi kredensial database production
@@ -522,7 +522,7 @@ chown -R www-data:www-data storage bootstrap/cache
 ```nginx
 server {
     listen 80;
-    server_name helpdesk.upa.unila.ac.id;
+    server_name helpdesktik.unila.ac.id;
     root /var/www/helpdesk-upa-tik/public;
 
     add_header X-Frame-Options "SAMEORIGIN";
@@ -557,7 +557,7 @@ server {
 Aktifkan HTTPS dengan **Let's Encrypt** / **Certbot**:
 
 ```bash
-certbot --nginx -d helpdesk.upa.unila.ac.id
+certbot --nginx -d helpdesktik.unila.ac.id
 ```
 
 ### 9. Queue Worker (Production)
