@@ -4,10 +4,11 @@ namespace Database\Factories;
 
 use App\Models\SurveyQuestion;
 use App\Models\TicketSurvey;
+use App\Models\TicketSurveyAnswer;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\TicketSurveyAnswer>
+ * @extends Factory<TicketSurveyAnswer>
  */
 class TicketSurveyAnswerFactory extends Factory
 {

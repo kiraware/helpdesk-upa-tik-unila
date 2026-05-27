@@ -239,7 +239,7 @@ class TicketController extends Controller
     public function assignMe(Ticket $ticket)
     {
         // Pastikan User Biasa tidak bisa mengakses fungsi ini
-        if (auth()->user()->role === \App\Enums\UserRole::USER) {
+        if (auth()->user()->role === UserRole::USER) {
             return back()->with('error', 'Anda tidak memiliki izin untuk mengambil tiket ini.');
         }
 

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\TicketCommentFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -10,7 +11,7 @@ use Mews\Purifier\Facades\Purifier;
 
 class TicketComment extends Model
 {
-    /** @use HasFactory<\Database\Factories\TicketCommentFactory> */
+    /** @use HasFactory<TicketCommentFactory> */
     use HasFactory;
 
     protected $fillable = [
