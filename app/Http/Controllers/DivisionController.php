@@ -27,7 +27,7 @@ class DivisionController extends Controller
 
         Division::create(['name' => $validated['name']]);
 
-        return redirect()->route('divisions.index')->with('success', 'Penanggung Jawab berhasil ditambahkan.');
+        return redirect()->route('divisions.index')->with('success', 'Unit Fungsi berhasil ditambahkan.');
     }
 
     public function update(Request $request, Division $division)
@@ -38,13 +38,13 @@ class DivisionController extends Controller
 
         $division->update(['name' => $validated['name']]);
 
-        return redirect()->route('divisions.index')->with('success', 'Penanggung Jawab berhasil diperbarui.');
+        return redirect()->route('divisions.index')->with('success', 'Unit Fungsi berhasil diperbarui.');
     }
 
     public function destroy(Division $division)
     {
         $division->delete();
 
-        return redirect()->route('divisions.index')->with('success', 'Penanggung Jawab berhasil dihapus.');
+        return redirect()->route('divisions.index')->with('success', 'Unit Fungsi berhasil dihapus.');
     }
 }

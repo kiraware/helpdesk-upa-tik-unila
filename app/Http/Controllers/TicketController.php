@@ -576,4 +576,104 @@ class TicketController extends Controller
 
         return response()->json(['error' => 'No file uploaded'], 400);
     }
+
+    public function waiting(Request $request)
+    {
+        $user = auth()->user();
+
+        $services = Service::where('is_active', true)
+            ->orderByRaw('LOWER(name) ASC')
+            ->get(['id', 'name']);
+
+        $admins = User::whereIn('role', ['admin', 'superuser'])
+            ->orderByRaw('LOWER(name) ASC')
+            ->get(['id', 'name', 'avatar_path']);
+
+        $tickets = Ticket::query()
+            ->with(['user', 'service', 'assignee', 'guestDetail'])
+            ->withCount('comments')
+            ->where('status', TicketStatus::WAITING) // ← hard-coded, tidak bisa diubah via filter
+            ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
+                $qq->where('ticket_code', 'ilike', "%{$request->q}%")
+                    ->orWhere('description', 'ilike', "%{$request->q}%");
+            }))
+            ->when($request->priority, fn ($q) => $q->where('priority', $request->priority))
+            ->when($request->service, fn ($q) => $q->where('service_id', $request->service))
+            ->when($request->assigned_to, function ($q) use ($request) {
+                match ($request->assigned_to) {
+                    'unassigned' => $q->whereNull('assigned_to'),
+                    'me' => $q->where('assigned_to', auth()->id()),
+                    default => $q->where('assigned_to', $request->assigned_to),
+                };
+            })
+            ->when($request->start_date || $request->end_date, function ($q) use ($request) {
+                $start = $request->start_date ? now()->parse($request->start_date)->startOfDay() : null;
+                $end = $request->end_date ? now()->parse($request->end_date)->endOfDay() : null;
+                if ($start && $end) {
+                    $q->whereBetween('created_at', [$start, $end]);
+                } elseif ($start) {
+                    $q->where('created_at', '>=', $start);
+                } elseif ($end) {
+                    $q->where('created_at', '<=', $end);
+                }
+            })
+            ->orderByRaw("CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 WHEN 'low' THEN 2 ELSE 3 END ASC")
+            ->orderBy('created_at', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('tickets.waiting', compact('tickets', 'services', 'admins'));
+    }
+
+    public function assigned(Request $request)
+    {
+        $user = auth()->user();
+
+        $services = Service::where('is_active', true)
+            ->orderByRaw('LOWER(name) ASC')
+            ->get(['id', 'name']);
+
+        $tickets = Ticket::query()
+            ->with(['user', 'service', 'assignee', 'guestDetail'])
+            ->withCount('comments')
+            ->where('assigned_to', $user->id) // ← hard-coded ke user login
+            ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
+                $qq->where('ticket_code', 'ilike', "%{$request->q}%")
+                    ->orWhere('description', 'ilike', "%{$request->q}%");
+            }))
+            ->when($request->status, fn ($q) => $q->where('status', $request->status))
+            ->when($request->priority, fn ($q) => $q->where('priority', $request->priority))
+            ->when($request->service, fn ($q) => $q->where('service_id', $request->service))
+            ->when($request->start_date || $request->end_date, function ($q) use ($request) {
+                $start = $request->start_date ? now()->parse($request->start_date)->startOfDay() : null;
+                $end = $request->end_date ? now()->parse($request->end_date)->endOfDay() : null;
+                if ($start && $end) {
+                    $q->whereBetween('created_at', [$start, $end]);
+                } elseif ($start) {
+                    $q->where('created_at', '>=', $start);
+                } elseif ($end) {
+                    $q->where('created_at', '<=', $end);
+                }
+            })
+            ->orderByRaw("
+            CASE status
+                WHEN 'waiting'  THEN 0
+                WHEN 'progress' THEN 1
+                WHEN 'done'     THEN 2
+                WHEN 'reject'   THEN 3
+                ELSE 4
+            END ASC
+        ")
+            ->orderByRaw("
+            CASE WHEN status IN ('waiting','progress')
+                THEN CASE priority WHEN 'high' THEN 0 WHEN 'medium' THEN 1 WHEN 'low' THEN 2 ELSE 3 END
+                ELSE 0
+            END ASC
+        ")
+            ->orderBy('created_at', 'asc')
+            ->paginate(10)
+            ->withQueryString();
+
+        return view('tickets.assigned', compact('tickets', 'services'));
+    }
 }

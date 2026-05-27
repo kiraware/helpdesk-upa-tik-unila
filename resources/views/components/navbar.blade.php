@@ -1,5 +1,5 @@
 <header
-    class="sticky top-0 h-16 flex items-center justify-between px-4 sm:px-6 lg:px-8
+    class="sticky top-0 h-12 flex items-center justify-between px-4 sm:px-6 lg:px-8
            bg-surface-light dark:bg-surface-dark 
            border-b border-border-light dark:border-border-dark 
            shadow-sm z-40 gap-4">
@@ -20,7 +20,7 @@
         </button>
 
         {{-- Judul: Truncate jika terlalu panjang --}}
-        <h1 class="text-lg sm:text-xl font-semibold text-text-light dark:text-text-dark truncate"
+        <h1 class="text-base sm:text-lg font-semibold text-text-light dark:text-text-dark truncate"
             title="{{ $title ?? 'Dasbor' }}">
             {{ $title ?? 'Dasbor' }}
         </h1>
@@ -65,7 +65,7 @@
 
             {{-- DROPDOWN NOTIFIKASI --}}
             <div x-show="notifOpen" x-transition x-cloak @click.outside="notifOpen = false"
-                class="fixed inset-x-4 top-20 w-auto sm:absolute sm:inset-auto sm:right-0 sm:top-14 sm:w-96
+                class="fixed inset-x-4 top-14 w-auto sm:absolute sm:inset-auto sm:right-0 sm:top-11 sm:w-96
                        rounded-xl overflow-hidden shadow-2xl border border-border-light dark:border-slate-700
                        bg-white/95 dark:bg-slate-800/95 backdrop-blur-md z-50">
 
@@ -160,14 +160,14 @@
                     ? asset('storage/' . auth()->user()->avatar_path)
                     : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
                     alt="Profile Photo"
-                    class="w-9 h-9 rounded-full object-cover shrink-0
+                    class="w-7 h-7 rounded-full object-cover shrink-0
                            border border-border-light dark:border-slate-600
                            shadow-sm group-hover:ring-2 group-hover:ring-blue-100 transition-all" />
             </button>
 
             {{-- DROPDOWN PROFIL --}}
             <div x-show="open" x-transition x-cloak @click.outside="open = false"
-                class="absolute right-0 top-14 w-56
+                class="absolute right-0 top-11 w-56
                        rounded-xl overflow-hidden shadow-xl
                        border border-border-light dark:border-slate-700
                        bg-white/90 dark:bg-slate-800/90

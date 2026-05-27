@@ -6,10 +6,6 @@
 
         {{-- Header Halaman --}}
         <div class="text-center mb-8">
-            <div
-                class="inline-flex items-center justify-center p-3 bg-white dark:bg-slate-800 rounded-xl shadow-sm mb-4 border border-slate-100 dark:border-slate-700">
-                <span class="material-icons-round text-3xl text-blue-600 dark:text-blue-400">support_agent</span>
-            </div>
             <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
                 Buat Tiket Baru
             </h2>
