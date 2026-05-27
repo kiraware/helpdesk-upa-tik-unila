@@ -141,7 +141,7 @@ Sistem mendukung notifikasi real-time melalui database, e-mail, dan WhatsApp (Tw
 
 Pastikan server/mesin development memiliki:
 
-- **PHP** >= 8.4 dengan ekstensi: `pdo`, `pdo_pgsql` (atau `pdo_mysql`), `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `fileinfo`, `gd`
+- **PHP** >= 8.4 dengan ekstensi: `pdo`, `pdo_pgsql`, `mbstring`, `openssl`, `tokenizer`, `xml`, `ctype`, `json`, `bcmath`, `fileinfo`, `gd`
 - **Composer** >= 2
 - **Node.js** >= 18 dan **npm** >= 9
 - **PostgreSQL** >= 14
