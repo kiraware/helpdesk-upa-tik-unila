@@ -17,6 +17,8 @@ Sistem manajemen tiket helpdesk berbasis web untuk Unit Penunjang Akademik Tekno
 - [Role & Hak Akses](#-role--hak-akses)
 - [Alur Kerja Tiket](#-alur-kerja-tiket)
 - [Persiapan Production](#-persiapan-production)
+- [Queue Worker](#-queue-worker)
+- [Artisan Commands](#-artisan-commands)
 - [Integrasi SSO](#-integrasi-sso)
 - [Notifikasi (Email & WhatsApp)](#-notifikasi-email--whatsapp)
 - [Laporan & Ekspor](#-laporan--ekspor)
@@ -562,9 +564,82 @@ certbot --nginx -d helpdesktik.unila.ac.id
 
 ### 9. Queue Worker (Production)
 
-Gunakan **Supervisor** untuk menjaga queue worker tetap berjalan:
+Lihat panduan lengkap di seksi [Queue Worker](#-queue-worker) di bawah.
 
-Buat file `/etc/supervisor/conf.d/helpdesk-worker.conf`:
+### 10. Task Scheduler
+
+Tambahkan satu cron entry berikut agar Laravel Scheduler berjalan setiap menit. Scheduler ini mengelola pembersihan file orphan secara otomatis:
+
+```bash
+crontab -e
+# Tambahkan baris berikut:
+* * * * * cd /var/www/helpdesk-upa-tik && php artisan schedule:run >> /dev/null 2>&1
+```
+
+### 11. Deployment Checklist
+
+- [ ] `APP_DEBUG=false` di `.env`
+- [ ] `APP_ENV=production` di `.env`
+- [ ] Database migration sudah dijalankan (`--force`)
+- [ ] `php artisan optimize` dijalankan
+- [ ] `php artisan storage:link` dijalankan
+- [ ] Permission `storage/` dan `bootstrap/cache/` sudah benar
+- [ ] Queue worker berjalan via Supervisor
+- [ ] Laravel Scheduler terdaftar di crontab
+- [ ] HTTPS aktif
+- [ ] API SSO berjalan dan bisa diakses dari server
+- [ ] Twilio WhatsApp number terverifikasi (jika digunakan)
+- [ ] reCAPTCHA domain terdaftar di Google Console
+
+---
+
+## ⚙️ Queue Worker
+
+Queue worker adalah proses yang **wajib berjalan** agar semua notifikasi (email dan WhatsApp) dapat terkirim. Notifikasi tidak dikirim secara langsung/sinkron — melainkan dimasukkan ke antrian (`jobs` table) terlebih dahulu, lalu diproses oleh worker di latar belakang.
+
+### Cara Kerja
+
+Setiap kali ada peristiwa (tiket baru, komentar, tiket selesai, dll.), sistem mendorong job notifikasi ke tabel `jobs`. Queue worker memantau tabel ini dan mengeksekusi job satu per satu. Tanpa worker yang berjalan, notifikasi akan menumpuk dan tidak pernah terkirim.
+
+### Development
+
+Pada development, worker sudah dijalankan otomatis oleh `composer run dev`. Jika dijalankan manual:
+
+```bash
+# Mode listen: memantau antrian terus-menerus, cocok untuk development
+# Worker restart otomatis setiap ada perubahan kode
+php artisan queue:listen --tries=1
+```
+
+`--tries=1` berarti jika sebuah job gagal, langsung ditandai failed tanpa dicoba ulang — memudahkan debugging.
+
+### Production
+
+Untuk production, gunakan `queue:work` (bukan `queue:listen`) karena lebih efisien — kode aplikasi hanya dimuat sekali, bukan setiap ada job baru.
+
+```bash
+# Jalankan worker production secara manual (satu sesi terminal)
+php artisan queue:work database --sleep=3 --tries=3 --max-time=3600
+```
+
+| Opsi              | Penjelasan                                                          |
+| ----------------- | ------------------------------------------------------------------- |
+| `database`        | Driver antrian yang digunakan (sesuai `QUEUE_CONNECTION` di `.env`) |
+| `--sleep=3`       | Jeda 3 detik jika tidak ada job baru (menghemat CPU)                |
+| `--tries=3`       | Maksimal 3 kali percobaan jika job gagal                            |
+| `--max-time=3600` | Worker restart otomatis setelah 1 jam (mencegah memory leak)        |
+
+### Menjaga Worker Tetap Berjalan dengan Supervisor
+
+Supervisor adalah process manager yang memastikan queue worker selalu aktif dan restart otomatis jika crash.
+
+**Install Supervisor:**
+
+```bash
+sudo apt install supervisor
+```
+
+**Buat file konfigurasi** `/etc/supervisor/conf.d/helpdesk-worker.conf`:
 
 ```ini
 [program:helpdesk-worker]
@@ -580,35 +655,148 @@ stdout_logfile=/var/www/helpdesk-upa-tik/storage/logs/worker.log
 stopwaitsecs=3600
 ```
 
-```bash
-supervisorctl reread
-supervisorctl update
-supervisorctl start helpdesk-worker:*
-```
+`numprocs=2` menjalankan 2 instance worker secara paralel — sesuaikan dengan kebutuhan beban server.
 
-### 10. Task Scheduler (Opsional)
-
-Jika ada scheduled task, tambahkan cron entry:
+**Aktifkan dan jalankan:**
 
 ```bash
-crontab -e
-# Tambahkan:
-* * * * * cd /var/www/helpdesk-upa-tik && php artisan schedule:run >> /dev/null 2>&1
+sudo supervisorctl reread
+sudo supervisorctl update
+sudo supervisorctl start helpdesk-worker:*
+
+# Cek status
+sudo supervisorctl status helpdesk-worker:*
 ```
 
-### 11. Deployment Checklist
+**Setelah deployment** (setiap kali kode diperbarui), restart worker agar memuat kode terbaru:
 
-- [ ] `APP_DEBUG=false` di `.env`
-- [ ] `APP_ENV=production` di `.env`
-- [ ] Database migration sudah dijalankan (`--force`)
-- [ ] `php artisan optimize` dijalankan
-- [ ] `php artisan storage:link` dijalankan
-- [ ] Permission `storage/` dan `bootstrap/cache/` sudah benar
-- [ ] Queue worker berjalan via Supervisor
-- [ ] HTTPS aktif
-- [ ] API SSO berjalan dan bisa diakses dari server
-- [ ] Twilio WhatsApp number terverifikasi (jika digunakan)
-- [ ] reCAPTCHA domain terdaftar di Google Console
+```bash
+sudo supervisorctl restart helpdesk-worker:*
+```
+
+### Memantau & Mengelola Antrian
+
+```bash
+# Lihat daftar job yang gagal
+php artisan queue:failed
+
+# Coba ulang semua job yang gagal
+php artisan queue:retry all
+
+# Coba ulang job tertentu berdasarkan ID
+php artisan queue:retry 5
+
+# Hapus semua job yang gagal
+php artisan queue:flush
+
+# Lihat jumlah job yang menunggu di antrian
+php artisan queue:monitor database
+```
+
+Jika notifikasi tidak terkirim setelah beberapa menit, selalu periksa `queue:failed` terlebih dahulu sebelum investigasi lebih lanjut.
+
+---
+
+## 🖥 Artisan Commands
+
+Aplikasi ini memiliki beberapa Artisan command kustom yang dapat dijalankan via terminal.
+
+### `make:staff` — Membuat atau Memperbarui Staf
+
+Perintah interaktif untuk menambahkan atau memperbarui hak akses staf (Admin/Superuser) langsung dari terminal, tanpa perlu masuk ke UI. Berguna untuk setup awal atau keadaan darurat ketika akses UI tidak tersedia.
+
+```bash
+php artisan make:staff
+```
+
+**Alur interaktif:**
+
+```
+--- Tambah/Update Staff (Admin/Superuser) ---
+Username SSO: john.doe
+Pilih Role:
+  [0] admin
+  [1] superuser
+ > 1
+Pilih Penanggung Jawab:
+  [0] Divisi Jaringan
+  [1] Divisi Sistem Informasi
+  [2] -- Tidak ada penanggung jawab --
+ > 0
+```
+
+**Perilaku command:**
+
+- Jika `username_sso` **sudah ada** di database → role dan divisi diperbarui, data lain tetap.
+- Jika `username_sso` **belum ada** → record baru dibuat dengan name sementara (sama dengan username). Data profil lengkap (nama, email, dll.) akan otomatis terisi saat yang bersangkutan login via SSO pertama kali.
+
+**Kapan digunakan:**
+
+- Setup staf pertama kali setelah instalasi (sebelum ada superuser yang bisa login ke UI)
+- Memulihkan akses superuser yang terhapus tidak sengaja
+- Onboarding staf baru secara batch via script
+
+---
+
+### `app:cleanup-orphan-attachments` — Membersihkan File Orphan
+
+Menghapus file lampiran (tiket maupun komentar) yang gagal terlampir karena pengguna membatalkan pengisian form setelah upload. File-file ini tersimpan di storage namun tidak terhubung ke tiket atau komentar mana pun (`ticket_id` / `ticket_comment_id` bernilai `NULL`).
+
+```bash
+php artisan app:cleanup-orphan-attachments
+```
+
+**Output contoh:**
+
+```
+Memulai pembersihan attachment orphan...
+Selesai! Berhasil menghapus 7 file orphan.
+```
+
+**Cara kerja:**
+
+1. Mencari semua `TicketAttachment` dengan `ticket_id = NULL` yang dibuat lebih dari **24 jam** yang lalu.
+2. Mencari semua `CommentAttachment` dengan `ticket_comment_id = NULL` yang dibuat lebih dari **24 jam** yang lalu.
+3. Menghapus file fisik dari disk `public` (`storage/app/public/`).
+4. Menghapus record dari database.
+
+Jeda 24 jam diberikan untuk memberikan toleransi kepada pengguna yang mungkin sedang mengisi form panjang.
+
+**Menjalankan Otomatis via Scheduler:**
+
+Command ini dirancang untuk dijadwalkan otomatis. Pastikan Laravel Scheduler sudah terdaftar di crontab (lihat langkah [Task Scheduler](#10-task-scheduler)), kemudian jadwalkan command ini di `app/Console/Kernel.php` atau `routes/console.php`:
+
+```php
+// routes/console.php
+use Illuminate\Support\Facades\Schedule;
+
+Schedule::command('app:cleanup-orphan-attachments')->daily();
+```
+
+Dengan konfigurasi di atas, pembersihan akan berjalan **sekali sehari** secara otomatis.
+
+**Menjalankan Manual:**
+
+Bisa juga dijalankan kapan saja secara manual, misalnya setelah maintenance atau saat storage mendekati penuh:
+
+```bash
+php artisan app:cleanup-orphan-attachments
+```
+
+---
+
+### Referensi Cepat Semua Command
+
+| Command                          | Deskripsi                                           | Dijadwalkan |
+| -------------------------------- | --------------------------------------------------- | ----------- |
+| `make:staff`                     | Tambah/update staf secara interaktif                | Tidak       |
+| `app:cleanup-orphan-attachments` | Hapus file lampiran yang tidak terlampir (> 24 jam) | Ya (harian) |
+
+Untuk melihat semua command yang tersedia (termasuk bawaan Laravel):
+
+```bash
+php artisan list
+```
 
 ---
 
@@ -724,6 +912,10 @@ Klik tombol **Export Excel** di halaman laporan. File akan diunduh dengan nama f
 app/
 ├── Channels/
 │   └── WhatsAppChannel.php      # Custom notif channel via Twilio
+├── Console/
+│   └── Commands/
+│       ├── CleanupOrphanAttachments.php  # Hapus file lampiran orphan (> 24 jam)
+│       └── CreateStaff.php              # Tambah/update staf secara interaktif
 ├── Enums/
 │   ├── IdentityType.php         # Jenis identitas tamu
 │   ├── TicketPriority.php       # Low, Medium, High
