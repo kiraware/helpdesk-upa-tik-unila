@@ -13,14 +13,12 @@ class WhatsAppChannel
      */
     public function send($notifiable, Notification $notification)
     {
-        // 1. Ambil pesan dari method toWhatsapp di Notification Class
         if (! method_exists($notification, 'toWhatsapp')) {
             return;
         }
 
         $messageData = $notification->toWhatsapp($notifiable);
 
-        // 2. Tentukan Nomor Tujuan
         $to = null;
 
         if (method_exists($notifiable, 'routeNotificationForWhatsapp')) {
@@ -37,25 +35,15 @@ class WhatsAppChannel
             return;
         }
 
-        // --- FORMAT NOMOR HP UNTUK TWILIO ---
-        // Twilio mewajibkan format E.164 (misal: +628123456789)
-        // Kita bersihkan dan format nomornya:
-
-        // Hapus karakter selain angka
         $cleanPhone = preg_replace('/[^0-9]/', '', $to);
 
-        // Jika diawali 0, ganti dengan 62 (asumsi Indonesia)
         if (Str::startsWith($cleanPhone, '0')) {
             $cleanPhone = '62'.substr($cleanPhone, 1);
         }
 
-        // Jika belum ada prefix '+', tambahkan
         $formattedTo = '+'.$cleanPhone;
-
-        // Prefix wajib Twilio
         $twilioTarget = 'whatsapp:'.$formattedTo;
 
-        // 3. KIRIM KE API TWILIO
         $sid = config('services.twilio.sid');
         $token = config('services.twilio.token');
         $fromNumber = config('services.twilio.whatsapp_from');

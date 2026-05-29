@@ -25,28 +25,23 @@ class CleanupOrphanAttachments extends Command
      */
     public function handle()
     {
-        // Kita set batas waktu 24 jam yang lalu
         $batasWaktu = Carbon::now()->subHours(24);
         $totalDihapus = 0;
 
         $this->info('Memulai pembersihan attachment orphan...');
 
-        // 1. Bersihkan Ticket Attachment
         $orphanTicketAttachments = TicketAttachment::whereNull('ticket_id')
             ->where('created_at', '<', $batasWaktu)
             ->get();
 
         foreach ($orphanTicketAttachments as $attachment) {
-            // Hapus file fisik dari storage public
             if (Storage::disk('public')->exists($attachment->path)) {
                 Storage::disk('public')->delete($attachment->path);
             }
-            // Hapus data dari database
             $attachment->delete();
             $totalDihapus++;
         }
 
-        // 2. Bersihkan Comment Attachment
         $orphanCommentAttachments = CommentAttachment::whereNull('ticket_comment_id')
             ->where('created_at', '<', $batasWaktu)
             ->get();
