@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Dashboard">
     <div class="space-y-6">
-        {{-- HEADER --}}
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
                 Selamat Datang, {{ auth()->user()->name }}
@@ -8,14 +7,11 @@
             <p class="text-muted-light dark:text-muted-dark mt-1">Berikut adalah ringkasan sistem hari ini.</p>
         </div>
 
-        {{-- STATS GRID --}}
         <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
 
-            {{-- Card 1: Total --}}
             <div
                 class="bg-surface-light dark:bg-surface-dark p-5 lg:p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark flex items-center gap-3 lg:gap-4 lg:row-span-2">
 
-                {{-- Mengubah warna bg dan text menjadi INDIGO --}}
                 <div
                     class="shrink-0 p-3 lg:p-4 bg-indigo-50 dark:bg-indigo-500/10 rounded-lg lg:rounded-xl text-indigo-600 dark:text-indigo-400">
                     <span class="material-icons-round text-2xl lg:text-4xl">dataset</span>
@@ -33,7 +29,6 @@
                 </div>
             </div>
 
-            {{-- Card 2: Waiting --}}
             <div
                 class="bg-surface-light dark:bg-surface-dark p-5 xl:p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark flex items-center gap-3 xl:gap-4">
                 <div
@@ -49,11 +44,9 @@
                 </div>
             </div>
 
-            {{-- Card 3: Progress --}}
             <div
                 class="bg-surface-light dark:bg-surface-dark p-5 xl:p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark flex items-center gap-3 xl:gap-4">
 
-                {{-- Mengubah warna bg dan text menjadi BIRU --}}
                 <div class="shrink-0 p-3 bg-blue-50 dark:bg-blue-500/10 rounded-lg text-blue-600 dark:text-blue-400">
                     <span class="material-icons-round">engineering</span>
                 </div>
@@ -66,7 +59,6 @@
                 </div>
             </div>
 
-            {{-- Card 4: Done --}}
             <div
                 class="bg-surface-light dark:bg-surface-dark p-5 xl:p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark flex items-center gap-3 xl:gap-4">
                 <div
@@ -82,7 +74,6 @@
                 </div>
             </div>
 
-            {{-- Card 5: Reject --}}
             <div
                 class="bg-surface-light dark:bg-surface-dark p-5 xl:p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark flex items-center gap-3 xl:gap-4">
                 <div class="shrink-0 p-3 bg-red-50 dark:bg-red-500/10 rounded-lg text-red-600 dark:text-red-400">
@@ -99,10 +90,8 @@
 
         </div>
 
-        {{-- MAIN CONTENT GRID --}}
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {{-- SECTION: TIKET TERBARU --}}
             <div class="lg:col-span-2 space-y-4">
                 <div class="flex justify-between items-center px-1">
                     <h2 class="font-semibold text-text-light dark:text-text-dark">Tiket Terbaru</h2>
@@ -110,7 +99,6 @@
                         Semua</a>
                 </div>
 
-                {{-- List Container --}}
                 <div id="ticket-container"
                     class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                     @forelse ($recentTickets as $ticket)
@@ -123,7 +111,6 @@
                 </div>
             </div>
 
-            {{-- SECTION: LAYANAN TERPOPULER --}}
             <div id="services-container"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark p-6 h-fit">
                 <h2 class="font-semibold text-text-light dark:text-text-dark mb-4">Layanan Terpopuler</h2>
@@ -135,9 +122,7 @@
                                 <span
                                     class="font-bold text-text-light dark:text-text-dark">{{ $service->tickets_count }}</span>
                             </div>
-                            {{-- Progress Bar Background --}}
                             <div class="w-full bg-gray-100 rounded-full h-2 dark:bg-gray-700 overflow-hidden">
-                                {{-- Progress Bar Fill --}}
                                 <div class="bg-secondary h-2 rounded-full"
                                     style="width: {{ $stats['total'] > 0 ? ($service->tickets_count / $stats['total']) * 100 : 0 }}%">
                                 </div>

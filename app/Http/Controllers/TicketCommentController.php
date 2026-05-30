@@ -7,7 +7,6 @@ use App\Enums\TicketStatus;
 use App\Enums\UserRole;
 use App\Models\CommentAttachment;
 use App\Models\Ticket;
-use App\Models\User;
 use App\Notifications\SystemNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,23 +21,17 @@ class TicketCommentController extends Controller
     {
         $request->validate(['message' => 'required|string']);
 
-        // 1. KEAMANAN: Cek Status Tiket
-        // Komentar HANYA bisa dikirim jika tiket berstatus Waiting atau Progress
         if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
             return back()->with('error', 'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).');
         }
 
         $user = $request->user();
 
-        // 2. KEAMANAN: Cek Otorisasi
-        // Jika user adalah 'USER' biasa (bukan Admin/Superuser),
-        // dia HANYA boleh komen di tiket miliknya sendiri.
         if ($user->role === UserRole::USER && $ticket->user_id !== $user->id) {
             return back()->with('error', 'Anda tidak memiliki akses ke tiket ini.');
         }
 
         DB::transaction(function () use ($request, $ticket, $user) {
-            // 3. Simpan Komentar (User ID pasti ada)
             $comment = $ticket->comments()->create([
                 'user_id' => $user->id,
                 'message' => $request->message,
@@ -54,7 +47,6 @@ class TicketCommentController extends Controller
 
             $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-            // Jika yang komen adalah Staff, DAN tiket belum ada yang pegang
             if ($isStaff && is_null($ticket->assigned_to)) {
                 $ticket->update([
                     'assigned_to' => $user->id,
@@ -67,7 +59,6 @@ class TicketCommentController extends Controller
         $isStaff = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
         if ($isStaff) {
-            // A. STAFF MEMBALAS -> Notifikasi ke User/Guest Pemilik Tiket
             $title = 'Balasan Terbaru pada Tiket Anda';
             $message = "Petugas kami (*{$user->name}*) baru saja menambahkan balasan pada tiket Anda (*#{$ticket->ticket_code}* - Layanan: *{$ticket->service->name}*). Silakan klik tautan di bawah ini untuk membaca pesan tersebut dan memberikan tanggapan kembali jika diperlukan.";
             $channels = ['database', 'mail', WhatsAppChannel::class];
@@ -92,7 +83,6 @@ class TicketCommentController extends Controller
                     ));
             }
         } else {
-            // B. USER MEMBALAS -> Notifikasi ke Petugas (HANYA JIKA ADA PETUGAS)
             if ($ticket->assigned_to && $ticket->assigned_to !== $user->id) {
 
                 $title = 'Aksi Diperlukan: Tanggapan Baru dari Pelapor';

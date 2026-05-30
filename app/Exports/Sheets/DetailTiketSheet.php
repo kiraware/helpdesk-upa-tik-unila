@@ -39,7 +39,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
         ];
 
         foreach ($this->tickets as $idx => $t) {
-            // --- LOGIKA DURASI ---
             $durationStr = '-';
             if ($t->assigned_at && $t->closed_at) {
                 $diffMinutes = $t->assigned_at->diffInMinutes($t->closed_at);
@@ -66,12 +65,10 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 }
             }
 
-            // Determine name
             $name = $t->user
                 ? $t->user->name
                 : ($t->guestDetail ? $t->guestDetail->full_name : 'Tamu');
 
-            // Determine identity number & guest flag
             $identityNumber = '-';
             $isGuest = 'Tidak';
             if ($t->user) {
@@ -81,7 +78,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $isGuest = 'Ya';
             }
 
-            // Determine faculty / work unit
             $department = '-';
             if ($t->user) {
                 $department = $t->user->department?->name ?? '-';
@@ -89,7 +85,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $department = $t->guestDetail->department?->name ?? '-';
             }
 
-            // Determine entity
             $entity = 'Lainnya';
             if ($t->user) {
                 $entity = match ($t->user->entity?->value ?? '') {
@@ -110,11 +105,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 };
             }
 
-            // --- LOGIKA SKOR KEPUASAN PER TIKET ---
-            // Catatan: Ini BUKAN CSI metodologis (yang membutuhkan agregasi banyak responden).
-            // Ini adalah skor kepuasan tertimbang per-tiket tunggal:
-            //   = Σ(satisfaction × importance) / (Σimportance × 5) × 100
-            // Cukup disebut "Skor Kepuasan (%)" agar tidak menyesatkan secara metodologis.
             $csiScore = '-';
             $feedback = '-';
 
@@ -167,7 +157,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Baris 1: Judul (A–Q = 17 kolom)
                 $sheet->mergeCells('A1:Q1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -176,7 +165,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // Baris 2: Sub-judul periode
                 $sheet->mergeCells('A2:Q2');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -184,7 +172,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 3: Header kolom
                 $sheet->getStyle('A3:Q3')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
@@ -193,7 +180,6 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Baris data
                 $highestRow = $sheet->getHighestRow();
                 $dataStart = 4;
                 $dataEnd = $highestRow;
@@ -205,29 +191,22 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
-                    // Nama (D) rata kiri
                     $sheet->getStyle("D{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // No. Identitas (E) rata kiri
                     $sheet->getStyle("E{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Fakultas/Unit Kerja (G) rata kiri
                     $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Layanan (I) & Petugas (J) rata kiri
                     $sheet->getStyle("I{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                     $sheet->getStyle("J{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
-                    // Saran (Q) rata kiri + wrap
                     $sheet->getStyle("Q{$r}")->getAlignment()
                         ->setHorizontal(Alignment::HORIZONTAL_LEFT)
                         ->setWrapText(true);
                 }
 
-                // Border luar tabel
                 $sheet->getStyle("A4:Q{$dataEnd}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);
 
                 $sheet->freezePane('C4');
 
-                // Auto-filter: Tamu?(F) s.d. Status(L)
                 $sheet->setAutoFilter('F3:L3');
             },
         ];

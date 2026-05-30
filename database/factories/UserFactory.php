@@ -29,7 +29,6 @@ class UserFactory extends Factory
             'email_verified_at' => now(),
             'remember_token' => Str::random(10),
 
-            // Data User
             'identity_number' => fake()->numerify('##########'),
             'phone' => fake()->phoneNumber(),
             'avatar_path' => null,

@@ -47,11 +47,9 @@ class CleanupOrphanAttachments extends Command
             ->get();
 
         foreach ($orphanCommentAttachments as $attachment) {
-            // Hapus file fisik dari storage public
             if (Storage::disk('public')->exists($attachment->path)) {
                 Storage::disk('public')->delete($attachment->path);
             }
-            // Hapus data dari database
             $attachment->delete();
             $totalDihapus++;
         }

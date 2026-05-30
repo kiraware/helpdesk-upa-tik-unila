@@ -1,6 +1,5 @@
 <x-layouts.guest title="Informasi & FAQ - UPA TIK Unila">
 
-    {{-- HERO SECTION --}}
     <section class="relative pt-12 pb-16 md:pt-20 md:pb-24 overflow-hidden">
         <div class="absolute inset-0 z-0 pointer-events-none">
             <div
@@ -28,7 +27,6 @@
 
     <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 space-y-12 sm:space-y-16">
 
-        {{-- BAGIAN 1: EMAIL RESMI UNILA --}}
         <section>
             <div class="flex items-center gap-3 mb-6">
                 <div
@@ -39,7 +37,6 @@
                     @unila.ac.id</h2>
             </div>
 
-            {{-- Grid Domain Email --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
                 <div
                     class="bg-surface-light dark:bg-surface-dark p-5 rounded-xl border border-border-light dark:border-border-dark shadow-sm hover:border-secondary transition-colors group">
@@ -72,7 +69,6 @@
                 </div>
             </div>
 
-            {{-- Persyaratan Unit Kerja --}}
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                 <div
                     class="col-span-1 md:col-span-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-700/30 rounded-xl p-5 sm:p-6">
@@ -93,7 +89,6 @@
                     </ul>
                 </div>
 
-                {{-- Note Simple --}}
                 <div
                     class="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-800 rounded-xl p-5 sm:p-6 flex flex-col justify-center">
                     <h3 class="font-bold text-blue-800 dark:text-blue-400 mb-2 text-sm sm:text-base">Penting!</h3>
@@ -107,7 +102,6 @@
 
         <hr class="border-border-light dark:border-border-dark">
 
-        {{-- BAGIAN 2 & 3: SSO --}}
         <section x-data="{ tab: 'reg' }">
             <div class="flex items-center gap-3 mb-6">
                 <div
@@ -133,7 +127,6 @@
                 </button>
             </div>
 
-            {{-- Registrasi --}}
             <div x-show="tab === 'reg'" x-transition.opacity class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                 <div
                     class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl p-5 sm:p-6 relative overflow-hidden">
@@ -173,7 +166,6 @@
                 </div>
             </div>
 
-            {{-- Lupa Password --}}
             <div x-show="tab === 'reset'" x-cloak x-transition.opacity class="space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
                     <div
@@ -205,7 +197,6 @@
                     </div>
                 </div>
 
-                {{-- Critical Warning (Onsite) --}}
                 <div
                     class="bg-red-50 dark:bg-red-900/10 border-l-4 border-red-500 p-5 rounded-r-xl flex flex-col sm:flex-row items-start gap-3 sm:gap-4">
                     <span
@@ -223,7 +214,6 @@
 
         <hr class="border-border-light dark:border-border-dark">
 
-        {{-- BAGIAN 4: JENIS LAYANAN HELPDESK --}}
         <section>
             <div class="text-center mb-6 sm:mb-8">
                 <h2 class="text-xl sm:text-2xl font-bold text-text-light dark:text-text-dark">Kategori Tiket Bantuan
@@ -233,42 +223,36 @@
             </div>
 
             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
-                {{-- Item 1 --}}
                 <div
                     class="flex flex-col items-center p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl text-center hover:shadow-md transition-shadow active:scale-95 duration-200">
                     <span class="material-icons-round text-3xl text-blue-500 mb-2">lock_reset</span>
                     <span class="text-xs sm:text-sm font-semibold text-text-light dark:text-text-dark">Lupa
                         Password</span>
                 </div>
-                {{-- Item 2 --}}
                 <div
                     class="flex flex-col items-center p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl text-center hover:shadow-md transition-shadow active:scale-95 duration-200">
                     <span class="material-icons-round text-3xl text-blue-500 mb-2">person_add</span>
                     <span class="text-xs sm:text-sm font-semibold text-text-light dark:text-text-dark">Registrasi
                         SSO</span>
                 </div>
-                {{-- Item 3 --}}
                 <div
                     class="flex flex-col items-center p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl text-center hover:shadow-md transition-shadow active:scale-95 duration-200">
                     <span class="material-icons-round text-3xl text-blue-500 mb-2">mail</span>
                     <span class="text-xs sm:text-sm font-semibold text-text-light dark:text-text-dark">Email
                         Resmi</span>
                 </div>
-                {{-- Item 4 --}}
                 <div
                     class="flex flex-col items-center p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl text-center hover:shadow-md transition-shadow active:scale-95 duration-200">
                     <span class="material-icons-round text-3xl text-blue-500 mb-2">wifi</span>
                     <span
                         class="text-xs sm:text-sm font-semibold text-text-light dark:text-text-dark">Jaringan/WiFi</span>
                 </div>
-                {{-- Item 5 --}}
                 <div
                     class="flex flex-col items-center p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl text-center hover:shadow-md transition-shadow active:scale-95 duration-200">
                     <span class="material-icons-round text-3xl text-blue-500 mb-2">language</span>
                     <span class="text-xs sm:text-sm font-semibold text-text-light dark:text-text-dark">Website
                         Down</span>
                 </div>
-                {{-- Item 6 --}}
                 <div
                     class="flex flex-col items-center p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl text-center hover:shadow-md transition-shadow active:scale-95 duration-200">
                     <span class="material-icons-round text-3xl text-blue-500 mb-2">dns</span>
@@ -278,7 +262,6 @@
             </div>
         </section>
 
-        {{-- CTA Bottom --}}
         <div class="mt-12 sm:mt-16 text-center">
             <p class="text-sm sm:text-base text-muted-light dark:text-muted-dark mb-4">Sudah menyiapkan persyaratan?
             </p>

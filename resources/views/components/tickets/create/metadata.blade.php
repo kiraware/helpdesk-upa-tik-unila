@@ -3,7 +3,6 @@
 <div
     class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {{-- Layanan (Custom Dropdown) --}}
         <div>
             <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
                 Jenis Layanan <span class="text-red-500">*</span>
@@ -47,7 +46,6 @@
             @enderror
         </div>
 
-        {{-- Prioritas (Custom Dropdown) --}}
         <div>
             <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
                 Tingkat Urgensi <span class="text-red-500">*</span>

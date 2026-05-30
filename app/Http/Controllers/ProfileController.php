@@ -17,7 +17,6 @@ class ProfileController extends Controller
     {
         $user = $request->user();
 
-        // Ambil data berdasarkan role
         $isAdminOrSuperuser = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
         $divisions = $isAdminOrSuperuser ? Division::all() : collect();
@@ -34,7 +33,6 @@ class ProfileController extends Controller
         $user = $request->user();
         $isAdminOrSuperuser = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-        // Aturan validasi dinamis berdasarkan role
         $rules = [
             'phone' => ['nullable', 'string', 'max:20'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // Max 2MB
@@ -48,22 +46,17 @@ class ProfileController extends Controller
 
         $validated = $request->validate($rules);
 
-        // Handle upload avatar
         if ($request->hasFile('avatar')) {
-            // Hapus file lama jika ada
             if ($user->avatar_path && Storage::disk('public')->exists($user->avatar_path)) {
                 Storage::disk('public')->delete($user->avatar_path);
             }
 
-            // Simpan file baru
             $path = $request->file('avatar')->store('avatars', 'public');
             $user->avatar_path = $path;
         }
 
-        // Update nomor telepon
         $user->phone = $validated['phone'] ?? $user->phone;
 
-        // Update relasi (Penanggung Jawab atau Departemen)
         if ($isAdminOrSuperuser && array_key_exists('division_id', $validated)) {
             $user->division_id = $validated['division_id'];
         } elseif ($user->role === UserRole::USER && array_key_exists('department_id', $validated)) {

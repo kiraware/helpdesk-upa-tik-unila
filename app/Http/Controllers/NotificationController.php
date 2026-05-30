@@ -9,7 +9,6 @@ class NotificationController extends Controller
      */
     public function index()
     {
-        // Ambil semua notifikasi user, paginate 20 per halaman
         $notifications = auth()->user()->notifications()->paginate(20);
 
         return view('notifications.index', compact('notifications'));
@@ -22,10 +21,8 @@ class NotificationController extends Controller
     {
         $notification = auth()->user()->notifications()->findOrFail($id);
 
-        // Tandai sudah dibaca
         $notification->markAsRead();
 
-        // Ambil URL dari data notifikasi, default ke dashboard jika null
         $url = $notification->data['url'] ?? route('dashboard');
 
         return redirect($url);
@@ -45,7 +42,6 @@ class NotificationController extends Controller
     {
         $user = auth()->user();
 
-        // Ambil 5 notifikasi terbaru dan format datanya
         $unreadNotifs = $user->unreadNotifications()->take(5)->get()->map(function ($notif) {
             return [
                 'id' => $notif->id,

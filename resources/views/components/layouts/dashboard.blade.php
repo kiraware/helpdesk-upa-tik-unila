@@ -20,15 +20,12 @@
 
     <div x-data="{ sidebarOpen: false }" class="flex min-h-screen relative">
 
-        {{-- Sidebar --}}
         <x-sidebar />
 
-        {{-- Overlay (Mobile) --}}
         <div x-show="sidebarOpen" x-transition @click="sidebarOpen = false"
             class="fixed inset-0 bg-black/50 z-20 lg:hidden">
         </div>
 
-        {{-- Main Content Wrapper --}}
         <div class="flex flex-col flex-1 w-full min-w-0">
 
             <x-navbar :title="$title" />
@@ -40,7 +37,6 @@
 
     </div>
 
-    {{-- Toast Notifications --}}
     @if (session('success'))
         <x-toast type="success" :message="session('success')" />
     @elseif (session('warning'))
@@ -48,7 +44,6 @@
     @elseif (session('error'))
         <x-toast type="error" :message="session('error')" />
     @else
-        {{-- Toast Kosong (Hidden) standby menunggu event JS --}}
         <x-toast />
     @endif
 

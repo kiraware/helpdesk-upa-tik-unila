@@ -45,16 +45,12 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
         $rows = [];
         $total = array_sum($this->entityDist) ?: 1;
 
-        // Baris 1: Judul
         $rows[] = ['DISTRIBUSI ENTITAS PENGGUNA'];
 
-        // Baris 2: Sub-judul periode
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
 
-        // Baris 3: Header — langsung tanpa baris kosong (pola DetailTiketSheet)
         $rows[] = ['No', 'Entitas', 'Jumlah Tiket', 'Persentase (%)'];
 
-        // Baris 4+: Data
         $no = 1;
         foreach ($this->entityLabels as $key => $label) {
             $cnt = (int) ($this->entityDist[$key] ?? 0);
@@ -62,7 +58,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
             $rows[] = [$no++, $label, $cnt, $pct];
         }
 
-        // Baris total
         $rows[] = ['', 'TOTAL', (int) array_sum($this->entityDist), 100];
 
         return $rows;
@@ -75,7 +70,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                 $sheet = $event->sheet->getDelegate();
                 $maxCol = 'D';
 
-                // ── Baris 1: Judul ──────────────────────────────────────
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -84,7 +78,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // ── Baris 2: Sub-judul periode ──────────────────────────
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -92,7 +85,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // ── Baris 3: Header kolom tabel ─────────────────────────
                 $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
@@ -101,7 +93,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // ── Baris data ──────────────────────────────────────────
                 $highestRow = $sheet->getHighestRow();
                 $dataStart = 4;
                 $dataEnd = $highestRow - 1;
@@ -117,7 +108,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // ── Baris TOTAL ─────────────────────────────────────────
                 $sheet->getStyle("A{$totalRow}:{$maxCol}{$totalRow}")->applyFromArray([
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
@@ -126,7 +116,6 @@ class DistribusiEntitasSheet implements FromArray, WithColumnWidths, WithEvents,
                 ]);
                 $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                // ── Border luar tabel ───────────────────────────────────
                 $sheet->getStyle("A4:{$maxCol}{$totalRow}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);

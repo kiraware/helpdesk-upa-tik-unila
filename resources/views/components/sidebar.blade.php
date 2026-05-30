@@ -1,5 +1,4 @@
 @php
-    // Cek apakah user adalah Admin atau Superuser
     $isStaff =
         auth()->user()->role === \App\Enums\UserRole::ADMIN || auth()->user()->role === \App\Enums\UserRole::SUPERUSER;
 @endphp
@@ -16,7 +15,6 @@
            lg:translate-x-0 
            lg:sticky lg:top-0 lg:h-screen">
 
-    {{-- Logo / Brand --}}
     <div class="h-12 shrink-0 flex items-center px-5 border-b border-border-dark bg-opacity-50">
         <a href="{{ url('/') }}" class="flex items-center gap-2.5 hover:opacity-80 transition">
 
@@ -30,10 +28,8 @@
         </a>
     </div>
 
-    {{-- Navigation --}}
     <nav class="flex-1 px-3 py-2 space-y-0.5 overflow-y-auto custom-scrollbar">
 
-        {{-- 1. GLOBAL MENUS --}}
         <p class="px-2 text-[10px] font-semibold text-muted-dark uppercase tracking-wider mb-1 mt-1">
             Menu Utama
         </p>
@@ -50,7 +46,6 @@
             Dasbor
         </a>
 
-        {{-- 2. USER MENU --}}
         @if (auth()->user()->role === \App\Enums\UserRole::USER)
             <a href="{{ route('tickets.create') }}"
                 class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
@@ -77,16 +72,13 @@
             </a>
         @endif
 
-        {{-- 3. ADMIN & SUPERUSER MENU --}}
         @if (auth()->user()->role === \App\Enums\UserRole::ADMIN || auth()->user()->role === \App\Enums\UserRole::SUPERUSER)
-            {{-- Tiket Management --}}
             <div class="mt-3 mb-1 px-2">
                 <p class="text-[10px] font-semibold text-muted-dark uppercase tracking-wider">
                     Manajemen Tiket
                 </p>
             </div>
 
-            {{-- Semua Tiket --}}
             <a href="{{ route('tickets.index') }}"
                 class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
    {{ request()->routeIs('tickets.index') || request()->routeIs('tickets.show')
@@ -99,7 +91,6 @@
                 Semua Tiket
             </a>
 
-            {{-- Tiket Menunggu --}}
             <a href="{{ route('tickets.waiting') }}"
                 class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
    {{ request()->routeIs('tickets.waiting')
@@ -126,7 +117,6 @@
                 </div>
             </a>
 
-            {{-- Tiket Ditugaskan --}}
             <a href="{{ route('tickets.assigned') }}"
                 class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
    {{ request()->routeIs('tickets.assigned')
@@ -164,7 +154,6 @@
                 Laporan
             </a>
 
-            {{-- Master Data --}}
             <div class="mt-3 mb-1 px-2">
                 <p class="text-[10px] font-semibold text-muted-dark uppercase tracking-wider">
                     Master Data
@@ -220,7 +209,6 @@
             </a>
         @endif
 
-        {{-- 4. SUPERUSER ONLY --}}
         @if (auth()->user()->role === \App\Enums\UserRole::SUPERUSER)
             <div class="mt-3 mb-1 px-2">
                 <p class="text-[10px] font-semibold text-muted-dark uppercase tracking-wider">
@@ -255,7 +243,6 @@
 
     </nav>
 
-    {{-- Footer Sidebar --}}
     <div class="py-2 px-4 border-t border-border-dark shrink-0">
         <p class="text-[10px] text-center text-muted-dark">
             &copy; {{ date('Y') }} Helpdesk UPA TIK Unila

@@ -7,7 +7,6 @@
         </div>
     </div>
 
-    {{-- Filter dengan tambahan Petugas --}}
     <x-tickets.waiting.filter :services="$services" :admins="$admins" />
 
     <div id="ticket-list-area"

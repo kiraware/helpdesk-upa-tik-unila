@@ -34,14 +34,12 @@
     $isGuestTicket = is_null($ticket->user_id);
     $currentUser = auth()->user();
 
-    // Logic Close Ticket (Hanya Staff yang di-assign atau jika tiket belum ada petugasnya)
     $canCloseTicket =
         $currentUser &&
         in_array($currentUser->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]) &&
         !$isClosed &&
         ($ticket->assigned_to === $currentUser->id || is_null($ticket->assigned_to));
 
-    // Cek apakah sudah ada komentar dari staf
     $hasStaffComment = $ticket->comments->contains(function ($comment) {
         return $comment->user &&
             in_array($comment->user->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
@@ -51,16 +49,13 @@
 <div class="border-b border-border-light dark:border-border-dark pb-6 mb-6">
     <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
 
-        {{-- Title & Meta --}}
         <div class="flex-1 min-w-0 w-full">
             <div class="mb-2 min-h-10 flex items-center w-full">
                 <h1
                     class="text-xl sm:text-2xl font-light text-muted-light dark:text-muted-dark ml-2 inline-block whitespace-nowrap">
-                    #{{ $ticket->ticket_code }}
                 </h1>
             </div>
 
-            {{-- Meta Pills --}}
             <div class="flex flex-wrap items-center gap-3 text-sm text-muted-light dark:text-muted-dark mt-1">
                 <span
                     class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium {{ $statusColors['bg'] }} {{ $statusColors['text'] }} border border-transparent">
@@ -80,14 +75,11 @@
             </div>
         </div>
 
-        {{-- Action Buttons --}}
         <div class="flex flex-wrap items-center gap-2 shrink-0 w-full md:w-auto mb-2 md:mb-0 order-first md:order-last">
 
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto">
 
-                {{-- Tombol Close Ticket --}}
                 @if ($canCloseTicket)
-                    {{-- Wrapper Alpine JS untuk Dropdown & Modal --}}
                     <div class="relative flex-1 md:flex-none" x-data="{
                         open: false,
                         showModal: false,
@@ -96,7 +88,6 @@
                         actionLabel: '',
                         actionColor: '',
                     
-                        // Fungsi untuk memicu modal
                         confirmAction(status, label, color) {
                             if (!{{ $hasStaffComment ? 'true' : 'false' }}) {
                                 this.showWarningModal = true;
@@ -111,7 +102,6 @@
                             this.open = false; // Tutup dropdown
                         },
                     
-                        // Fungsi untuk submit form
                         submitForm() {
                             this.$refs.closeForm.status.value = this.actionStatus;
                             this.$refs.closeForm.submit();
@@ -124,11 +114,9 @@
                             <span class="material-icons-round text-base">expand_more</span>
                         </button>
 
-                        {{-- Dropdown Menu --}}
                         <div x-show="open" x-transition x-cloak
                             class="absolute right-0 mt-2 w-48 bg-white dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-xl z-40 overflow-hidden">
 
-                            {{-- Option: Selesai --}}
                             <button type="button"
                                 @click="confirmAction('done', 'Selesai', 'bg-emerald-600 hover:bg-emerald-700')"
                                 class="w-full text-left px-4 py-3 text-sm text-text-light dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
@@ -138,7 +126,6 @@
 
                             <div class="border-t border-border-light dark:border-border-dark"></div>
 
-                            {{-- Option: Tolak --}}
                             <button type="button"
                                 @click="confirmAction('reject', 'Tolak', 'bg-red-600 hover:bg-red-700')"
                                 class="w-full text-left px-4 py-3 text-sm text-text-light dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors">
@@ -147,10 +134,8 @@
                             </button>
                         </div>
 
-                        {{-- Modal Konfirmasi (Tailwind + Alpine) --}}
                         <div x-show="showModal" style="display: none;" class="relative z-100"
                             aria-labelledby="modal-title" role="dialog" aria-modal="true">
-                            {{-- Backdrop Blur / Dim --}}
                             <div x-show="showModal" x-transition:enter="ease-out duration-300"
                                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"
@@ -161,7 +146,6 @@
                             <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
                                 <div class="flex min-h-full items-center justify-center p-4 text-center sm:p-0">
 
-                                    {{-- Modal Panel --}}
                                     <div x-show="showModal" @click.outside="showModal = false"
                                         x-transition:enter="ease-out duration-300"
                                         x-transition:enter-start="opacity-0 scale-95"
@@ -210,17 +194,14 @@
                             </div>
                         </div>
 
-                        {{-- Hidden Form Master --}}
                         <form x-ref="closeForm" action="{{ route('tickets.close', $ticket) }}" method="POST"
                             class="hidden">
                             @csrf @method('PATCH')
                             <input type="hidden" name="status" value="">
                         </form>
 
-                        {{-- MODAL PERINGATAN (BELUM ADA KOMENTAR) --}}
                         <div x-show="showWarningModal" style="display: none;" class="relative z-50" role="dialog"
                             aria-modal="true">
-                            {{-- Backdrop --}}
                             <div x-show="showWarningModal" x-transition:enter="ease-out duration-300"
                                 x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100"
                                 x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100"

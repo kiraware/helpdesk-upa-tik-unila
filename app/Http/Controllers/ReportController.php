@@ -19,14 +19,12 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // --- 1. FILTER RENTANG WAKTU & PERIODE ---
         $period = $request->period ?? 'custom';
 
         [$startDate, $endDate] = $this->resolveDateRange($request, $period);
 
         $ticketsQuery = Ticket::whereBetween('created_at', [$startDate, $endDate]);
 
-        // --- 2. STATS GLOBAL ---
         $stats = [
             'total' => (clone $ticketsQuery)->count(),
             'waiting' => (clone $ticketsQuery)->where('status', TicketStatus::WAITING)->count(),
@@ -37,7 +35,6 @@ class ReportController extends Controller
         $stats['completion_rate'] = $stats['total'] > 0
             ? round((($stats['done'] + $stats['reject']) / $stats['total']) * 100, 1) : 0;
 
-        // --- 3. DATA TREN HARIAN ---
         $currentDate = $startDate->copy();
         $periodMap = collect();
         while ($currentDate <= $endDate) {
@@ -54,7 +51,6 @@ class ReportController extends Controller
         $dailyTrend = array_merge($periodMap->toArray(), $rawData);
         ksort($dailyTrend);
 
-        // --- 4. TREN MINGGUAN & BULANAN ---
         $weeklyTrend = $this->buildWeeklyTrend($ticketsQuery, $startDate, $endDate);
         $monthlyTrend = $this->buildMonthlyTrend($ticketsQuery, $startDate, $endDate);
 
@@ -70,7 +66,6 @@ class ReportController extends Controller
             'reject' => $stats['reject'],
         ];
 
-        // --- 5. REKAP BERDASARKAN LAYANAN & ENTITAS ---
         $allTickets = (clone $ticketsQuery)->with(['service', 'user', 'guestDetail'])->get();
 
         $services = Service::all();
@@ -141,7 +136,6 @@ class ReportController extends Controller
             'monthly_reject' => array_values(array_map(fn ($v) => $v['reject'], $monthlyTrend)),
         ];
 
-        // --- 6. PENGHITUNGAN CSI GLOBAL ---
         $ticketsWithSurvey = (clone $ticketsQuery)
             ->whereHas('survey')
             ->with('survey.answers')
@@ -174,7 +168,6 @@ class ReportController extends Controller
             default => 'Belum Ada Data',
         };
 
-        // --- 7. KINERJA PER STAFF (dengan bonus dedikasi off-hours) ---
         $staffRaw = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
             ->with(['assignedTickets' => function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('created_at', [$startDate, $endDate])
@@ -187,7 +180,6 @@ class ReportController extends Controller
                 $doneCount = $assignedTickets->where('status', TicketStatus::DONE)->count();
                 $rejectCount = $assignedTickets->where('status', TicketStatus::REJECT)->count();
 
-                // Waktu resolusi rata-rata (dalam jam, bukan menit — sesuai tampilan blade lama)
                 $userTimes = $assignedTickets
                     ->whereNotNull('assigned_at')
                     ->whereNotNull('closed_at')
@@ -198,7 +190,6 @@ class ReportController extends Controller
                     ? round((($doneCount + $rejectCount) / $totalCount) * 100)
                     : 0;
 
-                // CSI dari survei (murni, tidak dipengaruhi off-hours)
                 $staffWeightScore = 0;
                 $staffImportance = 0;
                 $surveyCount = 0;
@@ -220,7 +211,6 @@ class ReportController extends Controller
                     $staffCSI = ($staffStar / 5) * 100;
                 }
 
-                // ── Hitung bonus dedikasi off-hours ──────────────────
                 $dedikasiData = OffHoursHelper::calcDedikasi($assignedTickets);
 
                 return [
@@ -233,7 +223,6 @@ class ReportController extends Controller
                     'rating_star' => round($staffStar, 2),
                     'csi_score' => round($staffCSI, 2),
                     'survey_count' => $surveyCount,
-                    // Data dedikasi (akan dipakai untuk normalisasi antar-staf)
                     'csi' => round($staffCSI, 2),   // alias untuk applyRankingScore()
                     'raw_points' => $dedikasiData['raw_points'],
                     'weekend_tickets' => $dedikasiData['weekend_count'],
@@ -244,10 +233,8 @@ class ReportController extends Controller
             ->values()
             ->toArray();
 
-        // Normalisasi bonus & hitung ranking_score gabungan
         $staffRaw = OffHoursHelper::applyRankingScore($staffRaw);
 
-        // Sort: ranking_score DESC → CSI DESC (tie-breaker) → done DESC
         usort($staffRaw, function ($a, $b) {
             if ($a['ranking_score'] !== $b['ranking_score']) {
                 return $b['ranking_score'] <=> $a['ranking_score'];
@@ -259,13 +246,10 @@ class ReportController extends Controller
             return $b['done'] <=> $a['done'];
         });
 
-        // Konversi ke object supaya blade tidak perlu diubah besar-besaran
         $staffPerformance = collect(array_map(fn ($s) => (object) $s, $staffRaw));
 
-        // --- 8. STATISTIK DURASI RESOLUSI (histogram) ---
         $durationStats = $this->buildDurationStats($allTickets);
 
-        // --- 9. PRIORITAS BREAKDOWN ---
         $priorityStats = (clone $ticketsQuery)
             ->selectRaw('priority, COUNT(*) as count')
             ->groupBy('priority')
@@ -285,7 +269,6 @@ class ReportController extends Controller
         ));
     }
 
-    // --- EXPORT EXCEL ---
     public function export(Request $request)
     {
         $period = $request->period ?? 'custom';
@@ -295,10 +278,6 @@ class ReportController extends Controller
 
         return Excel::download(new TicketReportExport($startDate, $endDate, $period), $fileName);
     }
-
-    // =========================================================
-    // HELPERS
-    // =========================================================
 
     private function resolveDateRange(Request $request, string $period): array
     {

@@ -3,7 +3,6 @@
     <div
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-lg mx-4 overflow-hidden flex flex-col max-h-[90vh]">
 
-        {{-- Header Modal --}}
         <div
             class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-800/50 shrink-0">
             <div class="flex items-center gap-3">
@@ -18,12 +17,10 @@
             </button>
         </div>
 
-        {{-- Form --}}
         <form action="{{ route('users.store') }}" method="POST" class="flex-1 overflow-y-auto custom-scrollbar">
             @csrf
             <div class="p-6 space-y-5">
 
-                {{-- Username SSO --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Username SSO
                         <span class="text-red-500">*</span></label>
@@ -37,7 +34,6 @@
                     </div>
                 </div>
 
-                {{-- Nomor Telepon --}}
                 <div>
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nomor
                         Telepon</label>
@@ -51,7 +47,6 @@
                     </div>
                 </div>
 
-                {{-- Role Dropdown --}}
                 <div x-data="{ open: false, selectedId: '{{ old('role') }}', selectedName: '' }" class="relative">
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Role Akses <span
                             class="text-red-500">*</span></label>
@@ -76,7 +71,6 @@
                     </div>
                 </div>
 
-                {{-- Penanggung Jawab Dropdown --}}
                 <div x-data="{ open: false, selectedId: '{{ old('division_id') }}', selectedName: '' }" class="relative">
                     <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Penanggung
                         Jawab</label>
@@ -106,7 +100,6 @@
 
             </div>
 
-            {{-- Footer --}}
             <div
                 class="px-6 py-4 bg-gray-50 dark:bg-gray-800/80 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3 shrink-0">
                 <button type="button" onclick="closeAddUserModal()"

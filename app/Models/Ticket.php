@@ -54,7 +54,6 @@ class Ticket extends Model
         do {
             $code = strtoupper(Str::random(6));
 
-            // Cek apakah kode ini sudah ada di database
             $exists = self::where('ticket_code', $code)->exists();
 
         } while ($exists);

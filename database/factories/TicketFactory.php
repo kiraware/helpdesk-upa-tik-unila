@@ -24,7 +24,6 @@ class TicketFactory extends Factory
     {
         $service = Service::inRandomOrder()->first() ?? Service::factory()->create();
 
-        // Mencari User dengan role USER, atau buat baru jika kosong
         $user = User::where('role', UserRole::USER)->inRandomOrder()->first()
                 ?? User::factory()->create();
 

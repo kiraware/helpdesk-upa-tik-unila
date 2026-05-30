@@ -92,7 +92,6 @@ Alpine.data(
             if (durationData) this.renderDuration(durationData);
             if (priorityData) this.renderPriority(priorityData);
 
-            // Tema listener
             const observer = new MutationObserver(() => {
                 this.updateChartsTheme();
             });
@@ -251,7 +250,6 @@ Alpine.data(
             const ctx = document.getElementById("serviceBarChart");
             if (!ctx) return;
 
-            // Responsive height & thickness based on screen width
             const isMobile = window.innerWidth < 640;
             const serviceCount = data.services_labels?.length ?? 0;
             const rowHeight = isMobile ? 64 : 42; // more space per row on mobile
@@ -392,13 +390,10 @@ Alpine.data(
             });
         },
 
-        // ---- NEW: Monthly Trend (Bar) ----
         renderMonthly(data) {
             const ctx = document.getElementById("monthlyTrendChart");
             if (!ctx) return;
 
-            // Build full 12-month skeleton from the data range
-            // Determine year range from labels (format "Jan 2025")
             const allMonths = [];
             const monthNames = [
                 "Jan",
@@ -415,7 +410,6 @@ Alpine.data(
                 "Des",
             ];
 
-            // Find earliest and latest year in data
             let minYear = new Date().getFullYear();
             let maxYear = minYear;
             (data.monthly_labels ?? []).forEach((lbl) => {
@@ -427,25 +421,21 @@ Alpine.data(
                 }
             });
 
-            // If span ≤ 12 months show only those months in range, otherwise show 12
             const labelToKey = {};
             (data.monthly_labels ?? []).forEach((lbl, i) => {
                 labelToKey[lbl] = i;
             });
 
-            // Always show 12 month slots: use current year if only 1 year
             const showYear = minYear === maxYear ? minYear : null;
             const fullLabels = monthNames.map((m) =>
                 showYear ? `${m} ${showYear}` : m,
             );
 
-            // Map existing data onto the 12 slots
             const totalArr = new Array(12).fill(0);
             const doneArr = new Array(12).fill(0);
             const rejectArr = new Array(12).fill(0);
 
             (data.monthly_labels ?? []).forEach((lbl, i) => {
-                // Parse month index from label
                 const parts = lbl.split(" ");
                 const engMonths = [
                     "January",
@@ -571,7 +561,6 @@ Alpine.data(
             });
         },
 
-        // ---- NEW: Duration histogram ----
         renderDuration(data) {
             const ctx = document.getElementById("durationChart");
             if (!ctx) return;
@@ -627,7 +616,6 @@ Alpine.data(
             });
         },
 
-        // ---- NEW: Priority doughnut ----
         renderPriority(data) {
             const ctx = document.getElementById("priorityChart");
             if (!ctx) return;
@@ -635,7 +623,6 @@ Alpine.data(
             const labels = Object.keys(data);
             const values = Object.values(data);
 
-            // Map both lowercase (from PHP enum) and uppercase variants
             const colorMap = {
                 high: "#ef4444",
                 HIGH: "#ef4444",
@@ -736,7 +723,6 @@ Alpine.data(
                     if (chart.options.plugins?.legend?.labels) {
                         chart.options.plugins.legend.labels.color =
                             this.getTextColor();
-                        // Regenerate labels agar warna teks generateLabels ikut update
                         if (
                             chart.options.plugins.legend.labels.generateLabels
                         ) {
@@ -744,7 +730,6 @@ Alpine.data(
                                 chart.options.plugins.legend.labels.generateLabels;
                         }
                     }
-                    // Update tooltip colors
                     if (chart.options.plugins?.tooltip) {
                         chart.options.plugins.tooltip.backgroundColor = this
                             .isDark

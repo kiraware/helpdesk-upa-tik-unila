@@ -10,7 +10,6 @@ class ValidRecaptcha implements ValidationRule
 {
     public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // Google reCAPTCHA verification endpoint
         $response = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
             'secret' => config('services.recaptcha.secret'),
             'response' => $value,

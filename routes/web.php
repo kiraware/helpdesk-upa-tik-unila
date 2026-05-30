@@ -66,11 +66,7 @@ Route::controller(GuestTicketCommentController::class)->group(function () {
 Route::post('/tickets/{ticket}/survey', [TicketSurveyController::class, 'store'])->name('tickets.survey.store');
 
 Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
-    // 1. DASHBOARD (Semua Role punya dashboard, logic tampilan diatur di Controller)
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
-    // 2. TICKETS (Semua Role butuh akses tiket)
-    // User: Create & View Own. Admin/Super: View All & Manage.
     Route::post('/tickets/upload-attachment', [TicketController::class, 'storeEmbeddedFile'])
         ->name('tickets.upload.attachment');
     Route::get('/tickets/waiting', [TicketController::class, 'waiting'])
@@ -84,12 +80,10 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     Route::post('/comments/upload-attachments', [TicketCommentController::class, 'storeEmbeddedFile'])
         ->name('comments.upload.attachments');
 
-    // Profil Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile/avatar', [ProfileController::class, 'destroyAvatar'])->name('profile.avatar.destroy');
 
-    // ROUTE NOTIFIKASI
     Route::get('/notifications', [NotificationController::class, 'index'])
         ->name('notifications.index');
     Route::get('/notifications/{id}/read', [NotificationController::class, 'markAsReadAndRedirect'])
@@ -99,11 +93,10 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     Route::get('/api/notifications', [NotificationController::class, 'fetchJson'])
         ->name('api.notifications');
 
-    // 3. GROUP ADMIN & SUPERUSER
     Route::middleware([
         'role:'.UserRole::ADMIN->value.','.UserRole::SUPERUSER->value,
     ])->group(function () {
-        // Sidebar Counter
+
         Route::get('/api/ticket-counts', function () {
             $user = auth()->user();
 
@@ -115,54 +108,43 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
             ]);
         })->name('api.ticket.counts');
 
-        // Master Data
         Route::resource('services', ServiceController::class)->except(['show']);
         Route::resource('divisions', DivisionController::class)->except(['show']);
         Route::resource('departments', DepartmentController::class)->except(['show']);
 
-        // Assign Ticket Logic
         Route::post('/tickets/{ticket}/assign-me', [TicketController::class, 'assignMe'])
             ->name('tickets.assign.me');
 
-        // Update Assignee Logic
         Route::patch('/tickets/{ticket}/assignee', [TicketController::class, 'updateAssignee'])
             ->name('tickets.update_assignee');
 
-        // Update Service Logic
         Route::patch('/tickets/{ticket}/service', [TicketController::class, 'updateService'])
             ->name('tickets.update_service');
 
-        // Update Priority Logic
         Route::patch('/tickets/{ticket}/priority', [TicketController::class, 'updatePriority'])
             ->name('tickets.update_priority');
 
-        // Close Ticket Logic
         Route::patch('/tickets/{ticket}/close', [TicketController::class, 'close'])
             ->name('tickets.close');
 
-        // Manajemen User SSO
         Route::get('/sso-users', [SsoUserController::class, 'index'])->name('sso-users.index');
         Route::post('/sso-users', [SsoUserController::class, 'store'])->name('sso-users.store');
         Route::post('/sso-users/reset-password', [SsoUserController::class, 'resetPassword'])->name('sso-users.reset-password');
         Route::post('/sso-users/inactive', [SsoUserController::class, 'inactive'])->name('sso-users.inactive');
 
-        // Laporan (Reports)
         Route::get('/reports', [ReportController::class, 'index'])->name('reports.index');
         Route::get('/reports/export', [ReportController::class, 'export'])->name('reports.export');
 
-        // Print Assignment Letter
         Route::get('/tickets/{ticket}/assignment', [TicketController::class, 'printAssignment'])
             ->name('tickets.print_assignment');
     });
 
-    // 4. GROUP SUPERUSER ONLY
     Route::middleware([
         'role:'.UserRole::SUPERUSER->value,
     ])->group(function () {
-        // Manajemen User (Admin & Superuser lain)
+
         Route::resource('users', UserController::class);
 
-        // Configuration Management
         Route::get('/configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
         Route::put('/configurations', [ConfigurationController::class, 'update'])->name('configurations.update');
     });

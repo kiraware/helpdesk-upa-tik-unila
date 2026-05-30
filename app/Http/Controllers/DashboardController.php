@@ -13,7 +13,6 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // 1. SUPERUSER
         if ($user->role === UserRole::SUPERUSER) {
 
             $stats = [
@@ -45,7 +44,6 @@ class DashboardController extends Controller
             ));
         }
 
-        // 2. ADMIN
         if ($user->role === UserRole::ADMIN) {
 
             $stats = [
@@ -91,7 +89,6 @@ class DashboardController extends Controller
             ));
         }
 
-        // 3. USER
         $myStats = [
             'active' => Ticket::where('user_id', $user->id)
                 ->whereIn('status', [

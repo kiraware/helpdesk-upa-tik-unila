@@ -1,9 +1,7 @@
 <footer
     class="bg-surface-light dark:bg-surface-dark border-t border-border-light dark:border-border-dark pt-16 pb-8 transition-colors duration-300 mt-auto w-full overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {{-- Grid diubah menjadi 3 kolom --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 mb-12">
-            {{-- Brand --}}
             <div class="col-span-1">
                 <a href="{{ url('/') }}"
                     class="flex items-center gap-2 mb-4 hover:opacity-80 transition-opacity w-fit">
@@ -16,7 +14,6 @@
                     Unit Penunjang Akademik Teknologi Informasi dan Komunikasi Universitas Lampung.
                 </p>
             </div>
-            {{-- Links (Tautan Cepat) --}}
             <div>
                 <h5 class="text-sm font-bold text-text-light dark:text-text-dark uppercase tracking-wider mb-4">
                     Tautan Cepat
@@ -60,13 +57,11 @@
                     </li>
                 </ul>
             </div>
-            {{-- Contact (Hubungi Kami) --}}
             <div>
                 <h5 class="text-sm font-bold text-text-light dark:text-text-dark uppercase tracking-wider mb-4">
                     Hubungi Kami
                 </h5>
                 <ul class="space-y-3">
-                    {{-- Alamat --}}
                     <li class="flex items-start gap-3">
                         <span class="material-icons-round text-muted-dark icon-sm mt-0.5 shrink-0">location_on</span>
                         <span class="text-sm text-muted-light dark:text-muted-dark wrap-break-word min-w-0">
@@ -74,7 +69,6 @@
                             Lampung, Lampung 35145
                         </span>
                     </li>
-                    {{-- Email --}}
                     <li class="flex items-center gap-3">
                         <span class="material-icons-round text-muted-dark icon-sm shrink-0">mail</span>
                         <span class="text-sm text-muted-light dark:text-muted-dark break-all min-w-0">

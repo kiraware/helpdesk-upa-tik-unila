@@ -57,8 +57,6 @@ class User extends Authenticatable
         ];
     }
 
-    // --- RELASI ---
-
     /**
      * Relasi: User (Staff) milik satu Penanggung Jawab
      */

@@ -23,8 +23,6 @@ class GuestTicketCommentController extends Controller
             'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
 
-        // 1. KEAMANAN: Cek Status Tiket
-        // Guest HANYA bisa membalas jika tiket berstatus Waiting atau Progress
         if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
             return back()->with('error', 'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).');
         }
@@ -42,7 +40,6 @@ class GuestTicketCommentController extends Controller
             }
         }
 
-        // Jika tiket belum ada petugas, dan yang sedang login (berkomentar) adalah Admin / Superuser
         if (is_null($ticket->assigned_to) && auth()->check()) {
             if (in_array(auth()->user()->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
                 $ticket->update([
@@ -50,12 +47,10 @@ class GuestTicketCommentController extends Controller
                     'assigned_at' => now(),
                 ]);
 
-                // Refresh data tiket agar relasi assignee langsung terbaca di baris berikutnya
                 $ticket->refresh();
             }
         }
 
-        // 2. Jika sudah ada petugas -> Kirim ke Petugas
         if ($ticket->assigned_to && $ticket->assigned_to !== auth()->id()) {
             $title = 'Balasan Baru dari Tamu';
             $guestName = $ticket->guestDetail->full_name;

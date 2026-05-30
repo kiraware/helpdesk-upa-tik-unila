@@ -2,7 +2,6 @@
 
     <div class="max-w-4xl mx-auto space-y-6">
 
-        {{-- Header --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <h2 class="text-2xl font-bold text-text-light dark:text-text-dark">Notifikasi</h2>
 
@@ -28,7 +27,6 @@
                         <div class="p-4 sm:p-5">
                             <div class="flex items-start gap-3 sm:gap-4">
 
-                                {{-- Icon --}}
                                 <div class="shrink-0 mt-1">
                                     @if ($notification->data['type'] == 'success')
                                         <div
@@ -48,10 +46,8 @@
                                     @endif
                                 </div>
 
-                                {{-- Content --}}
                                 <div class="flex-1 min-w-0">
 
-                                    {{-- Title + Time (klik untuk redirect) --}}
                                     <a href="{{ route('notifications.read', $notification->id) }}" class="block">
                                         <div class="flex flex-row items-center justify-between gap-2 mb-1">
                                             <p
@@ -65,7 +61,6 @@
                                         </div>
                                     </a>
 
-                                    {{-- Message --}}
                                     <div x-data="{ open: false }" class="text-sm text-muted-light dark:text-slate-400">
 
                                         <p x-ref="text" :class="open ? '' : 'line-clamp-2'"
@@ -73,7 +68,6 @@
                                             {{ $notification->data['message'] }}
                                         </p>
 
-                                        {{-- Toggle hanya muncul jika benar-benar ke-clamp --}}
                                         <button x-show="$refs.text.scrollHeight > $refs.text.clientHeight"
                                             @click.stop="open = !open"
                                             class="mt-1 text-xs text-blue-600 dark:text-blue-400 hover:underline">
@@ -84,7 +78,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Unread indicator --}}
                                 @if (!$notification->read_at)
                                     <div class="shrink-0 self-center">
                                         <span class="block w-2.5 h-2.5 bg-blue-500 rounded-full"></span>
@@ -107,7 +100,6 @@
             </ul>
         </div>
 
-        {{-- Pagination --}}
         <div class="mt-4">
             {{ $notifications->links() }}
         </div>

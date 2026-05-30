@@ -4,7 +4,6 @@
     For the multi-sheet version, use TicketReportExport with Sheets/*.
 --}}
 <table>
-    {{-- ===== SECTION 1: JUDUL ===== --}}
     <tr>
         <th colspan="15"
             style="text-align: center; font-weight: bold; font-size: 16px; background-color: #1E40AF; color: #FFFFFF; padding: 10px;">
@@ -24,7 +23,6 @@
     </tr>
     <tr></tr>
 
-    {{-- ===== SECTION 2: RINGKASAN STATUS ===== --}}
     <tr>
         <th colspan="5"
             style="background-color: #059669; color: #FFFFFF; font-weight: bold; font-size: 11px; padding: 6px;">
@@ -97,7 +95,6 @@
     </tr>
     <tr></tr>
 
-    {{-- ===== SECTION 3: REKAP LAYANAN SIMPLE ===== --}}
     <tr>
         <th colspan="5"
             style="background-color: #1E40AF; color: #FFFFFF; font-weight: bold; font-size: 11px; padding: 6px;">
@@ -129,7 +126,6 @@
     </tr>
     <tr></tr>
 
-    {{-- ===== SECTION 4: REKAP LAYANAN + ENTITAS ===== --}}
     <tr>
         <th colspan="11"
             style="background-color: #7C3AED; color: #FFFFFF; font-weight: bold; font-size: 11px; padding: 6px;">
@@ -168,7 +164,6 @@
     @endforeach
     <tr></tr>
 
-    {{-- ===== SECTION 5: DETAIL TIKET ===== --}}
     <tr>
         <th colspan="12"
             style="background-color: #065F46; color: #FFFFFF; font-weight: bold; font-size: 11px; padding: 6px;">

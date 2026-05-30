@@ -1,6 +1,5 @@
 <form method="GET" action="{{ route('users.index') }}" class="mb-6">
     <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
-        {{-- Search --}}
         <div class="sm:col-span-8 lg:col-span-9 relative">
             <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <span class="material-icons-round text-gray-400">search</span>

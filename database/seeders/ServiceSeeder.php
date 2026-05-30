@@ -28,7 +28,6 @@ class ServiceSeeder extends Seeder
             'Lainnya',
         ];
 
-        // Seed untuk guest
         foreach ($guestServices as $serviceName) {
             Service::firstOrCreate(
                 ['name' => $serviceName],
@@ -40,7 +39,6 @@ class ServiceSeeder extends Seeder
             );
         }
 
-        // Seed untuk user
         foreach ($userServices as $serviceName) {
             Service::firstOrCreate(
                 ['name' => $serviceName],

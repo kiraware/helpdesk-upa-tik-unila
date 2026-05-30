@@ -9,7 +9,6 @@
         ? asset('storage/' . $user->avatar_path)
         : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
 
-    // KONFIGURASI FILE
     $maxSizeKp = 2048; // 2MB dalam KB
     $acceptedMimes =
         'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
@@ -18,7 +17,6 @@
 
 @if (!$isClosed)
     <div class="flex gap-4 pt-6 border-t border-border-light dark:border-border-dark mt-6">
-        {{-- Avatar --}}
         <div class="shrink-0 hidden sm:block">
             <img src="{{ $userAvatar }}"
                 class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light object-cover">
@@ -28,7 +26,6 @@
             <form action="{{ route('tickets.comments.store', $ticket) }}" method="POST">
                 @csrf
 
-                {{-- CONTAINER EDITOR --}}
                 <div
                     class="border border-border-light dark:border-border-dark rounded-xl
                            bg-surface-light dark:bg-surface-dark
@@ -36,7 +33,6 @@
                            focus-within:ring-1 focus-within:ring-secondary
                            focus-within:border-secondary transition-all">
 
-                    {{-- AREA EDITOR --}}
                     <div
                         class="px-4 py-2 border-b border-border-light dark:border-border-dark
                                bg-gray-50 dark:bg-slate-800/30">
@@ -52,7 +48,6 @@
                         </trix-editor>
                     </div>
 
-                    {{-- FOOTER --}}
                     <div class="px-3 py-2 bg-gray-50 dark:bg-slate-800/50 flex justify-end">
                         <button type="submit"
                             class="px-3 py-1.5 sm:px-4
@@ -65,7 +60,6 @@
                     </div>
                 </div>
 
-                {{-- INFORMASI DI BAWAH EDITOR --}}
                 <div class="flex items-start gap-2 mt-2 ml-1">
                     <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
 

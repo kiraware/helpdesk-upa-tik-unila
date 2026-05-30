@@ -1,13 +1,10 @@
 <x-layouts.guest title="Lacak Tiket">
-    {{-- Container Utama --}}
     <div
         class="min-h-screen flex items-center justify-center p-3 sm:p-4 bg-[#f3f4f6] dark:bg-background-dark transition-colors duration-300 font-sans">
 
-        {{-- Card --}}
         <div
             class="w-full max-w-md bg-white dark:bg-surface-dark rounded-2xl shadow-soft dark:shadow-glow p-6 md:p-10 transform transition-all hover:scale-[1.01] duration-300 border border-gray-100 dark:border-gray-700">
 
-            {{-- Header Text --}}
             <div class="text-center mb-6 md:mb-8">
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-2 md:mb-3 tracking-tight">
                     Lacak Tiket Anda
@@ -17,11 +14,9 @@
                 </p>
             </div>
 
-            {{-- Form Area Standard --}}
             <form action="{{ route('guest.tracking.search') }}" method="POST" class="space-y-4 md:space-y-6">
                 @csrf
 
-                {{-- Input Field --}}
                 <div>
                     <label for="ticket-code"
                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 md:mb-2">
@@ -33,7 +28,6 @@
                             oninput="this.value = this.value.toUpperCase()"
                             class="w-full px-4 py-3 md:py-3.5 rounded-xl border border-gray-200 dark:border-slate-600 bg-gray-50 dark:bg-border-dark text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-[#1d4ed8] focus:border-transparent outline-none transition-all duration-200 uppercase placeholder:normal-case text-sm md:text-base" />
 
-                        {{-- Icon Search --}}
                         <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                             <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 group-focus-within:text-[#1d4ed8] transition-colors"
                                 fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,7 +38,6 @@
                     </div>
                 </div>
 
-                {{-- Action Button --}}
                 <button type="submit"
                     class="w-full bg-[#1d4ed8] hover:bg-[#1e40af] text-white font-semibold py-3 md:py-3.5 px-4 rounded-xl shadow-lg shadow-blue-500/30 transition-all duration-200 transform active:scale-[0.98] flex justify-center items-center gap-2 group text-sm md:text-base">
                     <span>Cek Status</span>

@@ -54,7 +54,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
 
     public function columnWidths(): array
     {
-        // A=Prioritas, B=Total, C..F=per-status, G=% Selesai
         $totalCols = 1 + 1 + count($this->statuses) + 1;
         $widths = ['A' => 18];
         for ($i = 2; $i <= $totalCols; $i++) {
@@ -68,7 +67,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
     {
         $rows = [];
 
-        // Hitung distribusi: priority → status → count
         $data = [];
         foreach ($this->priorities as $p) {
             $data[$p->value] = ['total' => 0];
@@ -104,7 +102,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
         $rows[] = [];
 
-        // Header
         $header = ['Prioritas', 'Total'];
         foreach ($this->statuses as $s) {
             $header[] = ucfirst($s->value);
@@ -112,7 +109,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
         $header[] = '% Selesai';
         $rows[] = $header;
 
-        // Data per prioritas
         foreach ($this->priorities as $p) {
             $pTotal = $data[$p->value]['total'];
             $pDone = $data[$p->value]['done'] ?? 0;
@@ -127,7 +123,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
             $rows[] = $row;
         }
 
-        // Grand total
         $gtDone = $grandStatus['done'] ?? 0;
         $gtReject = $grandStatus['reject'] ?? 0;
         $gtDoneRate = $grandTotal > 0 ? round((($gtDone + $gtReject) / $grandTotal) * 100, 1) : '0';
@@ -153,7 +148,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                 $maxCol = Coordinate::stringFromColumnIndex($totalCols);
                 $rt = $this->rowTotal;
 
-                // Baris 1: Judul
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -162,7 +156,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // Baris 2: Sub-judul
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -170,7 +163,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 3: Header tabel
                 $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
@@ -179,7 +171,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Warna aksen per kolom status pada header (kolom C dan seterusnya, setelah Prioritas + Total)
                 $statusColIdx = 3; // kolom C = index 3
                 foreach ($this->statuses as $status) {
                     $colLetter = Coordinate::stringFromColumnIndex($statusColIdx);
@@ -190,7 +181,6 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                     $statusColIdx++;
                 }
 
-                // Baris data: 4 s.d. rt-1
                 $dataStart = 4;
                 $dataEnd = $rt - 1;
 
@@ -203,14 +193,12 @@ class PrioritasTiketSheet implements FromArray, WithColumnWidths, WithEvents, Wi
                     ]);
                 }
 
-                // Baris TOTAL
                 $sheet->getStyle("A{$rt}:{$maxCol}{$rt}")->applyFromArray([
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Border luar
                 $sheet->getStyle("A4:{$maxCol}{$rt}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);

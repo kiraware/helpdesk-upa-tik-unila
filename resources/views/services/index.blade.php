@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Manajemen Layanan">
 
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
@@ -18,10 +17,8 @@
         </button>
     </div>
 
-    {{-- Component: Filter --}}
     <x-services.filter />
 
-    {{-- Table Card --}}
     <div
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
         <div class="overflow-x-auto">
@@ -35,7 +32,6 @@
                         <th
                             class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider">
                             Nama Layanan</th>
-                        {{-- TH Baru --}}
                         <th
                             class="px-6 py-4 text-xs font-bold text-muted-light dark:text-muted-dark uppercase tracking-wider w-32">
                             Aksesibilitas</th>
@@ -69,7 +65,6 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
         @if ($services->hasPages())
             <div class="px-6 py-4 border-t border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
                 {{ $services->links() }}
@@ -77,13 +72,11 @@
         @endif
     </div>
 
-    {{-- Modals --}}
     <x-services.modal-add />
     <x-services.modal-edit />
     <x-services.modal-delete />
 
     <script>
-        // Modal Tambah
         function openAddServiceModal() {
             const modal = document.getElementById('addServiceModal');
             modal.classList.remove('hidden');
@@ -96,7 +89,6 @@
             modal.classList.remove('flex');
         }
 
-        // Modal Edit
         function openEditServiceModal(button) {
             const {
                 id,
@@ -124,7 +116,6 @@
             modal.classList.remove('flex');
         }
 
-        // Modal Hapus
         function openDeleteServiceModal(button) {
             const {
                 id,
@@ -144,7 +135,6 @@
             modal.classList.remove('flex');
         }
 
-        // Auto-open Add Modal jika ada validasi error
         @if ($errors->any())
             document.addEventListener('DOMContentLoaded', () => {
                 openAddServiceModal();

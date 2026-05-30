@@ -78,7 +78,6 @@ class TicketController extends Controller
                 }
             })
 
-            // -------------------------------------------------------------------------
             // ORDERING STRATEGY
             //
             // Tujuan: Tiket yang paling butuh perhatian muncul paling atas.

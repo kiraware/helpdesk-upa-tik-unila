@@ -4,33 +4,24 @@
         class="min-h-screen bg-background-light dark:bg-background-dark py-8 px-4 sm:px-6 lg:px-8 font-sans overflow-x-hidden">
         <div class="max-w-7xl mx-auto w-full">
 
-            {{-- HEADER SECTION --}}
             <x-tickets.show.header :ticket="$ticket" />
 
-            {{-- MAIN LAYOUT --}}
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
 
-                {{-- LEFT COLUMN: Discussion --}}
                 <div class="lg:col-span-3 space-y-8">
 
-                    {{-- 1. Detail Pelapor --}}
                     <x-tickets.show.guest-details :ticket="$ticket" />
 
-                    {{-- 2. Initial Description --}}
                     <x-tickets.show.description :ticket="$ticket" />
 
-                    {{-- 3. Comments --}}
                     <x-tickets.show.comments :ticket="$ticket" />
 
-                    {{-- 4. Reply Form --}}
                     @php
-                        // Logika Status Tiket
                         $isClosed = in_array($ticket->status, [
                             \App\Enums\TicketStatus::DONE,
                             \App\Enums\TicketStatus::REJECT,
                         ]);
 
-                        // Logika Nama & Avatar
                         if (auth()->check()) {
                             $user = auth()->user();
 
@@ -45,7 +36,6 @@
                             $avatarUrl = 'https://ui-avatars.com/api/?name=' . urlencode($responderName);
                         }
 
-                        // KONFIGURASI FILE
                         $maxSizeKp = 2048; // 2MB dalam KB
                         $acceptedMimes =
                             'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
@@ -55,7 +45,6 @@
                     @if (!$isClosed)
                         <div class="flex gap-4 pt-6 border-t border-border-light dark:border-border-dark mt-6">
 
-                            {{-- Avatar --}}
                             <div class="shrink-0 hidden sm:block">
                                 <img src="{{ $avatarUrl }}" alt="{{ $responderName }}"
                                     class="w-10 h-10 rounded-full border border-border-light dark:border-border-dark shadow-sm bg-surface-light object-cover"
@@ -67,7 +56,6 @@
                                 <form action="{{ route('guest.tickets.comments.store', $ticket) }}" method="POST">
                                     @csrf
 
-                                    {{-- Styling Container Form --}}
                                     <div
                                         class="border border-border-light dark:border-border-dark rounded-xl
                                                bg-surface-light dark:bg-surface-dark
@@ -75,7 +63,6 @@
                                                focus-within:ring-1 focus-within:ring-secondary
                                                focus-within:border-secondary transition-all">
 
-                                        {{-- AREA EDITOR --}}
                                         <div
                                             class="px-4 py-2 border-b border-border-light dark:border-border-dark
                                                    bg-gray-50 dark:bg-slate-800/30">
@@ -91,13 +78,10 @@
                                                 placeholder="Tulis balasan anda..."></trix-editor>
                                         </div>
 
-                                        {{-- FOOTER --}}
                                         <div
                                             class="px-4 py-3 bg-gray-50 dark:bg-slate-800/50 flex flex-col sm:flex-row items-center justify-between gap-4">
 
-                                            {{-- AREA RECAPTCHA (KIRI) --}}
                                             <div class="w-full sm:w-auto">
-                                                {{-- Widget Container --}}
                                                 <div class="g-recaptcha"
                                                     data-sitekey="{{ config('services.recaptcha.key') }}"
                                                     data-theme="light" {{-- Ubah ke "dark" jika ingin mode gelap --}}
@@ -111,7 +95,6 @@
                                                 @enderror
                                             </div>
 
-                                            {{-- TOMBOL KIRIM (KANAN) --}}
                                             <div class="flex items-center gap-2 self-end sm:self-auto">
                                                 <button type="submit" id="submitButton" disabled
                                                     class="px-4 py-2 bg-secondary text-white text-sm font-medium rounded-lg shadow-sm transition-all whitespace-nowrap
@@ -143,7 +126,6 @@
                             </div>
                         </div>
                     @else
-                        {{-- CLOSED STATE --}}
                         <div
                             class="p-6 mt-6 bg-gray-50 dark:bg-slate-800/50 rounded-xl
                                    border border-border-light dark:border-border-dark
@@ -158,11 +140,9 @@
                         </div>
                     @endif
 
-                    {{-- 5. Survey Kepuasan --}}
                     <x-tickets.show.survey :ticket="$ticket" />
                 </div>
 
-                {{-- RIGHT COLUMN: Sidebar --}}
                 <div class="lg:col-span-1">
                     <x-tickets.show.sidebar :ticket="$ticket" :admins="$admins" :services="$services" />
                 </div>
@@ -171,9 +151,7 @@
         </div>
     </div>
 
-    {{-- SCRIPT PENGENDALI TOMBOL --}}
     <script>
-        // Fungsi Callback Turnstile (Global Scope)
         function enableSubmitButton() {
             const btn = document.getElementById('submitButton');
             if (btn) {

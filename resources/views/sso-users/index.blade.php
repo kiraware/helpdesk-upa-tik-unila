@@ -25,7 +25,6 @@
             <x-toast type="error" message="{{ session('error') }}" />
         @endif
 
-        {{-- Header --}}
         <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
@@ -43,7 +42,6 @@
             </button>
         </div>
 
-        {{-- Filter / Search --}}
         <form method="GET" action="{{ route('sso-users.index') }}" class="mb-6">
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-4">
                 <div class="sm:col-span-8 lg:col-span-9 relative">
@@ -54,7 +52,6 @@
                         placeholder="Cari pengguna berdasarkan nama, username, atau email..."
                         class="h-10 block w-full pl-10 pr-10 py-2 border border-border-light dark:border-border-dark rounded-lg leading-5 bg-surface-light dark:bg-slate-800 text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary sm:text-sm shadow-sm">
 
-                    {{-- Tombol Reset Search --}}
                     @if ($search)
                         <a href="{{ route('sso-users.index') }}"
                             class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-red-500 transition-colors">
@@ -71,7 +68,6 @@
             </div>
         </form>
 
-        {{-- Table Card --}}
         <div
             class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
             <div class="overflow-x-auto">
@@ -137,7 +133,6 @@
                                 <td class="px-6 py-4 text-right whitespace-nowrap">
                                     <div
                                         class="flex items-center justify-end space-x-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-                                        {{-- Tombol Reset Sandi --}}
                                         <button type="button"
                                             @click="openResetModal('{{ $user['username'] }}', '{{ addslashes($user['name']) }}')"
                                             class="p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors"
@@ -145,7 +140,6 @@
                                             <span class="material-icons-round text-lg">key</span>
                                         </button>
 
-                                        {{-- Tombol Inactive Akun --}}
                                         @if (!isset($user['active']) || $user['active'])
                                             <button type="button"
                                                 @click="openInactiveModal('{{ $user['username'] }}', '{{ addslashes($user['name']) }}')"
@@ -169,13 +163,11 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
             <div class="px-6 py-4 bg-gray-50 dark:bg-slate-800/50 border-t border-border-light dark:border-border-dark">
                 {{ $users->links() }}
             </div>
         </div>
 
-        {{-- MODAL CREATE USER --}}
         <div x-show="isCreateModalOpen" x-cloak style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center">
             <div x-show="isCreateModalOpen" x-transition.opacity
@@ -231,7 +223,6 @@
                                     class="w-full px-3 py-2 border border-border-light dark:border-border-dark rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary bg-white dark:bg-slate-700 text-text-light dark:text-text-dark sm:text-sm">
                             </div>
 
-                            {{-- Custom Dropdown Domain Email --}}
                             <div>
                                 <label
                                     class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Domain
@@ -270,7 +261,6 @@
                                 </div>
                             </div>
 
-                            {{-- Custom Dropdown Status --}}
                             <div>
                                 <label
                                     class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Status
@@ -310,7 +300,6 @@
                                 </div>
                             </div>
 
-                            {{-- Custom Dropdown Fakultas --}}
                             <div>
                                 <label
                                     class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">Fakultas</label>
@@ -401,7 +390,6 @@
             </div>
         </div>
 
-        {{-- MODAL RESET PASSWORD --}}
         <div x-show="isResetModalOpen" x-cloak style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center">
             <div x-show="isResetModalOpen" x-transition.opacity
@@ -455,7 +443,6 @@
             </div>
         </div>
 
-        {{-- MODAL INACTIVE USER --}}
         <div x-show="isInactiveModalOpen" x-cloak style="display: none;"
             class="fixed inset-0 z-50 flex items-center justify-center">
             <div x-show="isInactiveModalOpen" x-transition.opacity

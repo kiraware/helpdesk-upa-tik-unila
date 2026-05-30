@@ -32,7 +32,6 @@
         <x-landing.footer />
     </div>
 
-    {{-- Toast Notifications --}}
     @if (session('success'))
         <x-toast type="success" :message="session('success')" />
     @elseif (session('warning'))
@@ -40,7 +39,6 @@
     @elseif (session('error'))
         <x-toast type="error" :message="session('error')" />
     @else
-        {{-- Toast Kosong (Hidden) standby menunggu event JS --}}
         <x-toast />
     @endif
 

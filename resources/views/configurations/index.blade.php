@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Pengaturan Sistem">
 
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
@@ -12,7 +11,6 @@
         </div>
     </div>
 
-    {{-- Form Card --}}
     <div
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden max-w-3xl">
         <div class="px-6 py-4 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
@@ -28,7 +26,6 @@
                 @method('PUT')
 
                 <div class="space-y-6">
-                    {{-- Nama --}}
                     <div>
                         <label for="upa_head_name"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
@@ -39,7 +36,6 @@
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-light">
                                 <span class="material-icons-round text-lg">person</span>
                             </span>
-                            {{-- Added maxlength="50" --}}
                             <input type="text" name="upa_head_name" id="upa_head_name"
                                 value="{{ old('upa_head_name', $config->upa_head_name) }}"
                                 class="pl-10 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark focus:border-secondary focus:ring-secondary sm:text-sm py-2.5"
@@ -50,7 +46,6 @@
                         @enderror
                     </div>
 
-                    {{-- NIP --}}
                     <div>
                         <label for="upa_head_nip"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
@@ -61,7 +56,6 @@
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-light">
                                 <span class="material-icons-round text-lg">badge</span>
                             </span>
-                            {{-- Added maxlength="32" --}}
                             <input type="text" name="upa_head_nip" id="upa_head_nip"
                                 value="{{ old('upa_head_nip', $config->upa_head_nip) }}"
                                 class="pl-10 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark focus:border-secondary focus:ring-secondary sm:text-sm py-2.5"
@@ -72,7 +66,6 @@
                         @enderror
                     </div>
 
-                    {{-- Jabatan --}}
                     <div>
                         <label for="upa_head_position"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
@@ -83,7 +76,6 @@
                                 class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-muted-light">
                                 <span class="material-icons-round text-lg">work</span>
                             </span>
-                            {{-- Added maxlength="50" --}}
                             <input type="text" name="upa_head_position" id="upa_head_position"
                                 value="{{ old('upa_head_position', $config->upa_head_position) }}"
                                 class="pl-10 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-slate-800 text-text-light dark:text-text-dark focus:border-secondary focus:ring-secondary sm:text-sm py-2.5"
@@ -95,7 +87,6 @@
                     </div>
                 </div>
 
-                {{-- Action Buttons --}}
                 <div class="mt-8 pt-6 border-t border-border-light dark:border-border-dark flex justify-end">
                     <button type="submit"
                         class="flex items-center justify-center px-4 py-2 bg-secondary hover:bg-blue-600 text-white text-sm font-medium rounded-lg shadow-sm transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">

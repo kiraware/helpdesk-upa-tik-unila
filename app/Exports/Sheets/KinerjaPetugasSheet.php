@@ -38,19 +38,15 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
     {
         $rows = [];
 
-        // Baris 1: Judul
         $rows[] = ['KINERJA PETUGAS HELPDESK'];
 
-        // Baris 2: Sub-judul periode
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
 
-        // Baris 3: Keterangan bonus dedikasi
         $rows[] = [
             'Catatan: Skor Ranking = CSI (85%) + Dedikasi Luar Jam (15%). '.
             'Tiket hari libur/weekend mendapat +2 poin; tiket di luar jam kerja mendapat +1 poin.',
         ];
 
-        // Baris 4: Header kolom
         $rows[] = [
             'No',
             'Nama Petugas',
@@ -68,7 +64,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
             'Skor Ranking',      // ranking_score (composite, untuk urutan)
         ];
 
-        // Baris 5+: Data
         foreach ($this->staffData as $idx => $s) {
             $rows[] = [
                 $idx + 1,
@@ -88,7 +83,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
             ];
         }
 
-        // Baris total
         $rows[] = [
             '',
             'TOTAL',
@@ -112,7 +106,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                 $sheet = $event->sheet->getDelegate();
                 $maxCol = 'N'; // A–N = 14 kolom
 
-                // ── Baris 1: Judul ──────────────────────────────────────
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -121,7 +114,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // ── Baris 2: Sub-judul periode ──────────────────────────
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -129,7 +121,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // ── Baris 3: Keterangan bonus ────────────────────────────
                 $sheet->mergeCells("A3:{$maxCol}3");
                 $sheet->getStyle('A3')->applyFromArray([
                     'font' => ['italic' => true, 'size' => 8, 'color' => ['rgb' => '92400E']],
@@ -138,7 +129,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(24);
 
-                // ── Baris 4: Header kolom tabel ─────────────────────────
                 $sheet->getStyle("A4:{$maxCol}4")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
@@ -147,7 +137,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                 ]);
                 $sheet->getRowDimension(4)->setRowHeight(32);
 
-                // Warna aksen tiap header kolom khusus
                 $accentCols = [
                     'C' => 'assigned',
                     'D' => 'done',
@@ -161,7 +150,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                     ]);
                 }
 
-                // Kolom Skor Dedikasi & Skor Ranking — warna khusus
                 $sheet->getStyle('M4')->applyFromArray([
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '6D28D9']],
                 ]);
@@ -169,7 +157,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '1D4ED8']],
                 ]);
 
-                // ── Baris data ──────────────────────────────────────────
                 $highestRow = $sheet->getHighestRow();
                 $dataStart = 5;
                 $dataEnd = $highestRow - 1; // baris terakhir = total
@@ -185,7 +172,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                     $sheet->getStyle("G{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                    // Highlight ringan kolom dedikasi
                     $sheet->getStyle("K{$r}")->applyFromArray([
                         'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => ($r % 2 === 0) ? 'EDE9FE' : 'F5F3FF']],
                     ]);
@@ -202,7 +188,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                     ]);
                 }
 
-                // ── Baris TOTAL ─────────────────────────────────────────
                 $sheet->getStyle("A{$totalRow}:{$maxCol}{$totalRow}")->applyFromArray([
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
@@ -211,7 +196,6 @@ class KinerjaPetugasSheet implements FromArray, ShouldAutoSize, WithEvents, With
                 ]);
                 $sheet->getStyle("B{$totalRow}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                // ── Border luar tabel ───────────────────────────────────
                 $sheet->getStyle("A5:{$maxCol}{$totalRow}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '065F46']]],
                 ]);

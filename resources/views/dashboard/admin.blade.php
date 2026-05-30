@@ -1,8 +1,6 @@
 <x-layouts.dashboard title="Dashboard">
     <div class="space-y-6">
-        {{-- SECTION 1: Stats Grid --}}
         <div id="stats-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {{-- Card: Belum Ditugaskan --}}
             <div
                 class="bg-red-50 dark:bg-red-500/10 border border-red-100 dark:border-red-500/20 p-6 rounded-xl flex items-center justify-between">
                 <div>
@@ -14,7 +12,6 @@
                 </div>
             </div>
 
-            {{-- Card: Tugas Saya --}}
             <div
                 class="bg-blue-50 dark:bg-blue-500/10 border border-blue-100 dark:border-blue-500/20 p-6 rounded-xl flex items-center justify-between">
                 <div>
@@ -27,9 +24,7 @@
             </div>
         </div>
 
-        {{-- SECTION 2: Priority Queue List --}}
         <div class="space-y-4">
-            {{-- Header --}}
             <div class="flex justify-between items-center px-1">
                 <h2 class="font-semibold text-text-light dark:text-text-dark">Antrian Prioritas</h2>
                 <a href="{{ route('tickets.index') }}" class="text-sm text-secondary hover:underline">
@@ -37,12 +32,10 @@
                 </a>
             </div>
 
-            {{-- List Container --}}
             <div id="ticket-container"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                 <div class="divide-y divide-border-light dark:divide-border-dark">
                     @forelse($priorityTickets as $ticket)
-                        {{-- Component Item --}}
                         <x-tickets.index.item :ticket="$ticket" />
                     @empty
                         <div class="p-8 text-center text-muted-light dark:text-muted-dark">
