@@ -10,7 +10,7 @@
                         Ringkasan Eksekutif Helpdesk
                     </h1>
                     <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                        {{ $startDate->format('d F Y') }} &mdash; {{ $endDate->format('d F Y') }}
+                        {{ $startDate->translatedFormat('d F Y') }} — {{ $endDate->translatedFormat('d F Y') }}
                         &nbsp;&bull;&nbsp;
                         <span class="font-medium text-blue-600 dark:text-blue-400">
                             {{ number_format($stats['total']) }} tiket
