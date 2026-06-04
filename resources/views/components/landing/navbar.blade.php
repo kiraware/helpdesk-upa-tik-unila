@@ -47,12 +47,6 @@
                                px-4 py-2 rounded-lg transition-all">
                         Login
                     </a>
-
-                    <a href="{{ route('guest.tickets.create') }}"
-                        class="text-sm font-semibold text-white bg-brand hover:bg-brand-hover 
-                               px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-500/30">
-                        Buat Tiket
-                    </a>
                 @endguest
 
                 @auth
@@ -148,10 +142,6 @@
                     <a href="{{ route('login') }}"
                         class="block text-center text-sm font-semibold border border-border-light dark:border-border-dark py-2.5 rounded-lg dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-800">
                         Login
-                    </a>
-                    <a href="{{ route('guest.tickets.create') }}"
-                        class="block text-center text-sm font-semibold bg-brand hover:bg-brand-hover text-white py-2.5 rounded-lg shadow-sm">
-                        Buat Tiket
                     </a>
                 </div>
             @endguest

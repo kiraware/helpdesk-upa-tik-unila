@@ -42,23 +42,23 @@
                         <div class="flex items-start justify-between mb-6">
                             <div
                                 class="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center border border-white/30">
-                                <span class="material-icons-round icon-lg">edit_note</span>
+                                <span class="material-icons-round icon-lg">login</span>
                             </div>
                             <span
                                 class="bg-white/20 backdrop-blur-md text-xs font-bold px-3 py-1 rounded-full border border-white/20">Langkah
                                 1</span>
                         </div>
-                        <h3 class="text-2xl lg:text-3xl font-bold mb-3">Buat Tiket Baru</h3>
+                        <h3 class="text-2xl lg:text-3xl font-bold mb-3">Akses Layanan TIK</h3>
                         <p class="text-blue-50 leading-relaxed mb-8 text-lg">
-                            Mengalami kendala teknis? Segera buat tiket pelaporan baru untuk mendapatkan bantuan
-                            langsung.
+                            Login menggunakan akun SSO Unila Anda untuk mendapatkan akses penuh ke seluruh layanan
+                            pelaporan kendala TIK.
                         </p>
                         <div class="mt-auto">
-                            <a href="{{ auth()->check() ? route('tickets.create') : route('guest.tickets.create') }}"
+                            <a href="{{ auth()->check() ? route('dashboard') : route('login') }}"
                                 class="group/btn inline-flex items-center justify-center gap-2 bg-white text-brand font-bold py-4 px-6 rounded-xl hover:bg-blue-50 transition-all w-full sm:w-auto shadow-sm">
                                 <span
-                                    class="material-icons-round group-hover/btn:scale-110 transition-transform">add_circle</span>
-                                <span>Buat Tiket Sekarang</span>
+                                    class="material-icons-round group-hover/btn:scale-110 transition-transform">arrow_forward</span>
+                                <span>{{ auth()->check() ? 'Masuk Dashboard' : 'Login SSO Unila' }}</span>
                             </a>
                         </div>
                     </div>
@@ -97,6 +97,61 @@
                     </form>
                 </div>
 
+            </div>
+        </div>
+    </section>
+
+    <section
+        class="py-16 lg:py-24 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl lg:text-4xl font-bold text-text-light dark:text-text-dark mb-4">Layanan Tanpa Login
+                </h2>
+                <p class="text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto">
+                    Khusus untuk permasalahan akun SSO atau pembuatan Email Resmi Unila, Anda dapat membuat tiket
+                    pelaporan secara langsung tanpa perlu login.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                <a href="{{ route('guest.tickets.create') }}"
+                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-brand dark:hover:border-brand hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
+                    <div
+                        class="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-brand mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-icons-round text-3xl">email</span>
+                    </div>
+                    <h3
+                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-brand transition-colors">
+                        Email Resmi Unila</h3>
+                    <p class="text-muted-light dark:text-muted-dark text-sm">Pembuatan akun email baru dengan domain
+                        @unila.ac.id atau kendala akses email.</p>
+                </a>
+
+                <a href="{{ route('guest.tickets.create') }}"
+                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-amber-500 dark:hover:border-amber-500 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
+                    <div
+                        class="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-500 mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-icons-round text-3xl">lock_reset</span>
+                    </div>
+                    <h3
+                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-amber-600 transition-colors">
+                        Lupa Password SSO</h3>
+                    <p class="text-muted-light dark:text-muted-dark text-sm">Bantuan reset kata sandi akun Single
+                        Sign-On (SSO) Universitas Lampung.</p>
+                </a>
+
+                <a href="{{ route('guest.tickets.create') }}"
+                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
+                    <div
+                        class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-icons-round text-3xl">how_to_reg</span>
+                    </div>
+                    <h3
+                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-emerald-600 transition-colors">
+                        Registrasi SSO</h3>
+                    <p class="text-muted-light dark:text-muted-dark text-sm">Pendaftaran dan aktivasi akun Single
+                        Sign-On (SSO) untuk pengguna baru.</p>
+                </a>
             </div>
         </div>
     </section>
