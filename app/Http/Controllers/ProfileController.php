@@ -19,8 +19,8 @@ class ProfileController extends Controller
 
         $isAdminOrSuperuser = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-        $divisions = $isAdminOrSuperuser ? Division::all() : collect();
-        $departments = $user->role === UserRole::USER ? Department::all() : collect();
+        $divisions = $isAdminOrSuperuser ? Division::orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")->get() : collect();
+        $departments = $user->role === UserRole::USER ? Department::orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")->get() : collect();
 
         return view('profile.edit', compact('user', 'divisions', 'departments', 'isAdminOrSuperuser'));
     }

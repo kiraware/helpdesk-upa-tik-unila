@@ -94,7 +94,7 @@ class GuestTicketController extends Controller
         $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         return view('guest-tickets.show', compact('ticket', 'admins', 'services'));
@@ -104,10 +104,10 @@ class GuestTicketController extends Controller
     {
         $services = Service::where('is_active', true)
             ->where('show_to_guest', true)
-            ->orderBy('name')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
-        $departments = Department::orderBy('name')->get(['id', 'name']);
+        $departments = Department::orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")->get(['id', 'name']);
 
         return view('guest-tickets.create', compact('services', 'departments'));
     }

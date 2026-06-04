@@ -26,7 +26,7 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()
@@ -126,7 +126,7 @@ class TicketController extends Controller
             ->withQueryString();
 
         $admins = User::whereIn('role', ['admin', 'superuser'])
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name', 'avatar_path']);
 
         return view('tickets.index', compact('tickets', 'admins', 'services'));
@@ -140,7 +140,7 @@ class TicketController extends Controller
 
         $services = Service::where('is_active', true)
             ->where('show_to_user', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get();
 
         return view('tickets.create', compact('services'));
@@ -168,7 +168,7 @@ class TicketController extends Controller
         $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         return view('tickets.show', compact('ticket', 'admins', 'services'));
@@ -538,11 +538,11 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         $admins = User::whereIn('role', ['admin', 'superuser'])
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name', 'avatar_path']);
 
         $tickets = Ticket::query()
@@ -586,7 +586,7 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()
