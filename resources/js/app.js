@@ -465,10 +465,44 @@ Alpine.data(
                     "November",
                     "Desember",
                 ];
+                const shortEngMonths = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "May",
+                    "Jun",
+                    "Jul",
+                    "Aug",
+                    "Sep",
+                    "Oct",
+                    "Nov",
+                    "Dec",
+                ];
+                const shortIdMonths = [
+                    "Jan",
+                    "Feb",
+                    "Mar",
+                    "Apr",
+                    "Mei",
+                    "Jun",
+                    "Jul",
+                    "Agu",
+                    "Sep",
+                    "Okt",
+                    "Nov",
+                    "Des",
+                ];
+
                 let mIdx = engMonths.findIndex((m) => lbl.startsWith(m));
                 if (mIdx === -1)
                     mIdx = idMonths.findIndex((m) => lbl.startsWith(m));
+                if (mIdx === -1)
+                    mIdx = shortEngMonths.findIndex((m) => lbl.startsWith(m));
+                if (mIdx === -1)
+                    mIdx = shortIdMonths.findIndex((m) => lbl.startsWith(m));
                 if (mIdx === -1) mIdx = i % 12;
+
                 totalArr[mIdx] = data.monthly_totals?.[i] ?? 0;
                 doneArr[mIdx] = data.monthly_done?.[i] ?? 0;
                 rejectArr[mIdx] = data.monthly_reject?.[i] ?? 0;

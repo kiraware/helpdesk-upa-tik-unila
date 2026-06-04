@@ -27,6 +27,7 @@ class EnsureSurveyCompleted
                 ->whereIn('status', [TicketStatus::DONE->value, TicketStatus::REJECT->value])
                 ->doesntHave('survey')
                 ->oldest('closed_at')
+                ->select(['id', 'ticket_code', 'closed_at'])
                 ->first();
 
             if ($pendingTicket) {

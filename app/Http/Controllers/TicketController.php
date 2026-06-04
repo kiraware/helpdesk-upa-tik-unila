@@ -31,10 +31,10 @@ class TicketController extends Controller
 
         $tickets = Ticket::query()
             ->with([
-                'user',
-                'service',
-                'assignee',
-                'guestDetail',
+                'user:id,name,avatar_path',
+                'service:id,name',
+                'assignee:id,name,avatar_path',
+                'guestDetail:id,ticket_id,full_name',
             ])
             ->withCount('comments')
             ->when($user && $user->role === UserRole::USER, function ($query) use ($user) {
@@ -165,7 +165,7 @@ class TicketController extends Controller
             'comments.attachments',
         ]);
 
-        $admins = User::whereIn('role', ['admin', 'superuser'])->get();
+        $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
             ->orderByRaw('LOWER(name) ASC')
@@ -203,13 +203,15 @@ class TicketController extends Controller
             return $ticket;
         });
 
-        $unassignedAttachments = TicketAttachment::whereNull('ticket_id')->get();
-
-        foreach ($unassignedAttachments as $attachment) {
-            if (str_contains($ticket->description, $attachment->url)) {
-                $attachment->update(['ticket_id' => $ticket->id]);
-            }
-        }
+        TicketAttachment::whereNull('ticket_id')
+            ->where('created_at', '>=', now()->subDay())
+            ->select(['id', 'ticket_id', 'path'])
+            ->get()
+            ->each(function ($attachment) use ($ticket) {
+                if (str_contains($ticket->description, $attachment->url)) {
+                    $attachment->update(['ticket_id' => $ticket->id]);
+                }
+            });
 
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
 
@@ -560,7 +562,7 @@ class TicketController extends Controller
             ->get(['id', 'name', 'avatar_path']);
 
         $tickets = Ticket::query()
-            ->with(['user', 'service', 'assignee', 'guestDetail'])
+            ->with(['user:id,name,avatar_path', 'service:id,name', 'assignee:id,name,avatar_path', 'guestDetail:id,ticket_id,full_name'])
             ->withCount('comments')
             ->where('status', TicketStatus::WAITING) // ← hard-coded, tidak bisa diubah via filter
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
@@ -604,7 +606,7 @@ class TicketController extends Controller
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()
-            ->with(['user', 'service', 'assignee', 'guestDetail'])
+            ->with(['user:id,name,avatar_path', 'service:id,name', 'assignee:id,name,avatar_path', 'guestDetail:id,ticket_id,full_name'])
             ->withCount('comments')
             ->where('assigned_to', $user->id) // ← hard-coded ke user login
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {

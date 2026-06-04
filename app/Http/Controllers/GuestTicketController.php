@@ -91,7 +91,7 @@ class GuestTicketController extends Controller
             'comments.attachments',
         ]);
 
-        $admins = User::whereIn('role', ['admin', 'superuser'])->get();
+        $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
             ->orderByRaw('LOWER(name) ASC')
@@ -105,9 +105,9 @@ class GuestTicketController extends Controller
         $services = Service::where('is_active', true)
             ->where('show_to_guest', true)
             ->orderBy('name')
-            ->get();
+            ->get(['id', 'name']);
 
-        $departments = Department::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
 
         return view('guest-tickets.create', compact('services', 'departments'));
     }
@@ -170,13 +170,15 @@ class GuestTicketController extends Controller
             return $newTicket;
         });
 
-        $unassignedAttachments = TicketAttachment::whereNull('ticket_id')->get();
-
-        foreach ($unassignedAttachments as $attachment) {
-            if (str_contains($ticket->description, $attachment->url)) {
-                $attachment->update(['ticket_id' => $ticket->id]);
-            }
-        }
+        TicketAttachment::whereNull('ticket_id')
+            ->where('created_at', '>=', now()->subDay())
+            ->select(['id', 'ticket_id', 'path'])
+            ->get()
+            ->each(function ($attachment) use ($ticket) {
+                if (str_contains($ticket->description, $attachment->url)) {
+                    $attachment->update(['ticket_id' => $ticket->id]);
+                }
+            });
 
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
         $titleAdmin = 'Laporan Baru dari Tamu';

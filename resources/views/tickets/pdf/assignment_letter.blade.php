@@ -215,6 +215,7 @@
         <tr>
             <td class="bg-gray">Kode Tiket</td>
             <td>
+                #{{ $ticket->ticket_code }} ({{ $ticket->created_at->isoFormat('D MMMM Y, HH:mm') }} WIB)
             </td>
         </tr>
         <tr>
