@@ -213,22 +213,6 @@ class TicketController extends Controller
                 }
             });
 
-        $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
-
-        $userName = auth()->user()->name;
-        $title = 'Laporan Baru dari Pengguna';
-        $message = "Terdapat tiket baru dari pengguna (*{$userName}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
-
-        $channels = ['database', 'mail', WhatsAppChannel::class];
-
-        Notification::send($admins, new SystemNotification(
-            $title,
-            $message,
-            route('tickets.show', $ticket),
-            'info',
-            $channels
-        ));
-
         return redirect()->route('tickets.show', $ticket)
             ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
     }
