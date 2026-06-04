@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Dashboard">
     <div class="space-y-8">
-        {{-- SECTION 1: Header Gradient --}}
         <div
             class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-gradient-to-r from-primary to-blue-600 p-6 rounded-2xl text-white shadow-lg">
             <div>
@@ -14,7 +13,6 @@
             </a>
         </div>
 
-        {{-- SECTION 2: Statistik --}}
         <div id="stats-container" class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div
                 class="p-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl shadow-sm">
@@ -28,17 +26,14 @@
             </div>
         </div>
 
-        {{-- SECTION 3: Riwayat Terkini --}}
         <div>
             <h2 class="text-lg font-semibold text-text-light dark:text-text-dark mb-4">Riwayat Terkini</h2>
 
-            {{-- Container List --}}
             <div id="ticket-container"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
                 @forelse($myRecentTickets as $ticket)
                     <x-tickets.index.item :ticket="$ticket" />
                 @empty
-                    {{-- Empty State --}}
                     <div class="p-8 text-center">
                         <div
                             class="inline-flex items-center justify-center size-16 rounded-full bg-gray-100 dark:bg-border-dark mb-4 text-muted-light dark:text-muted-dark">

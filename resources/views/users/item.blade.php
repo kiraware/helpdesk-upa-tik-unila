@@ -1,12 +1,10 @@
 @props(['user', 'number'])
 
 @php
-    // Meniru logika avatar yang diberikan dari navbar
     $avatarUrl = $user->avatar_path
         ? asset('storage/' . $user->avatar_path)
         : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
 
-    // Menentukan warna tag berdasarkan nilai Entitas
     $entityColor = match ($user->entity?->value) {
         'Mahasiswa' => 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
         'Dosen' => 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300',
@@ -20,12 +18,10 @@
 
 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
 
-    {{-- No --}}
     <td class="px-6 py-4 text-sm text-muted-light dark:text-muted-dark">
         {{ $number }}
     </td>
 
-    {{-- Profil (Avatar + Nama + SSO) --}}
     <td class="px-6 py-4">
         <div class="flex items-center gap-3">
             <img src="{{ $avatarUrl }}" alt="{{ $user->name }}"
@@ -37,7 +33,6 @@
         </div>
     </td>
 
-    {{-- Kontak (Email + Phone) --}}
     <td class="px-6 py-4">
         <div class="flex flex-col gap-0.5">
             <div class="flex items-center gap-1.5 text-sm text-text-light dark:text-text-dark">
@@ -51,12 +46,10 @@
         </div>
     </td>
 
-    {{-- Identitas (NIP/NIK) --}}
     <td class="px-6 py-4 text-sm text-text-light dark:text-text-dark">
         {{ $user->identity_number ?? '-' }}
     </td>
 
-    {{-- Entitas (Diubah menjadi Tag/Badge) --}}
     <td class="px-6 py-4">
         @if ($user->entity)
             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $entityColor }}">
@@ -67,12 +60,10 @@
         @endif
     </td>
 
-    {{-- Penanggung Jawab --}}
     <td class="px-6 py-4 text-sm text-text-light dark:text-text-dark">
         {{ $user->division?->name ?? '-' }}
     </td>
 
-    {{-- Role --}}
     <td class="px-6 py-4">
         <span
             class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize
@@ -81,7 +72,6 @@
         </span>
     </td>
 
-    {{-- Aksi --}}
     <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
         <div
             class="flex items-center justify-end space-x-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">

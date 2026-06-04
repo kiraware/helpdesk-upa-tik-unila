@@ -189,7 +189,6 @@
             UPA TIK Universitas Lampung menugaskan nama di bawah ini:</p>
     </div>
 
-    {{-- TABEL IDENTITAS --}}
     <table class="content-table">
         <tr>
             <td class="label-col">Nama</td>
@@ -212,7 +211,6 @@
         <p>Untuk menyelesaikan permasalahan dengan detil tiket:</p>
     </div>
 
-    {{-- TABEL BORDERED --}}
     <table class="bordered-table">
         <tr>
             <td class="bg-gray">Kode Tiket</td>
@@ -229,12 +227,10 @@
             <td class="bg-gray">Pelapor</td>
             <td>
                 @if ($ticket->user_id)
-                    {{-- Jika USER (Internal/Civitas) --}}
                     {{ $ticket->user->name }}
                     | {{ $ticket->user->identity_number ?? '-' }}
                     | {{ ucfirst($ticket->user->role->value) }}
                 @elseif($ticket->guestDetail)
-                    {{-- Jika GUEST (Tamu) --}}
                     {{ $ticket->guestDetail->full_name }}
                     | {{ $ticket->guestDetail->identity_number ?? '-' }}
                     | {{ ucfirst($ticket->guestDetail->entity_type->value) }}
@@ -251,7 +247,6 @@
 
     <div class="signature-container">
 
-        {{-- TTD KEPALA UPA (ATAS KANAN - TANPA BORDER) --}}
         <table class="signature-table">
             <tr>
                 <td width="55%"></td>
@@ -271,9 +266,7 @@
             </tr>
         </table>
 
-        {{-- TABEL TTD BAWAH (DENGAN BORDER) --}}
         <table class="bottom-signature-table">
-            {{-- Baris 1: Judul --}}
             <tr>
                 <td width="33%" align="center" style="font-weight: bold; background-color: #f0f0f0;">TTD Petugas</td>
                 <td width="34%" align="center" style="font-weight: bold; background-color: #f0f0f0;">TTD User</td>
@@ -281,7 +274,6 @@
                     Jawab</td>
             </tr>
 
-            {{-- Baris 2: Space Tanda Tangan --}}
             <tr>
                 <td align="center" style="height: 70px; vertical-align: bottom;">
                     ( ........................................... )

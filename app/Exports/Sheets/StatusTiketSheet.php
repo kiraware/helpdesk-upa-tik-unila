@@ -44,7 +44,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
 
     public function columnWidths(): array
     {
-        // A=No, B=Layanan, C=Total, D..G=per-status, H=% Selesai
         $totalCols = 3 + count($this->statuses) + 1;
         $widths = ['A' => 6, 'B' => 36];
         for ($i = 3; $i <= $totalCols; $i++) {
@@ -59,13 +58,10 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
         $gt = $this->grandTotals;
         $rows = [];
 
-        // Baris 1: Judul
         $rows[] = ['REKAPITULASI TIKET BERDASARKAN STATUS'];
 
-        // Baris 2: Sub-judul periode
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')];
 
-        // Baris 3: Header — langsung tanpa baris kosong (pola DetailTiketSheet)
         $header = ['No', 'Jenis Layanan', 'Total'];
         foreach ($this->statuses as $status) {
             $header[] = ucfirst($status->value);
@@ -73,7 +69,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
         $header[] = '% Selesai';
         $rows[] = $header;
 
-        // Baris 4+: Data per layanan
         foreach ($this->reportData as $idx => $item) {
             $total = (int) $item['total'];
             $done = (int) ($item['statuses']['done'] ?? 0);
@@ -88,7 +83,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
             $rows[] = $row;
         }
 
-        // Baris total
         $gtTotal = (int) ($gt['total'] ?? 0);
         $gtDone = (int) ($gt['statuses']['done'] ?? 0);
         $gtReject = (int) ($gt['statuses']['reject'] ?? 0);
@@ -115,7 +109,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                 $maxCol = Coordinate::stringFromColumnIndex($totalCols);
                 $rt = $this->rowTotal;
 
-                // ── Baris 1: Judul ──────────────────────────────────────
                 $sheet->mergeCells("A1:{$maxCol}1");
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -124,7 +117,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // ── Baris 2: Sub-judul periode ──────────────────────────
                 $sheet->mergeCells("A2:{$maxCol}2");
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -132,7 +124,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // ── Baris 3: Header kolom tabel ─────────────────────────
                 $sheet->getStyle("A3:{$maxCol}3")->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => '064E3B']],
@@ -141,7 +132,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                 ]);
                 $sheet->getRowDimension(3)->setRowHeight(30);
 
-                // Warna aksen per kolom status pada header (D s.d. G)
                 $statusColIdx = 4; // kolom D = index 4
                 foreach ($this->statuses as $status) {
                     $colLetter = Coordinate::stringFromColumnIndex($statusColIdx);
@@ -152,7 +142,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                     $statusColIdx++;
                 }
 
-                // ── Baris data ──────────────────────────────────────────
                 $dataStart = 4;
                 $dataEnd = $rt - 1;
 
@@ -166,7 +155,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // ── Baris TOTAL ─────────────────────────────────────────
                 $sheet->getStyle("A{$rt}:{$maxCol}{$rt}")->applyFromArray([
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],
@@ -175,7 +163,6 @@ class StatusTiketSheet implements FromArray, WithColumnWidths, WithEvents, WithT
                 ]);
                 $sheet->getStyle("B{$rt}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
-                // ── Border luar tabel ───────────────────────────────────
                 $sheet->getStyle("A4:{$maxCol}{$rt}")->applyFromArray([
                     'borders' => ['outline' => ['borderStyle' => Border::BORDER_MEDIUM, 'color' => ['rgb' => '0F766E']]],
                 ]);

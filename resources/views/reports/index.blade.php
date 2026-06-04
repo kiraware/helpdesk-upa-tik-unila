@@ -2,9 +2,6 @@
 
     <div class="space-y-6" x-data="{ activeTab: '{{ request('period', 'custom') }}' }">
 
-        {{-- ================================================= --}}
-        {{-- HEADER --}}
-        {{-- ================================================= --}}
         <div
             class="bg-surface-light dark:bg-surface-dark p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800">
             <div class="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
@@ -13,7 +10,7 @@
                         Ringkasan Eksekutif Helpdesk
                     </h1>
                     <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                        {{ $startDate->format('d F Y') }} &mdash; {{ $endDate->format('d F Y') }}
+                        {{ $startDate->translatedFormat('d F Y') }} — {{ $endDate->translatedFormat('d F Y') }}
                         &nbsp;&bull;&nbsp;
                         <span class="font-medium text-blue-600 dark:text-blue-400">
                             {{ number_format($stats['total']) }} tiket
@@ -21,7 +18,6 @@
                     </p>
                 </div>
 
-                {{-- EXPORT BUTTON --}}
                 <a href="{{ route('reports.export', array_merge(request()->all(), ['period' => $period])) }}"
                     class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-sm font-bold shadow-md transition-colors whitespace-nowrap">
                     <span class="material-icons-round text-lg">download</span>
@@ -29,7 +25,6 @@
                 </a>
             </div>
 
-            {{-- PERIOD TABS --}}
             <div class="flex flex-wrap gap-2 mt-5 pt-4 border-t border-gray-100 dark:border-gray-700">
                 @foreach (['daily' => 'Hari Ini', 'weekly' => 'Minggu Ini', 'monthly' => 'Bulan Ini', 'yearly' => 'Tahun Ini', 'custom' => 'Kustom'] as $key => $label)
                     <a href="{{ route('reports.index', array_merge(request()->except(['period', 'start_date', 'end_date']), ['period' => $key])) }}"
@@ -42,7 +37,6 @@
                 @endforeach
             </div>
 
-            {{-- CUSTOM DATE FILTER (shown only when period=custom) --}}
             @if ($period === 'custom')
                 <form action="{{ route('reports.index') }}" method="GET"
                     class="flex flex-col sm:flex-row gap-3 mt-4 pt-4 border-t border-gray-100 dark:border-gray-700"
@@ -75,9 +69,6 @@
             @endif
         </div>
 
-        {{-- ================================================= --}}
-        {{-- STAT CARDS --}}
-        {{-- ================================================= --}}
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
 
             @php
@@ -170,9 +161,7 @@
             @endforeach
         </div>
 
-        {{-- CSI & Avg Time row --}}
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {{-- CSI --}}
             <div
                 class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between">
                 <div class="flex justify-between items-start">
@@ -205,7 +194,6 @@
                 </div>
             </div>
 
-            {{-- Rata-rata Waktu --}}
             @php
                 $validTimes = $staffPerformance->where('avg_resolution_time', '>', 0);
                 $globalAvgTime = $validTimes->count() > 0 ? round($validTimes->avg('avg_resolution_time'), 1) : 0;
@@ -226,7 +214,6 @@
                 <p class="text-xs text-gray-400 mt-2">Dari tiket ditugaskan hingga diselesaikan.</p>
             </div>
 
-            {{-- Reject Rate --}}
             <div
                 class="p-5 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm flex flex-col justify-between">
                 <div class="flex justify-between items-start">
@@ -244,9 +231,6 @@
             </div>
         </div>
 
-        {{-- ================================================= --}}
-        {{-- CHART AREA --}}
-        {{-- ================================================= --}}
         @php
             $entityColors = ['#3b82f6', '#8b5cf6', '#10b981', '#14b8a6', '#fb923c', '#facc15', '#9ca3af'];
             $chartData['entity_colors'] = $entityColors;
@@ -261,7 +245,6 @@
                  @json($priorityStats)
              )'>
 
-            {{-- ROW 1: Tren Tiket Harian (full width) --}}
             <div
                 class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                 <div class="flex items-center justify-between mb-4">
@@ -274,7 +257,6 @@
                 </div>
             </div>
 
-            {{-- ROW 2: Layanan & Entitas --}}
             <div class="grid grid-cols-1 gap-6">
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -338,7 +320,6 @@
                     @endphp
                     <div class="flex items-center gap-4">
 
-                        {{-- Kolom kiri: entitas 0–2 (Mahasiswa, Dosen, Tendik) --}}
                         <div class="flex-1 space-y-3 min-w-0">
                             @foreach (array_slice($entityMeta, 0, 3) as $i => $leg)
                                 @php
@@ -365,7 +346,6 @@
                             @endforeach
                         </div>
 
-                        {{-- Chart tengah --}}
                         <div class="shrink-0 w-40 h-40">
                             <canvas id="entityPieChart"></canvas>
                         </div>
@@ -401,9 +381,7 @@
                 </div>
             </div>
 
-            {{-- ROW 3: Tren Bulanan & Durasi Resolusi --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {{-- Tren Bulanan --}}
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                     <h3 class="font-bold text-lg mb-4">Tren Tiket Bulanan</h3>
@@ -412,7 +390,6 @@
                     </div>
                 </div>
 
-                {{-- Histogram Durasi --}}
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                     <h3 class="font-bold text-lg mb-4">Distribusi Durasi Penyelesaian</h3>
@@ -422,7 +399,6 @@
                 </div>
             </div>
 
-            {{-- ROW 4: Komposisi Prioritas & Status Tiket berdampingan --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div
                     class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
@@ -441,7 +417,6 @@
                 </div>
             </div>
 
-            {{-- ROW 5: Tingkat Penyelesaian per Layanan (full width) --}}
             <div
                 class="p-6 rounded-2xl bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 shadow-sm">
                 <h3 class="font-bold text-lg mb-4">Tingkat Penyelesaian per Layanan</h3>
@@ -477,9 +452,6 @@
 
         </div>{{-- end chart x-data --}}
 
-        {{-- ================================================= --}}
-        {{-- TABEL REKAP LAYANAN & ENTITAS --}}
-        {{-- ================================================= --}}
         @php
             /**
              * Konfigurasi tampilan per status tiket — otomatis mengikuti TicketStatus enum.
@@ -506,7 +478,6 @@
                 'lainnya' => ['abbr' => 'Lainnya', 'title' => 'Lainnya'],
             ];
 
-            // Hanya render status & entitas yang ada di enum (order enum = order kolom)
             $activeStatuses = collect($ticketStatuses)->filter(fn($s) => isset($statusMeta[$s->value]))->values();
 
             $activeEntities = collect($userEntities)->filter(fn($e) => isset($entityMeta[$e->value]))->values();
@@ -528,19 +499,16 @@
                     <thead
                         class="bg-gray-50 dark:bg-slate-800/50 text-gray-600 dark:text-gray-300 font-bold tracking-wider text-xs">
 
-                        {{-- ── Baris header atas: grup kolom ── --}}
                         <tr>
                             <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700" rowspan="2">No</th>
                             <th class="px-4 py-3 border-b border-gray-200 dark:border-gray-700" rowspan="2">Layanan
                             </th>
 
-                            {{-- Status penyelesaian (dinamis dari TicketStatus) --}}
                             <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest"
                                 colspan="{{ $statusColspan }}">
                                 Status Penyelesaian
                             </th>
 
-                            {{-- Entitas (dinamis dari UserEntity) --}}
                             <th class="px-4 py-2 border-b border-gray-200 dark:border-gray-700 text-center uppercase tracking-widest bg-slate-50 dark:bg-slate-800"
                                 colspan="{{ $entityColspan }}">
                                 Entitas Pembuat Tiket
@@ -552,14 +520,11 @@
                                 rowspan="2">Rate Selesai</th>
                         </tr>
 
-                        {{-- ── Baris header bawah: label per kolom ── --}}
                         <tr>
-                            {{-- Total selalu tampil pertama --}}
                             <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center">
                                 Total
                             </th>
 
-                            {{-- Satu kolom per TicketStatus --}}
                             @foreach ($activeStatuses as $status)
                                 @php $sm = $statusMeta[$status->value]; @endphp
                                 <th
@@ -568,7 +533,6 @@
                                 </th>
                             @endforeach
 
-                            {{-- Satu kolom per UserEntity --}}
                             @foreach ($activeEntities as $entity)
                                 @php $em = $entityMeta[$entity->value]; @endphp
                                 <th class="px-3 py-2 border-b border-gray-200 dark:border-gray-700 text-center"
@@ -600,10 +564,8 @@
                                 <td class="px-4 py-3 font-semibold text-text-light dark:text-text-dark">
                                     {{ $service['name'] }}</td>
 
-                                {{-- Total --}}
                                 <td class="px-3 py-3 text-center font-bold">{{ $service['total'] }}</td>
 
-                                {{-- Nilai per status (dinamis) --}}
                                 @foreach ($activeStatuses as $status)
                                     @php
                                         $sm = $statusMeta[$status->value];
@@ -613,7 +575,6 @@
                                         {{ $val }}</td>
                                 @endforeach
 
-                                {{-- Nilai per entitas (dinamis) --}}
                                 @foreach ($activeEntities as $entity)
                                     <td class="px-3 py-3 text-center">
                                         {{ $service['entities'][$entity->value] ?? 0 }}
@@ -636,7 +597,6 @@
                         @endforelse
                     </tbody>
 
-                    {{-- ── FOOTER TOTAL ── --}}
                     @php
                         $totals = ['total' => collect($serviceStats)->sum('total')];
 
@@ -664,10 +624,8 @@
                         <tr>
                             <td class="px-4 py-3" colspan="2">Total Keseluruhan</td>
 
-                            {{-- Total --}}
                             <td class="px-3 py-3 text-center">{{ $totals['total'] }}</td>
 
-                            {{-- Total per status --}}
                             @foreach ($activeStatuses as $status)
                                 @php $sm = $statusMeta[$status->value]; @endphp
                                 <td class="px-3 py-3 text-center {{ $sm['color'] }}">
@@ -675,7 +633,6 @@
                                 </td>
                             @endforeach
 
-                            {{-- Total per entitas --}}
                             @foreach ($activeEntities as $entity)
                                 <td class="px-3 py-3 text-center">{{ $totals[$entity->value] ?? 0 }}</td>
                             @endforeach
@@ -690,9 +647,6 @@
                 </table>
             </div>
         </div>
-        {{-- ================================================= --}}
-        {{-- TABEL TREN BULANAN --}}
-        {{-- ================================================= --}}
         @if (count($monthlyTrendFlat) > 1)
             <div
                 class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
@@ -739,9 +693,6 @@
             </div>
         @endif
 
-        {{-- ================================================= --}}
-        {{-- TABEL KINERJA PETUGAS --}}
-        {{-- ================================================= --}}
         <div
             class="bg-surface-light dark:bg-surface-dark border border-gray-100 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm">
             <div class="p-6 border-b border-gray-100 dark:border-gray-800">
@@ -865,7 +816,6 @@
                                     </span>
                                 </td>
 
-                                {{-- Kolom Dedikasi --}}
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex flex-col items-center gap-1">
                                         @if (($staff->weekend_tickets ?? 0) > 0)
@@ -886,7 +836,6 @@
                                     </div>
                                 </td>
 
-                                {{-- Kolom Skor Ranking --}}
                                 <td class="px-6 py-4 text-center">
                                     @php
                                         $rs = $staff->ranking_score ?? $staff->csi_score;

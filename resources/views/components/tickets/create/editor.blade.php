@@ -1,6 +1,5 @@
 <div>
     @php
-        // KONFIGURASI FILE
         $maxSizeKp = 2048; // 2MB dalam KB
         $acceptedMimes =
             'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
@@ -11,7 +10,6 @@
         Deskripsi Detail <span class="text-red-500">*</span>
     </label>
 
-    {{-- CONTAINER EDITOR --}}
     <div
         class="border border-border-light dark:border-border-dark
         rounded-xl bg-surface-light dark:bg-surface-dark
@@ -19,7 +17,6 @@
         focus-within:ring-1 focus-within:ring-secondary
         focus-within:border-secondary transition-all">
 
-        {{-- AREA EDITOR --}}
         <div class="px-4 py-2 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/30">
 
             <input id="x_description" type="hidden" name="description" value="{{ old('description') }}">
@@ -34,7 +31,6 @@
             </trix-editor>
         </div>
 
-        {{-- FOOTER / ACTIONS --}}
         <div class="px-3 py-2 bg-gray-50 dark:bg-slate-800/50 flex justify-end">
             <button type="submit"
                 class="px-3 py-1.5 sm:px-4
@@ -47,7 +43,6 @@
         </div>
     </div>
 
-    {{-- INFORMASI DI BAWAH EDITOR --}}
     <div class="flex items-start gap-2 mt-2 ml-1">
         <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
 

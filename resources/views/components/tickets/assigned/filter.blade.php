@@ -7,7 +7,6 @@
     <input type="hidden" name="status" id="input-status" value="{{ request('status') }}">
     <input type="hidden" name="priority" id="input-priority" value="{{ request('priority') }}">
 
-    {{-- Search Bar --}}
     <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <span class="material-icons-round text-base text-muted-light">search</span>
@@ -22,10 +21,8 @@
         @endif
     </div>
 
-    {{-- Grid: Layanan, Status, Prioritas (tanpa Petugas) --}}
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
 
-        {{-- Filter Layanan --}}
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
@@ -50,7 +47,6 @@
             </div>
         </div>
 
-        {{-- Filter Status --}}
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
@@ -74,7 +70,6 @@
             </div>
         </div>
 
-        {{-- Filter Prioritas --}}
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
@@ -100,7 +95,6 @@
         </div>
     </div>
 
-    {{-- Date Filter --}}
     <div class="grid grid-cols-2 gap-3">
         <div class="relative w-full">
             <input type="text" name="start_date" value="{{ request('start_date') }}" onfocus="(this.type='date')"

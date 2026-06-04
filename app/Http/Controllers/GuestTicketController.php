@@ -44,42 +44,30 @@ class GuestTicketController extends Controller
 
         $ticket = Ticket::where('ticket_code', $code)->first();
 
-        // Skenario 1: Tiket tidak ditemukan di sistem
         if (! $ticket) {
             return back()->withInput()->with('error', 'Tiket tidak ditemukan dengan kode tersebut.');
         }
 
-        // Cek apakah Tiket dibuat oleh User (Internal) atau Guest
         if ($ticket->user_id) {
-            // --- TIKET USER ---
 
-            // Jika yang mencari adalah Guest (tidak login)
             if (! $user) {
-                // Skenario 2 (Variant Guest): Anggap tidak ada demi privasi
                 return back()->withInput()->with('error', 'Tiket tidak ditemukan.');
             }
 
-            // Jika role USER
             if ($user->role === UserRole::USER) {
-                // Skenario 3: User adalah pemilik tiket
                 if ($ticket->user_id === $user->id) {
                     return redirect()->route('tickets.show', $ticket);
                 }
 
-                // Skenario 2 (Variant User Lain): User bukan pemilik tiket
                 return back()->withInput()->with('error', 'Tiket tidak ditemukan.');
             }
 
-            // Skenario 4: Admin/Superuser mencari tiket User
             if (in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
                 return redirect()->route('tickets.show', $ticket);
             }
 
         } else {
-            // --- TIKET GUEST ---
 
-            // Skenario 5: Admin/Superuser mencari tiket Guest -> Redirect ke Guest View
-            // (Juga mencakup Guest biasa mencari tiket Guest)
             return redirect()->route('guest.tracking.show', $ticket->ticket_code);
         }
 
@@ -91,7 +79,6 @@ class GuestTicketController extends Controller
      */
     public function show(Request $request, Ticket $ticket)
     {
-        // Security Check: Pastikan tiket ini memang tiket Guest (tidak punya user_id)
         if ($ticket->user_id) {
             return redirect('/')->with('error', 'Tiket ini terdaftar sebagai tiket user internal. Silakan login untuk melihat.');
         }
@@ -104,7 +91,7 @@ class GuestTicketController extends Controller
             'comments.attachments',
         ]);
 
-        $admins = User::whereIn('role', ['admin', 'superuser'])->get();
+        $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
             ->orderByRaw('LOWER(name) ASC')
@@ -118,9 +105,9 @@ class GuestTicketController extends Controller
         $services = Service::where('is_active', true)
             ->where('show_to_guest', true)
             ->orderBy('name')
-            ->get();
+            ->get(['id', 'name']);
 
-        $departments = Department::orderBy('name')->get();
+        $departments = Department::orderBy('name')->get(['id', 'name']);
 
         return view('guest-tickets.create', compact('services', 'departments'));
     }
@@ -128,7 +115,6 @@ class GuestTicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            // 1. Validasi Data Diri
             'full_name' => 'required|string|max:100',
             'email' => [
                 'required',
@@ -147,7 +133,6 @@ class GuestTicketController extends Controller
             'photo_identity' => 'required|image|max:2048',
             'photo_selfie' => 'required|image|max:2048',
 
-            // 2. Validasi Data Tiket
             'service_id' => [
                 'required',
                 Rule::exists('services', 'id')->where(function ($query) {
@@ -160,7 +145,6 @@ class GuestTicketController extends Controller
         ]);
 
         $ticket = DB::transaction(function () use ($validated, $request) {
-            // A. Buat Tiket Utama
             $newTicket = Ticket::create([
                 'user_id' => null, // Guest
                 'service_id' => $validated['service_id'],
@@ -169,11 +153,9 @@ class GuestTicketController extends Controller
                 'status' => TicketStatus::WAITING,
             ]);
 
-            // B. Upload Foto Identitas & Selfie
             $identityPath = $request->file('photo_identity')->store('guest-identities', 'public');
             $selfiePath = $request->file('photo_selfie')->store('guest-selfies', 'public');
 
-            // C. Simpan Detail Guest
             $newTicket->guestDetail()->create([
                 'full_name' => $validated['full_name'],
                 'email' => $validated['email'],
@@ -188,15 +170,16 @@ class GuestTicketController extends Controller
             return $newTicket;
         });
 
-        $unassignedAttachments = TicketAttachment::whereNull('ticket_id')->get();
+        TicketAttachment::whereNull('ticket_id')
+            ->where('created_at', '>=', now()->subDay())
+            ->select(['id', 'ticket_id', 'path'])
+            ->get()
+            ->each(function ($attachment) use ($ticket) {
+                if (str_contains($ticket->description, $attachment->url)) {
+                    $attachment->update(['ticket_id' => $ticket->id]);
+                }
+            });
 
-        foreach ($unassignedAttachments as $attachment) {
-            if (str_contains($ticket->description, $attachment->url)) {
-                $attachment->update(['ticket_id' => $ticket->id]);
-            }
-        }
-
-        // 1. NOTIFIKASI KE ADMIN & SUPERUSER
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
         $titleAdmin = 'Laporan Baru dari Tamu';
         $messageAdmin = "Terdapat laporan baru dari tamu (*{$validated['full_name']}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
@@ -210,13 +193,11 @@ class GuestTicketController extends Controller
             $channels
         ));
 
-        // 2. NOTIFIKASI KE GUEST
         $titleGuest = 'Laporan Anda Berhasil Diterima';
         $messageGuest = "Halo *{$validated['full_name']}*, laporan Anda terkait layanan *{$ticket->service->name}* telah berhasil kami terima dan simpan dengan kode tiket *#{$ticket->ticket_code}*. Silakan klik tautan di bawah ini untuk melihat detail dan memantau status penanganan tiket Anda secara berkala.";
         $guestChannels = ['mail'];
         $guestNotification = Notification::route('mail', $validated['email']);
 
-        // Cek apakah nomor telepon diisi oleh tamu
         if (! empty($validated['phone'])) {
             $guestNotification->route(WhatsAppChannel::class, $validated['phone']);
             $guestChannels[] = WhatsAppChannel::class;

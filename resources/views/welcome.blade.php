@@ -1,7 +1,5 @@
 <x-layouts.guest>
-    {{-- Hero Section --}}
     <section class="relative pt-16 pb-20 lg:pt-28 lg:pb-32 overflow-hidden">
-        {{-- Background Elements --}}
         <div class="absolute inset-0 z-0 pointer-events-none">
             <div
                 class="absolute top-0 right-0 w-1/2 h-full bg-linear-to-l from-blue-50 to-transparent dark:from-blue-900/10 opacity-60">
@@ -30,12 +28,10 @@
         </div>
     </section>
 
-    {{-- Action Section --}}
     <section class="bg-surface-light dark:bg-surface-dark border-y border-border-light dark:border-border-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 
-                {{-- Card 1: Create Ticket --}}
                 <div
                     class="group relative overflow-hidden rounded-2xl bg-brand text-white shadow-xl shadow-blue-900/10 hover:shadow-2xl hover:shadow-blue-900/20 transition-all duration-300 transform hover:-translate-y-1">
                     <div
@@ -68,7 +64,6 @@
                     </div>
                 </div>
 
-                {{-- Card 2: Check Ticket --}}
                 <div
                     class="relative rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark p-8 lg:p-10 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-start justify-between mb-6">
@@ -86,7 +81,6 @@
                         Sudah mengirimkan laporan? Masukkan kode tiket Anda untuk melihat progress.
                     </p>
 
-                    {{-- Form Pencarian Tiket --}}
                     <form action="{{ route('guest.tracking.search') }}" method="POST" class="mt-auto relative">
                         @csrf
                         <div class="relative">
@@ -107,11 +101,9 @@
         </div>
     </section>
 
-    {{-- Services Info --}}
     <section id="services" class="py-24 bg-background-light dark:bg-background-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {{-- Item Layanan --}}
                 <div
                     class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
                     <div
@@ -124,7 +116,6 @@
                     </p>
                 </div>
 
-                {{-- Item Waktu --}}
                 <div
                     class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
                     <div
@@ -146,7 +137,6 @@
                     </ul>
                 </div>
 
-                {{-- Item FAQ --}}
                 <div id="faq"
                     class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
                     <div

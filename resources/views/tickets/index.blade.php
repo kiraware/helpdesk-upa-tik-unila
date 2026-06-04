@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Manajemen Tiket">
 
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
@@ -12,16 +11,12 @@
         </div>
     </div>
 
-    {{-- Search & Filter Component --}}
-    {{-- Kita passing $admins karena dibutuhkan untuk dropdown filter --}}
     <x-tickets.index.filter :admins="$admins" :services="$services" />
 
-    {{-- Ticket List Container --}}
     <div id="ticket-list-area"
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
 
         @forelse ($tickets as $ticket)
-            {{-- Ticket Item Component --}}
             <x-tickets.index.item :ticket="$ticket" />
         @empty
             <div
@@ -32,7 +27,6 @@
         @endforelse
     </div>
 
-    {{-- Pagination --}}
     <div class="mt-6">
         {{ $tickets->links() }}
     </div>
@@ -40,7 +34,6 @@
 </x-layouts.dashboard>
 
 <script>
-    // Cek agar tidak refresh saat user sedang mengetik di search bar
     let isUserActive = false;
     document.addEventListener('input', () => {
         isUserActive = true;

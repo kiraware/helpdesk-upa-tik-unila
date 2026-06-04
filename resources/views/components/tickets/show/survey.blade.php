@@ -86,17 +86,14 @@
 
     <div class="mt-8 scroll-mt-24" id="survey-section">
 
-        {{-- BAGIAN 1: HASIL SURVEI --}}
         @if ($survey)
             <div
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden p-6 md:p-8">
                 <div class="flex flex-col md:flex-row gap-8 items-center md:items-start">
 
-                    {{-- Kiri: Overall Score & CSI --}}
                     <div
                         class="flex flex-col items-center justify-center text-center md:w-1/3 border-b md:border-b-0 md:border-r border-border-light dark:border-border-dark pb-6 md:pb-0 md:pr-6 w-full">
 
-                        {{-- Menghitung kembali desimal Bintang dari CSI (CSI / 100 * 5) --}}
                         @php
                             $calculatedStar = ($survey->csi_score / 100) * 5;
                         @endphp
@@ -109,7 +106,6 @@
                             {{ number_format($survey->csi_score, 2) }}<span class="text-2xl text-muted-light">%</span>
                         </div>
 
-                        {{-- Bintang Rata-rata Tertimbang --}}
                         <div class="text-xl font-bold text-yellow-500 flex items-center gap-2 mb-4">
                             <span class="material-icons-round">star</span>
                             {{ number_format($calculatedStar, 2) }} / 5.00
@@ -122,7 +118,6 @@
                         </div>
                     </div>
 
-                    {{-- Kanan: Detail & Feedback --}}
                     <div class="flex-1 w-full space-y-6 min-w-0">
                         <div>
                             <h4 class="font-bold text-text-light dark:text-text-dark mb-4">Detail Penilaian per Aspek
@@ -135,14 +130,12 @@
                                             {{ $ans->question->aspect_name ?? 'Aspek Penilaian' }}
                                         </div>
 
-                                        {{-- Skor Kepuasan --}}
                                         <div class="flex justify-between items-center text-xs mb-1">
                                             <span class="text-muted-light dark:text-muted-dark">Kepuasan:</span>
                                             <span
                                                 class="font-bold {{ $getRatingColor($ans->satisfaction_score) }}">{{ $ans->satisfaction_score }}/5</span>
                                         </div>
 
-                                        {{-- Skor Kepentingan --}}
                                         <div class="flex justify-between items-center text-xs">
                                             <span class="text-muted-light dark:text-muted-dark">Kepentingan:</span>
                                             <span class="font-bold text-blue-500">{{ $ans->importance_score }}/5</span>
@@ -162,8 +155,6 @@
                     </div>
                 </div>
             </div>
-
-            {{-- BAGIAN 2: FORMULIR INPUT --}}
         @elseif($canFill)
             <div x-data="{
                 submitLoading: false,
@@ -174,7 +165,6 @@
             }"
                 class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-lg border border-secondary/20 dark:border-secondary/20 overflow-hidden relative">
 
-                {{-- Header --}}
                 <div class="bg-linear-to-r from-secondary to-blue-600 p-6 text-white text-center">
                     <h3 class="text-xl font-bold">Bagaimana Pelayanan Kami?</h3>
                     <p class="text-blue-100 text-sm mt-1">Bantu kami meningkatkan kualitas layanan Helpdesk UPA TIK.</p>
@@ -184,7 +174,6 @@
                     class="p-6 md:p-8 space-y-8">
                     @csrf
 
-                    {{-- PERTANYAAN (Kepentingan & Kepuasan per Aspek) --}}
                     <div class="space-y-8">
                         @foreach ($questions as $index => $q)
                             <div
@@ -196,7 +185,6 @@
                                 </h4>
 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    {{-- 1. Tingkat Kepentingan --}}
                                     <div class="flex flex-col h-full" x-data="{
                                         hovered: 0,
                                         selected: 0,
@@ -244,7 +232,6 @@
                                         </div>
                                     </div>
 
-                                    {{-- 2. Tingkat Kepuasan --}}
                                     <div class="flex flex-col h-full" x-data="{
                                         hovered: 0,
                                         selected: 0,
@@ -295,7 +282,6 @@
                         @endforeach
                     </div>
 
-                    {{-- FEEDBACK TEXT --}}
                     <div x-data="{ count: 0, max: 255 }">
                         <label for="feedback" class="block text-sm font-bold text-text-light dark:text-text-dark mb-2">
                             Masukan & Saran <span class="text-red-500">*</span>
@@ -311,7 +297,6 @@
                         </div>
                     </div>
 
-                    {{-- SUBMIT BUTTON --}}
                     <div class="pt-4">
                         <button type="submit" :disabled="submitLoading"
                             class="w-full flex items-center justify-center gap-2 py-3 px-6 bg-secondary hover:bg-blue-600 text-white font-bold rounded-xl shadow-lg shadow-blue-500/30 transition-all transform active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed">

@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Manajemen Unit Fungsi">
 
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
@@ -18,10 +17,8 @@
         </button>
     </div>
 
-    {{-- Component: Filter --}}
     <x-divisions.filter />
 
-    {{-- Table Card --}}
     <div
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
         <div class="overflow-x-auto">
@@ -42,7 +39,6 @@
 
                 <tbody class="divide-y divide-border-light dark:divide-border-dark">
                     @forelse ($divisions as $division)
-                        {{-- Component: Item Tabel --}}
                         <x-divisions.item :division="$division" :number="$loop->iteration + ($divisions->currentPage() - 1) * $divisions->perPage()" />
                     @empty
                         <tr>
@@ -56,20 +52,16 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
         <div class="px-6 py-4 bg-gray-50 dark:bg-slate-800/50 border-t border-border-light dark:border-border-dark">
             {{ $divisions->links() }}
         </div>
     </div>
 
-    {{-- Components: Modals --}}
     <x-divisions.modal-add />
     <x-divisions.modal-edit />
     <x-divisions.modal-delete />
 
-    {{-- Script Modal Logic --}}
     <script>
-        // Modal Tambah
         function openAddDivisionModal() {
             document.getElementById('addDivisionModal').classList.remove('hidden');
         }
@@ -78,7 +70,6 @@
             document.getElementById('addDivisionModal').classList.add('hidden');
         }
 
-        // Modal Edit
         function openEditDivisionModal(button) {
             const {
                 id,
@@ -93,7 +84,6 @@
             document.getElementById('editDivisionModal').classList.add('hidden');
         }
 
-        // Modal Hapus
         function openDeleteDivisionModal(button) {
             const {
                 id,
@@ -109,7 +99,6 @@
         }
     </script>
 
-    {{-- Handle Validation Error (Re-open Add Modal) --}}
     @if ($errors->any())
         <script>
             document.addEventListener('DOMContentLoaded', () => {

@@ -6,11 +6,9 @@
     $currentUser = auth()->user();
     $isAdminOrSuper = $currentUser && in_array($currentUser->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-    // Logic Menampilkan Data Sensitif (Email, ID, Foto, Phone)
     $isGuestTicket = is_null($ticket->user_id);
     $showSensitiveData = !$isGuestTicket || $isAdminOrSuper;
 
-    // Helper closure untuk sensor
     $maskEmail = function ($email) {
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             return '******';
@@ -35,13 +33,11 @@
     <div
         class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
 
-        {{-- Header --}}
         <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
             <h3 class="text-sm font-bold uppercase tracking-wider text-muted-light">Detail Pelapor (Tamu)</h3>
         </div>
 
         <div class="p-5">
-            {{-- Profile Section --}}
             <div class="flex items-center gap-4 mb-6">
                 <div class="shrink-0">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode($ticket->guestDetail->full_name) }}&size=64"
@@ -61,10 +57,8 @@
                 </div>
             </div>
 
-            {{-- Fields Detail --}}
             <div
                 class="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm mb-6 border-t border-border-light dark:border-border-dark pt-6">
-                {{-- Email --}}
                 <div>
                     <p class="text-muted-light dark:text-muted-dark font-medium mb-1">Email</p>
                     <p class="text-text-light dark:text-text-dark font-semibold break-all">
@@ -72,7 +66,6 @@
                     </p>
                 </div>
 
-                {{-- WhatsApp --}}
                 <div>
                     <p class="text-muted-light dark:text-muted-dark font-medium mb-1">WhatsApp</p>
                     <p class="text-text-light dark:text-text-dark font-semibold font-mono break-all">
@@ -89,7 +82,6 @@
                     </p>
                 </div>
 
-                {{-- ID Number --}}
                 <div>
                     <p class="text-muted-light dark:text-muted-dark font-medium mb-1">Nomor ID</p>
                     <p class="text-text-light dark:text-text-dark font-semibold font-mono break-all">
@@ -98,7 +90,6 @@
                 </div>
             </div>
 
-            {{-- Menampilkan Gambar Langsung (Hanya Admin/Superuser) --}}
             @if ($showSensitiveData)
                 @if ($ticket->guestDetail->photo_identity_path || $ticket->guestDetail->photo_selfie_path)
                     <div class="border-t border-border-light dark:border-border-dark pt-6">
@@ -125,7 +116,6 @@
                     </div>
                 @endif
             @else
-                {{-- Pesan Privasi untuk Guest --}}
                 <div
                     class="p-3 bg-gray-50 dark:bg-slate-800 rounded-lg text-center border border-dashed border-gray-300 dark:border-gray-600">
                     <span class="material-icons-round text-gray-400 text-lg mb-1">lock</span>

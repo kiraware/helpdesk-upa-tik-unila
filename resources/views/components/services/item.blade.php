@@ -1,17 +1,14 @@
 @props(['service', 'number'])
 
 <tr class="hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors group">
-    {{-- No --}}
     <td class="px-6 py-4 text-sm text-muted-light dark:text-muted-dark">
         {{ $number }}
     </td>
 
-    {{-- Nama --}}
     <td class="px-6 py-4 text-sm font-medium text-text-light dark:text-text-dark">
         {{ $service->name }}
     </td>
 
-    {{-- Aksesibilitas (Baru) --}}
     <td class="px-6 py-4 text-sm space-y-1 sm:space-y-0 sm:space-x-1">
         @if ($service->show_to_guest)
             <span
@@ -27,7 +24,6 @@
         @endif
     </td>
 
-    {{-- Status Aktif Utama --}}
     <td class="px-6 py-4 text-sm">
         @if ($service->is_active)
             <span
@@ -42,11 +38,9 @@
         @endif
     </td>
 
-    {{-- Aksi --}}
     <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
         <div
             class="flex items-center justify-end space-x-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-            {{-- Edit Button --}}
             <button type="button" onclick="openEditServiceModal(this)" data-id="{{ $service->id }}"
                 data-name="{{ $service->name }}" data-active="{{ $service->is_active ? 1 : 0 }}"
                 data-guest="{{ $service->show_to_guest ? 1 : 0 }}" data-user="{{ $service->show_to_user ? 1 : 0 }}"
@@ -55,7 +49,6 @@
                 <span class="material-icons-round text-lg">edit</span>
             </button>
 
-            {{-- Hapus Button --}}
             <button type="button" onclick="openDeleteServiceModal(this)" data-id="{{ $service->id }}"
                 data-name="{{ $service->name }}"
                 class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"

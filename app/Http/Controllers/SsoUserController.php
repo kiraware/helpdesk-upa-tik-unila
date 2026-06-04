@@ -22,7 +22,6 @@ class SsoUserController extends Controller
             return redirect()->route('login')->withErrors(['username' => 'Sesi SSO telah berakhir. Silakan login kembali.']);
         }
 
-        // Call API Listing User Express.js
         $response = Http::withToken($token)->get('http://localhost:3000/users', [
             'search' => $search,
             'page' => $page,
@@ -99,7 +98,6 @@ class SsoUserController extends Controller
             'new_password' => 'required|string|min:6',
         ]);
 
-        // Call API Reset Password Express.js
         $response = Http::post('http://localhost:3000/reset-password', [
             'username' => $request->username,
             'newPassword' => $request->new_password,

@@ -1,6 +1,5 @@
 <x-layouts.dashboard title="Manajemen Unit Kerja">
 
-    {{-- Header --}}
     <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
         <div>
             <h1 class="text-2xl font-bold text-text-light dark:text-text-dark">
@@ -18,10 +17,8 @@
         </button>
     </div>
 
-    {{-- Component: Filter --}}
     <x-departments.filter />
 
-    {{-- Table Card --}}
     <div
         class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-sm border border-border-light dark:border-border-dark overflow-hidden">
         <div class="overflow-x-auto">
@@ -42,7 +39,6 @@
 
                 <tbody class="divide-y divide-border-light dark:divide-border-dark">
                     @forelse ($departments as $department)
-                        {{-- Component: Item Tabel --}}
                         <x-departments.item :department="$department" :number="$loop->iteration + ($departments->currentPage() - 1) * $departments->perPage()" />
                     @empty
                         <tr>
@@ -56,20 +52,16 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
         <div class="px-6 py-4 bg-gray-50 dark:bg-slate-800/50 border-t border-border-light dark:border-border-dark">
             {{ $departments->links() }}
         </div>
     </div>
 
-    {{-- Components: Modals --}}
     <x-departments.modal-add />
     <x-departments.modal-edit />
     <x-departments.modal-delete />
 
-    {{-- Script Modal Logic --}}
     <script>
-        // Modal Tambah
         function openAddDepartmentModal() {
             document.getElementById('addDepartmentModal').classList.remove('hidden');
         }
@@ -78,7 +70,6 @@
             document.getElementById('addDepartmentModal').classList.add('hidden');
         }
 
-        // Modal Edit
         function openEditDepartmentModal(button) {
             const {
                 id,
@@ -93,7 +84,6 @@
             document.getElementById('editDepartmentModal').classList.add('hidden');
         }
 
-        // Modal Hapus
         function openDeleteDepartmentModal(button) {
             const {
                 id,
@@ -109,7 +99,6 @@
         }
     </script>
 
-    {{-- Handle Validation Error (Re-open Add Modal) --}}
     @if ($errors->any())
         <script>
             document.addEventListener('DOMContentLoaded', () => {

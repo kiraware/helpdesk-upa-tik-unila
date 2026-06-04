@@ -7,7 +7,6 @@
     <input type="hidden" name="priority" id="input-priority" value="{{ request('priority') }}">
     <input type="hidden" name="assigned_to" id="input-assigned_to" value="{{ request('assigned_to') }}">
 
-    {{-- Search Bar --}}
     <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
             <span class="material-icons-round text-base text-muted-light">search</span>
@@ -22,10 +21,8 @@
         @endif
     </div>
 
-    {{-- Grid: Layanan, Prioritas & Petugas --}}
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
 
-        {{-- Filter Layanan --}}
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
@@ -50,7 +47,6 @@
             </div>
         </div>
 
-        {{-- Filter Prioritas --}}
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
@@ -75,7 +71,6 @@
             </div>
         </div>
 
-        {{-- Filter Petugas (Assignee) --}}
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
                 class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
@@ -98,7 +93,6 @@
             <div x-show="open" @click.away="open = false" x-cloak
                 class="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-border-light dark:border-border-dark py-1 max-h-60 overflow-y-auto"
                 style="display: none;">
-                {{-- Opsi: Semua Petugas --}}
                 <button type="button"
                     onclick="document.getElementById('input-assigned_to').value=''; this.form.submit()"
                     class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ request('assigned_to') == '' ? 'font-bold text-secondary bg-gray-50 dark:bg-slate-700/50' : 'text-text-light dark:text-text-dark' }}">
@@ -106,7 +100,6 @@
                     <span>Semua Petugas</span>
                 </button>
                 <div class="border-t border-border-light dark:border-border-dark my-1"></div>
-                {{-- Opsi: Loop Admin --}}
                 @foreach ($admins as $admin)
                     <button type="button"
                         onclick="document.getElementById('input-assigned_to').value='{{ $admin->id }}'; this.form.submit()"
@@ -126,7 +119,6 @@
         </div>
     </div>
 
-    {{-- Date Filter --}}
     <div class="grid grid-cols-2 gap-3">
         <div class="relative w-full">
             <input type="text" name="start_date" value="{{ request('start_date') }}" onfocus="(this.type='date')"

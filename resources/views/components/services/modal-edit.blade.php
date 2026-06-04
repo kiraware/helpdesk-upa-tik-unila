@@ -14,7 +14,6 @@
             @csrf
             @method('PUT')
             <div class="p-6 space-y-6">
-                {{-- Nama --}}
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Layanan</label>
                     <div class="relative">
@@ -25,7 +24,6 @@
                     </div>
                 </div>
 
-                {{-- Status Aktif Utama --}}
                 <div class="flex items-center justify-between">
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Status Aktif</label>
@@ -43,7 +41,6 @@
 
                 <hr class="border-gray-200 dark:border-gray-700">
 
-                {{-- Tampil di Tamu --}}
                 <div class="flex items-center justify-between">
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Akses Pengguna Tamu
@@ -61,7 +58,6 @@
                     </label>
                 </div>
 
-                {{-- Tampil di Internal User --}}
                 <div class="flex items-center justify-between">
                     <div class="flex flex-col">
                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Akses Pengguna Login

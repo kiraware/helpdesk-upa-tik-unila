@@ -51,15 +51,10 @@ class SsoAuthController extends Controller
             $user->email = ($ssoUser['email'] ?? null) ?: $user->email;
             $user->phone = ($ssoUser['phone'] ?? null) ?: $user->phone;
 
-            // --> NORMALISASI DAN MAPPING ENTITY <--
-            // 1. Ambil raw string dari SSO (sesuaikan key 'status' jika beda)
             $rawEntity = $ssoUser['status'] ?? '';
 
-            // 2. Normalisasi: hapus spasi di awal/akhir dan jadikan huruf kecil semua
-            // " Mahasiswa " -> "mahasiswa", "SUPER USER" -> "super user"
             $normalizedEntity = strtolower(trim($rawEntity));
 
-            // 3. Mapping string yang sudah dinormalisasi ke Enum
             $user->entity = match ($normalizedEntity) {
                 'super user', 'superuser' => UserEntity::SUPER_USER,
                 'mahasiswa' => UserEntity::MAHASISWA,

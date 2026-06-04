@@ -1,7 +1,6 @@
 <x-layouts.dashboard title="Profil Saya">
     <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8 space-y-8">
 
-        {{-- Header Section --}}
         <div>
             <h1 class="text-2xl font-bold text-slate-900 dark:text-white">Profil Pengguna</h1>
             <p class="text-sm text-slate-500 dark:text-slate-400">Kelola informasi profil akun Anda.</p>
@@ -14,11 +13,9 @@
                 @csrf
                 @method('PATCH')
 
-                {{-- 1. Bagian Avatar (Klik Gambar untuk Upload + Live Preview) --}}
                 <div x-data="{ photoName: null, photoPreview: null }"
                     class="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-slate-100 dark:border-slate-800">
 
-                    {{-- Input File Hidden --}}
                     <input type="file" id="avatar" name="avatar" class="hidden" x-ref="photo" accept="image/*"
                         x-on:change="
                             photoName = $refs.photo.files[0].name;
@@ -27,26 +24,21 @@
                             reader.readAsDataURL($refs.photo.files[0]);
                         ">
 
-                    {{-- Foto Avatar (Clickable) --}}
                     <div @click="$refs.photo.click()"
                         class="relative h-28 w-28 rounded-full overflow-hidden border-4 border-white dark:border-slate-800 shadow-lg cursor-pointer group bg-slate-100 dark:bg-slate-800 shrink-0 transition-transform hover:scale-105">
 
-                        {{-- Gambar Default / Current --}}
                         <img x-show="!photoPreview" src="{{ $user->avatar_url }}" alt="{{ $user->name }}"
                             class="h-full w-full object-cover">
 
-                        {{-- Gambar Preview --}}
                         <img x-show="photoPreview" :src="photoPreview" class="h-full w-full object-cover"
                             style="display: none;">
 
-                        {{-- Overlay Hover --}}
                         <div
                             class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                             <span class="material-icons-round text-white text-3xl">photo_camera</span>
                         </div>
                     </div>
 
-                    {{-- Informasi & Aksi Avatar --}}
                     <div class="space-y-3 text-center sm:text-left w-full">
                         <div>
                             <h3 class="text-lg font-bold text-slate-900 dark:text-white">Foto Profil</h3>
@@ -69,10 +61,8 @@
                     </div>
                 </div>
 
-                {{-- 2. Form Fields (Grid Layout) --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                    {{-- === Read-Only Fields === --}}
                     <div>
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nama
                             Lengkap</label>
@@ -107,9 +97,6 @@
                             class="w-full h-11 px-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-100 dark:bg-slate-800/50 text-slate-500 dark:text-slate-400 cursor-not-allowed sm:text-sm">
                     </div>
 
-                    {{-- === Editable Fields === --}}
-
-                    {{-- Nomor Telepon --}}
                     <div>
                         <label for="phone"
                             class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nomor WhatsApp /
@@ -123,7 +110,6 @@
                         @enderror
                     </div>
 
-                    {{-- Penanggung Jawab (Khusus Admin/Superuser) --}}
                     @if ($isAdminOrSuperuser)
                         <div x-data='{
                             open: false,
@@ -151,7 +137,6 @@
                                     :class="open ? 'rotate-180' : ''">expand_more</span>
                             </button>
 
-                            {{-- Dropdown --}}
                             <div x-show="open" x-transition.opacity.duration.200ms x-cloak
                                 @click.outside="open = false"
                                 class="absolute z-30 bottom-full mb-2 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
@@ -174,7 +159,6 @@
                         </div>
                     @endif
 
-                    {{-- Departemen (Khusus User biasa) --}}
                     @if ($user->role === \App\Enums\UserRole::USER)
                         <div x-data='{
                             open: false,
@@ -201,7 +185,6 @@
                                     :class="open ? 'rotate-180' : ''">expand_more</span>
                             </button>
 
-                            {{-- Dropdown --}}
                             <div x-show="open" x-transition.opacity.duration.200ms x-cloak
                                 @click.outside="open = false"
                                 class="absolute z-30 bottom-full mb-2 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800">
@@ -226,7 +209,6 @@
 
                 </div>
 
-                {{-- Action Submit --}}
                 <div class="flex justify-end pt-6 border-t border-slate-100 dark:border-slate-800">
                     <button type="submit"
                         class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg h-11 px-8 bg-blue-600 text-white font-bold text-sm shadow-md shadow-blue-500/30 transition-all hover:bg-blue-700 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-900">
@@ -236,7 +218,6 @@
             </form>
         </div>
 
-        {{-- Form Tersembunyi untuk Delete Avatar (Agar method DELETE bisa dikirim tanpa tercampur form update) --}}
         <form id="delete-avatar-form" action="{{ route('profile.avatar.destroy') }}" method="POST" class="hidden">
             @csrf
             @method('DELETE')

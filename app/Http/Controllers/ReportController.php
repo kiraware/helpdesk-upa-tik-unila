@@ -19,25 +19,30 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        // --- 1. FILTER RENTANG WAKTU & PERIODE ---
         $period = $request->period ?? 'custom';
 
         [$startDate, $endDate] = $this->resolveDateRange($request, $period);
 
-        $ticketsQuery = Ticket::whereBetween('created_at', [$startDate, $endDate]);
+        $ticketsQuery = Ticket::whereBetween('tickets.created_at', [$startDate, $endDate]);
 
-        // --- 2. STATS GLOBAL ---
+        $statusCounts = (clone $ticketsQuery)->selectRaw("
+            COUNT(*) as total,
+            COUNT(*) FILTER (WHERE status = 'waiting') as waiting,
+            COUNT(*) FILTER (WHERE status = 'progress') as progress,
+            COUNT(*) FILTER (WHERE status = 'done') as done,
+            COUNT(*) FILTER (WHERE status = 'reject') as reject
+        ")->first();
+
         $stats = [
-            'total' => (clone $ticketsQuery)->count(),
-            'waiting' => (clone $ticketsQuery)->where('status', TicketStatus::WAITING)->count(),
-            'progress' => (clone $ticketsQuery)->where('status', TicketStatus::PROGRESS)->count(),
-            'done' => (clone $ticketsQuery)->where('status', TicketStatus::DONE)->count(),
-            'reject' => (clone $ticketsQuery)->where('status', TicketStatus::REJECT)->count(),
+            'total' => (int) $statusCounts->total,
+            'waiting' => (int) $statusCounts->waiting,
+            'progress' => (int) $statusCounts->progress,
+            'done' => (int) $statusCounts->done,
+            'reject' => (int) $statusCounts->reject,
         ];
         $stats['completion_rate'] = $stats['total'] > 0
             ? round((($stats['done'] + $stats['reject']) / $stats['total']) * 100, 1) : 0;
 
-        // --- 3. DATA TREN HARIAN ---
         $currentDate = $startDate->copy();
         $periodMap = collect();
         while ($currentDate <= $endDate) {
@@ -46,7 +51,7 @@ class ReportController extends Controller
         }
 
         $rawData = (clone $ticketsQuery)
-            ->selectRaw('DATE(created_at) as date, COUNT(*) as count')
+            ->selectRaw('DATE(tickets.created_at) as date, COUNT(*) as count')
             ->groupBy('date')
             ->pluck('count', 'date')
             ->toArray();
@@ -54,7 +59,6 @@ class ReportController extends Controller
         $dailyTrend = array_merge($periodMap->toArray(), $rawData);
         ksort($dailyTrend);
 
-        // --- 4. TREN MINGGUAN & BULANAN ---
         $weeklyTrend = $this->buildWeeklyTrend($ticketsQuery, $startDate, $endDate);
         $monthlyTrend = $this->buildMonthlyTrend($ticketsQuery, $startDate, $endDate);
 
@@ -70,8 +74,10 @@ class ReportController extends Controller
             'reject' => $stats['reject'],
         ];
 
-        // --- 5. REKAP BERDASARKAN LAYANAN & ENTITAS ---
-        $allTickets = (clone $ticketsQuery)->with(['service', 'user', 'guestDetail'])->get();
+        $allTickets = (clone $ticketsQuery)
+            ->with(['service:id,name', 'user:id,entity', 'guestDetail:id,ticket_id,entity_type'])
+            ->select(['id', 'service_id', 'user_id', 'status', 'assigned_at', 'closed_at', 'created_at'])
+            ->get();
 
         $services = Service::all();
         $serviceStats = [];
@@ -141,23 +147,17 @@ class ReportController extends Controller
             'monthly_reject' => array_values(array_map(fn ($v) => $v['reject'], $monthlyTrend)),
         ];
 
-        // --- 6. PENGHITUNGAN CSI GLOBAL ---
-        $ticketsWithSurvey = (clone $ticketsQuery)
-            ->whereHas('survey')
-            ->with('survey.answers')
-            ->get();
+        $csiAggregates = (clone $ticketsQuery)
+            ->join('ticket_surveys', 'tickets.id', '=', 'ticket_surveys.ticket_id')
+            ->join('ticket_survey_answers', 'ticket_surveys.id', '=', 'ticket_survey_answers.ticket_survey_id')
+            ->selectRaw('
+                SUM(ticket_survey_answers.satisfaction_score * ticket_survey_answers.importance_score) as total_weight_score,
+                SUM(ticket_survey_answers.importance_score) as total_importance
+            ')
+            ->first();
 
-        $globalTotalWeightScore = 0;
-        $globalTotalImportance = 0;
-
-        foreach ($ticketsWithSurvey as $ticket) {
-            if ($ticket->survey && $ticket->survey->answers) {
-                foreach ($ticket->survey->answers as $answer) {
-                    $globalTotalWeightScore += ($answer->satisfaction_score * $answer->importance_score);
-                    $globalTotalImportance += $answer->importance_score;
-                }
-            }
-        }
+        $globalTotalWeightScore = (int) ($csiAggregates->total_weight_score ?? 0);
+        $globalTotalImportance = (int) ($csiAggregates->total_importance ?? 0);
 
         $avgCSI = 0;
         if ($globalTotalImportance > 0) {
@@ -174,10 +174,11 @@ class ReportController extends Controller
             default => 'Belum Ada Data',
         };
 
-        // --- 7. KINERJA PER STAFF (dengan bonus dedikasi off-hours) ---
         $staffRaw = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
+            ->select(['id', 'name', 'avatar_path'])
             ->with(['assignedTickets' => function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('created_at', [$startDate, $endDate])
+                    ->select(['id', 'assigned_to', 'status', 'assigned_at', 'closed_at', 'created_at'])
                     ->with('survey.answers');
             }])
             ->get()
@@ -187,7 +188,6 @@ class ReportController extends Controller
                 $doneCount = $assignedTickets->where('status', TicketStatus::DONE)->count();
                 $rejectCount = $assignedTickets->where('status', TicketStatus::REJECT)->count();
 
-                // Waktu resolusi rata-rata (dalam jam, bukan menit — sesuai tampilan blade lama)
                 $userTimes = $assignedTickets
                     ->whereNotNull('assigned_at')
                     ->whereNotNull('closed_at')
@@ -198,7 +198,6 @@ class ReportController extends Controller
                     ? round((($doneCount + $rejectCount) / $totalCount) * 100)
                     : 0;
 
-                // CSI dari survei (murni, tidak dipengaruhi off-hours)
                 $staffWeightScore = 0;
                 $staffImportance = 0;
                 $surveyCount = 0;
@@ -220,7 +219,6 @@ class ReportController extends Controller
                     $staffCSI = ($staffStar / 5) * 100;
                 }
 
-                // ── Hitung bonus dedikasi off-hours ──────────────────
                 $dedikasiData = OffHoursHelper::calcDedikasi($assignedTickets);
 
                 return [
@@ -233,7 +231,6 @@ class ReportController extends Controller
                     'rating_star' => round($staffStar, 2),
                     'csi_score' => round($staffCSI, 2),
                     'survey_count' => $surveyCount,
-                    // Data dedikasi (akan dipakai untuk normalisasi antar-staf)
                     'csi' => round($staffCSI, 2),   // alias untuk applyRankingScore()
                     'raw_points' => $dedikasiData['raw_points'],
                     'weekend_tickets' => $dedikasiData['weekend_count'],
@@ -244,10 +241,8 @@ class ReportController extends Controller
             ->values()
             ->toArray();
 
-        // Normalisasi bonus & hitung ranking_score gabungan
         $staffRaw = OffHoursHelper::applyRankingScore($staffRaw);
 
-        // Sort: ranking_score DESC → CSI DESC (tie-breaker) → done DESC
         usort($staffRaw, function ($a, $b) {
             if ($a['ranking_score'] !== $b['ranking_score']) {
                 return $b['ranking_score'] <=> $a['ranking_score'];
@@ -259,13 +254,10 @@ class ReportController extends Controller
             return $b['done'] <=> $a['done'];
         });
 
-        // Konversi ke object supaya blade tidak perlu diubah besar-besaran
         $staffPerformance = collect(array_map(fn ($s) => (object) $s, $staffRaw));
 
-        // --- 8. STATISTIK DURASI RESOLUSI (histogram) ---
         $durationStats = $this->buildDurationStats($allTickets);
 
-        // --- 9. PRIORITAS BREAKDOWN ---
         $priorityStats = (clone $ticketsQuery)
             ->selectRaw('priority, COUNT(*) as count')
             ->groupBy('priority')
@@ -285,7 +277,6 @@ class ReportController extends Controller
         ));
     }
 
-    // --- EXPORT EXCEL ---
     public function export(Request $request)
     {
         $period = $request->period ?? 'custom';
@@ -295,10 +286,6 @@ class ReportController extends Controller
 
         return Excel::download(new TicketReportExport($startDate, $endDate, $period), $fileName);
     }
-
-    // =========================================================
-    // HELPERS
-    // =========================================================
 
     private function resolveDateRange(Request $request, string $period): array
     {
@@ -323,7 +310,7 @@ class ReportController extends Controller
     private function buildWeeklyTrend($baseQuery, Carbon $startDate, Carbon $endDate): array
     {
         $raw = (clone $baseQuery)
-            ->selectRaw("to_char(created_at, 'IYYYIW') as yw, MIN(DATE(created_at)) as week_start, COUNT(*) as count")
+            ->selectRaw("to_char(tickets.created_at, 'IYYYIW') as yw, MIN(DATE(tickets.created_at)) as week_start, COUNT(*) as count")
             ->groupBy('yw')
             ->orderBy('yw')
             ->get();
@@ -339,24 +326,27 @@ class ReportController extends Controller
 
     private function buildMonthlyTrend($baseQuery, Carbon $startDate, Carbon $endDate): array
     {
-        $tickets = (clone $baseQuery)->with([])->select(['created_at', 'status'])->get();
+        $raw = (clone $baseQuery)
+            ->selectRaw("
+                to_char(tickets.created_at, 'YYYY-MM') as ym,
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE status = 'done') as done,
+                COUNT(*) FILTER (WHERE status = 'reject') as reject
+            ")
+            ->groupBy('ym')
+            ->orderBy('ym')
+            ->get();
 
         $result = [];
-        foreach ($tickets as $ticket) {
-            $key = $ticket->created_at->format('Y-m');
-            $label = Carbon::parse($key.'-01')->format('M Y');
-            if (! isset($result[$key])) {
-                $result[$key] = ['label' => $label, 'total' => 0, 'done' => 0, 'reject' => 0];
-            }
-            $result[$key]['total']++;
-            if ($ticket->status === TicketStatus::DONE) {
-                $result[$key]['done']++;
-            }
-            if ($ticket->status === TicketStatus::REJECT) {
-                $result[$key]['reject']++;
-            }
+        foreach ($raw as $row) {
+            $label = Carbon::parse($row->ym.'-01')->format('M Y');
+            $result[$row->ym] = [
+                'label' => $label,
+                'total' => (int) $row->total,
+                'done' => (int) $row->done,
+                'reject' => (int) $row->reject,
+            ];
         }
-        ksort($result);
 
         return $result;
     }

@@ -1,7 +1,6 @@
 @props(['ticket'])
 
 @php
-    // Logika warna dan icon
     $statusColor = match ($ticket->status) {
         \App\Enums\TicketStatus::WAITING => 'text-yellow-600',
         \App\Enums\TicketStatus::PROGRESS => 'text-blue-600',
@@ -33,7 +32,6 @@
 
     $timestamp = $isClosed ? $ticket->updated_at : $ticket->created_at;
 
-    // Siapkan nama untuk ditampilkan
     $displayName = $ticket->user
         ? $ticket->user->name
         : ($ticket->guestDetail
@@ -44,14 +42,12 @@
 <div
     class="p-3 sm:px-4 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-colors flex items-start gap-3 group cursor-pointer relative border-b border-border-light dark:border-border-dark last:border-0">
 
-    {{-- 1. Icon Status --}}
     <div class="pt-0.5 shrink-0 relative z-10 pointer-events-none">
         <span class="material-icons-round text-[20px] {{ $statusColor }}" title="{{ $ticket->status->value }}">
             {{ $statusIcon }}
         </span>
     </div>
 
-    {{-- 2. Main Content --}}
     <div class="grow min-w-0">
 
         <div class="flex flex-wrap items-baseline gap-x-2 gap-y-1 mb-1">
@@ -61,7 +57,6 @@
                 {{ Str::limit(strip_tags($ticket->description), 100, '...') }}
             </a>
 
-            {{-- Badges --}}
             <div class="flex flex-wrap gap-1 shrink-0 relative z-10 pointer-events-none">
                 <span
                     class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/30 dark:text-indigo-300 border border-transparent whitespace-nowrap">
@@ -77,7 +72,6 @@
             </div>
         </div>
 
-        {{-- Meta Info --}}
         <div
             class="text-xs text-muted-light dark:text-slate-400 leading-relaxed flex flex-wrap gap-1 items-center relative z-10 pointer-events-none">
             <span class="font-mono text-gray-500 shrink-0">#{{ $ticket->ticket_code }}</span>
@@ -94,7 +88,6 @@
         </div>
     </div>
 
-    {{-- 3. Right Actions --}}
     <div class="shrink-0 flex items-center gap-3 self-start mt-0.5 pl-2 relative z-10">
         @if (is_null($ticket->assigned_to) && auth()->user()->role !== \App\Enums\UserRole::USER)
             <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">

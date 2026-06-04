@@ -74,7 +74,6 @@
             const data = button.dataset;
             document.getElementById('edit_username_sso').value = data.sso;
 
-            // Dispatch untuk update alpine.js dropdown
             window.dispatchEvent(new CustomEvent('set-edit-division', {
                 detail: {
                     id: data.division,

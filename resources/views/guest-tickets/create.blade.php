@@ -1,10 +1,8 @@
 <x-layouts.guest title="Formulir Buat Tiket">
 
-    {{-- Container Utama --}}
     <div class="px-4 sm:px-0 sm:mx-auto sm:w-full sm:max-w-4xl my-4 sm:my-8" x-data="{ isMobile: window.innerWidth < 640 }"
         @resize.window="isMobile = window.innerWidth < 640">
 
-        {{-- Header Halaman --}}
         <div class="text-center mb-8">
             <h2 class="text-3xl font-extrabold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
                 Buat Tiket Baru
@@ -14,7 +12,6 @@
             </p>
         </div>
 
-        {{-- Form Container --}}
         <div
             class="bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800 overflow-hidden">
 
@@ -23,7 +20,6 @@
                 enctype="multipart/form-data">
                 @csrf
 
-                {{-- SECTION 1: VERIFIKASI IDENTITAS --}}
                 <div
                     class="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
@@ -35,7 +31,6 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-                        {{-- Nama Lengkap --}}
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Nama Lengkap <span class="text-red-500">*</span>
@@ -48,7 +43,6 @@
                             @enderror
                         </div>
 
-                        {{-- Email --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Email Aktif <span class="text-red-500">*</span>
@@ -61,7 +55,6 @@
                             @enderror
                         </div>
 
-                        {{-- Nomor WhatsApp --}}
                         <div>
                             <label for="phone"
                                 class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
@@ -76,7 +69,6 @@
                             @enderror
                         </div>
 
-                        {{-- Identity Number --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Nomor Identitas <span class="text-red-500">*</span>
@@ -89,7 +81,6 @@
                             @enderror
                         </div>
 
-                        {{-- Fakultas / Unit Kerja --}}
                         <div x-data='{
                             open: false,
                             selected: "{{ old('department_id') }}",
@@ -116,7 +107,6 @@
                                     :class="open ? 'rotate-180' : ''">expand_more</span>
                             </button>
 
-                            {{-- Dropdown Menu --}}
                             <div x-show="open" x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
@@ -140,7 +130,6 @@
                             @enderror
                         </div>
 
-                        {{-- Entity Type --}}
                         <div class="md:col-span-2">
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Status <span class="text-red-500">*</span>
@@ -167,7 +156,6 @@
                             @enderror
                         </div>
 
-                        {{-- Upload Foto Identitas --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Foto Kartu Identitas <span class="text-red-500">*</span>
@@ -181,17 +169,14 @@
                                 <label for="photo_identity"
                                     class="relative flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all overflow-hidden">
 
-                                    {{-- Placeholder Image --}}
                                     <img src="{{ asset('img/foto-kartu-edited-compressed-cropped.jpeg') }}"
                                         class="absolute inset-0 w-full h-full object-cover opacity-30">
 
-                                    {{-- Badge contoh --}}
                                     <span id="badge-identity"
                                         class="absolute top-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded z-10">
                                         Contoh
                                     </span>
 
-                                    {{-- Overlay Text --}}
                                     <div id="label-identity"
                                         class="relative z-10 flex flex-col items-center justify-center text-slate-500 group-hover:text-blue-500 transition-colors px-4 text-center">
                                         <span class="material-icons-round text-5xl mb-3">badge</span>
@@ -201,7 +186,6 @@
                                         </p>
                                     </div>
 
-                                    {{-- Preview --}}
                                     <img id="preview-identity"
                                         class="hidden absolute inset-0 w-full h-full object-contain bg-slate-50 dark:bg-slate-800 rounded-xl p-2">
                                 </label>
@@ -212,7 +196,6 @@
                             @enderror
                         </div>
 
-                        {{-- Upload Foto Selfie --}}
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Selfie dengan Kartu Identitas <span class="text-red-500">*</span>
@@ -226,17 +209,14 @@
                                 <label for="photo_selfie"
                                     class="relative flex flex-col items-center justify-center w-full aspect-square border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl cursor-pointer bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 hover:border-blue-400 transition-all overflow-hidden">
 
-                                    {{-- Placeholder Image --}}
                                     <img src="{{ asset('img/foto-selfie-edited-compressed-cropped.jpeg') }}"
                                         class="absolute inset-0 w-full h-full object-cover opacity-30">
 
-                                    {{-- Badge contoh --}}
                                     <span id="badge-selfie"
                                         class="absolute top-2 left-2 text-xs bg-black/50 text-white px-2 py-1 rounded z-10">
                                         Contoh
                                     </span>
 
-                                    {{-- Overlay Text --}}
                                     <div id="label-selfie"
                                         class="relative z-10 flex flex-col items-center justify-center text-slate-500 group-hover:text-blue-500 transition-colors px-4 text-center">
                                         <span class="material-icons-round text-5xl mb-3">camera_front</span>
@@ -244,7 +224,6 @@
                                         <p class="text-xs mt-1">Wajah & kartu harus jelas</p>
                                     </div>
 
-                                    {{-- Preview --}}
                                     <img id="preview-selfie"
                                         class="hidden absolute inset-0 w-full h-full object-contain bg-slate-50 dark:bg-slate-800 rounded-xl p-2">
                                 </label>
@@ -258,7 +237,6 @@
                     </div>
                 </div>
 
-                {{-- SECTION 2: DETAIL PERMASALAHAN --}}
                 <div class="p-6 md:p-8 space-y-6">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
                         <span class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">edit_note</span>
@@ -266,7 +244,6 @@
                     </h3>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- Service --}}
                         <div x-data='{
                             open: false,
                             selected: "{{ old('service_id') }}",
@@ -280,7 +257,6 @@
 
                             <input type="hidden" name="service_id" :value="selected" required>
 
-                            {{-- Button --}}
                             <button type="button" @click="open = !open"
                                 class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
 
@@ -294,7 +270,6 @@
                                     :class="open ? 'rotate-180' : ''">expand_more</span>
                             </button>
 
-                            {{-- Dropdown --}}
                             <div x-show="open" x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
@@ -318,7 +293,6 @@
                             @enderror
                         </div>
 
-                        {{-- Priority --}}
                         <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Tingkat Urgensi <span class="text-red-500">*</span>
@@ -326,7 +300,6 @@
 
                             <input type="hidden" name="priority" :value="selected" required>
 
-                            {{-- Button --}}
                             <button type="button" @click="open = !open"
                                 class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
 
@@ -340,7 +313,6 @@
                                     :class="open ? 'rotate-180' : ''">expand_more</span>
                             </button>
 
-                            {{-- Dropdown --}}
                             <div x-show="open" x-transition:enter="transition ease-out duration-100"
                                 x-transition:enter-start="opacity-0 scale-95"
                                 x-transition:enter-end="opacity-100 scale-100"
@@ -372,10 +344,8 @@
 
                     </div>
 
-                    {{-- Editor --}}
                     <div>
                         @php
-                            // KONFIGURASI FILE
                             $maxSizeKp = 2048; // 2MB dalam KB
                             $acceptedMimes =
                                 'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
@@ -423,12 +393,10 @@
                     </div>
                 </div>
 
-                {{-- Footer Buttons & Security --}}
                 <div
                     class="p-6 md:px-8 md:py-6 bg-slate-50 dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
                     <div class="flex flex-col-reverse sm:flex-row items-center justify-between gap-6">
 
-                        {{-- KIRI: Widget Captcha --}}
                         <div class="flex flex-col items-center sm:items-start w-full sm:w-auto">
                             <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.key') }}"
                                 data-theme="light" data-callback="enableSubmitButton"
@@ -440,7 +408,6 @@
                             @enderror
                         </div>
 
-                        {{-- KANAN: Tombol Submit --}}
                         <div class="w-full sm:w-auto flex justify-end">
                             <button type="submit" id="submitButton" disabled
                                 class="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg h-11 px-10 bg-secondary text-white font-bold text-sm shadow-md shadow-blue-500/30 transition-all  hover:bg-blue-700 hover:-translate-y-0.5  disabled:opacity-50  disabled:cursor-not-allowed  disabled:transform-none  disabled:shadow-none  disabled:bg-blue-600 disabled:hover:bg-blue-600">
@@ -455,9 +422,7 @@
         </div>
     </div>
 
-    {{-- Script Preview & Validasi --}}
     <script>
-        // Fungsi Callback Turnstile
         function enableSubmitButton() {
             const btn = document.getElementById('submitButton');
             if (btn) {
@@ -473,7 +438,6 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Validasi Trix Editor
             const form = document.getElementById('ticketForm');
             const descriptionInput = document.getElementById('x_description');
             const editorContainer = document.getElementById('editor-container');

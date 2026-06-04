@@ -7,7 +7,6 @@
         </div>
     </div>
 
-    {{-- Filter tanpa Petugas --}}
     <x-tickets.assigned.filter :services="$services" />
 
     <div id="ticket-list-area"

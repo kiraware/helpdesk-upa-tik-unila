@@ -30,7 +30,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
 
     public function columnWidths(): array
     {
-        // Hanya Set kolom No & Layanan, sisanya auto
         return ['A' => 5, 'B' => 30];
     }
 
@@ -44,7 +43,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember',
         ];
 
-        // Struktur data penampung Tabel
         $dataT1 = [];
         $grandTotalsT1 = array_fill(1, 12, 0);
         $grandTotalsT1['total'] = 0;
@@ -54,7 +52,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
             $dataT1[$service->id]['total'] = 0;
         }
 
-        // Proses Raw Tickets ke dalam matriks per bulan
         foreach ($this->tickets as $ticket) {
             $m = $ticket->created_at->month;
             $sId = $ticket->service_id;
@@ -63,7 +60,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 continue;
             }
 
-            // Update Tabel
             $dataT1[$sId][$m]++;
             $dataT1[$sId]['total']++;
             $grandTotalsT1[$m]++;
@@ -72,9 +68,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
 
         $rows = [];
 
-        // ==========================================
-        // STRUKTUR TABEL REKAP BULANAN
-        // ==========================================
         $rows[] = ['REKAPITULASI TIKET BULANAN']; // Baris 1: Judul Utama
         $rows[] = [$this->startDate->format('d F Y').' s.d. '.$this->endDate->format('d F Y')]; // Baris 2: Sub-judul
         $rows[] = []; // Baris 3: Spasi Kosong
@@ -116,9 +109,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
             AfterSheet::class => function (AfterSheet $event) {
                 $sheet = $event->sheet->getDelegate();
 
-                // Kolom dari A sampai O (15 kolom: No + Layanan + 12 Bulan + Summary)
-
-                // Baris 1: Judul
                 $sheet->mergeCells('A1:O1');
                 $sheet->getStyle('A1')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 14, 'color' => ['rgb' => 'FFFFFF']],
@@ -127,7 +117,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 ]);
                 $sheet->getRowDimension(1)->setRowHeight(28);
 
-                // Baris 2: Sub-judul periode
                 $sheet->mergeCells('A2:O2');
                 $sheet->getStyle('A2')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 10, 'color' => ['rgb' => '065F46']],
@@ -135,7 +124,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                     'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                 ]);
 
-                // Baris 4: Header kolom tabel
                 $t1HRow = 3;
                 $sheet->getStyle('A3:O3')->applyFromArray([
                     'font' => ['bold' => true, 'size' => 9, 'color' => ['rgb' => 'FFFFFF']],
@@ -148,7 +136,6 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                 $t1Start = 4;
                 $t1End = $this->rowMap['t1_total'] - 1;
 
-                // Zebra striping untuk row data dan row total
                 for ($r = $t1Start; $r <= $t1End; $r++) {
                     $color = ($r % 2 === 0) ? 'ECFDF5' : 'FFFFFF';
                     $sheet->getStyle("A{$r}:O{$r}")->applyFromArray([
@@ -156,11 +143,9 @@ class RekapBulananSheet implements FromArray, WithColumnWidths, WithEvents, With
                         'alignment' => ['horizontal' => Alignment::HORIZONTAL_CENTER],
                         'borders' => ['allBorders' => ['borderStyle' => Border::BORDER_THIN, 'color' => ['rgb' => 'D1FAE5']]],
                     ]);
-                    // Kolom Layanan (B) rata kiri
                     $sheet->getStyle("B{$r}")->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
                 }
 
-                // Baris Total (Baris terakhir) Font ditebalkan
                 $sheet->getStyle("A{$t1End}:O{$t1End}")->applyFromArray([
                     'font' => ['bold' => true],
                     'fill' => ['fillType' => Fill::FILL_SOLID, 'startColor' => ['rgb' => 'D1FAE5']],

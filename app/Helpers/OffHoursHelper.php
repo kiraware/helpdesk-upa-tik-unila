@@ -54,13 +54,11 @@ class OffHoursHelper
         $onhourCount = 0;
 
         foreach ($tickets as $ticket) {
-            // Gunakan assigned_at; kalau null fallback ke created_at
             $ts = $ticket->assigned_at ?? $ticket->created_at;
             if (! $ts) {
                 continue;
             }
 
-            // Konversi ke WIB (Asia/Jakarta) untuk evaluasi jam kerja
             $dt = $ts->copy()->timezone('Asia/Jakarta');
 
             if (self::isWeekend($dt)) {
@@ -92,16 +90,12 @@ class OffHoursHelper
      */
     public static function applyRankingScore(array $staffData): array
     {
-        // Cari nilai raw_points tertinggi untuk normalisasi
         $maxPoints = max(1, max(array_column($staffData, 'raw_points')));
 
         foreach ($staffData as &$s) {
-            // Normalisasi 0–10
             $dedikasiNorm = ($s['raw_points'] / $maxPoints) * 10;
             $s['dedikasi_score'] = round($dedikasiNorm, 2);
 
-            // Skor gabungan: CSI tetap dominan (85%), dedikasi booster (15%)
-            // Karena CSI sudah dalam %, dedikasi_norm dikali 10 supaya skalanya setara
             $s['ranking_score'] = round(
                 ($s['csi'] * self::WEIGHT_CSI) + ($dedikasiNorm * 10 * self::WEIGHT_DEDIKASI),
                 4
@@ -111,10 +105,6 @@ class OffHoursHelper
 
         return $staffData;
     }
-
-    // ─────────────────────────────────────────────────────────────────
-    // PRIVATE HELPERS
-    // ─────────────────────────────────────────────────────────────────
 
     /** Sabtu (6) atau Minggu (7) */
     private static function isWeekend(Carbon $dt): bool
@@ -134,13 +124,11 @@ class OffHoursHelper
         $time = $dt->hour * 60 + $dt->minute; // menit sejak tengah malam
 
         if ($dow >= 1 && $dow <= 4) {
-            // Senin – Kamis: 08:00–12:00 (480–720) | 13:30–16:00 (810–960)
             return ($time >= 480 && $time <= 720)
                 || ($time >= 810 && $time <= 960);
         }
 
         if ($dow === 5) {
-            // Jumat: 08:00–11:30 (480–690) | 14:00–16:30 (840–990)
             return ($time >= 480 && $time <= 690)
                 || ($time >= 840 && $time <= 990);
         }

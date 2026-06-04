@@ -31,14 +31,12 @@ class TicketController extends Controller
 
         $tickets = Ticket::query()
             ->with([
-                'user',
-                'service',
-                'assignee',
-                'guestDetail',
+                'user:id,name,avatar_path',
+                'service:id,name',
+                'assignee:id,name,avatar_path',
+                'guestDetail:id,ticket_id,full_name',
             ])
             ->withCount('comments')
-
-            // Jika user yang login role-nya 'user', batasi query hanya ke tiket miliknya.
             ->when($user && $user->role === UserRole::USER, function ($query) use ($user) {
                 $query->where('user_id', $user->id);
             })
@@ -80,7 +78,6 @@ class TicketController extends Controller
                 }
             })
 
-            // -------------------------------------------------------------------------
             // ORDERING STRATEGY
             //
             // Tujuan: Tiket yang paling butuh perhatian muncul paling atas.
@@ -151,7 +148,6 @@ class TicketController extends Controller
 
     public function show(Ticket $ticket)
     {
-        // Mencegah User A mengakses URL tiket milik User B secara manual
         $user = auth()->user();
         if ($user->role === UserRole::USER) {
             if ($ticket->user_id !== $user->id) {
@@ -169,7 +165,7 @@ class TicketController extends Controller
             'comments.attachments',
         ]);
 
-        $admins = User::whereIn('role', ['admin', 'superuser'])->get();
+        $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
             ->orderByRaw('LOWER(name) ASC')
@@ -207,17 +203,18 @@ class TicketController extends Controller
             return $ticket;
         });
 
-        $unassignedAttachments = TicketAttachment::whereNull('ticket_id')->get();
-
-        foreach ($unassignedAttachments as $attachment) {
-            if (str_contains($ticket->description, $attachment->url)) {
-                $attachment->update(['ticket_id' => $ticket->id]);
-            }
-        }
+        TicketAttachment::whereNull('ticket_id')
+            ->where('created_at', '>=', now()->subDay())
+            ->select(['id', 'ticket_id', 'path'])
+            ->get()
+            ->each(function ($attachment) use ($ticket) {
+                if (str_contains($ticket->description, $attachment->url)) {
+                    $attachment->update(['ticket_id' => $ticket->id]);
+                }
+            });
 
         $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
 
-        // TIKET BARU DIBUAT (Ke Admin)
         $userName = auth()->user()->name;
         $title = 'Laporan Baru dari Pengguna';
         $message = "Terdapat tiket baru dari pengguna (*{$userName}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
@@ -238,12 +235,10 @@ class TicketController extends Controller
 
     public function assignMe(Ticket $ticket)
     {
-        // Pastikan User Biasa tidak bisa mengakses fungsi ini
         if (auth()->user()->role === UserRole::USER) {
             return back()->with('error', 'Anda tidak memiliki izin untuk mengambil tiket ini.');
         }
 
-        // Cegah overwrite jika sudah ada petugas
         if ($ticket->assigned_to) {
             return back()->with('error', 'Tiket sudah ditugaskan.');
         }
@@ -256,15 +251,12 @@ class TicketController extends Controller
 
         $adminName = auth()->user()->name;
 
-        // PETUGAS MENGAMBIL TIKET (Ke Pelapor)
         $title = 'Tiket Diproses';
         $message = "Tiket Anda (*#{$ticket->ticket_code}*) untuk layanan *{$ticket->service->name}* saat ini telah berstatus *Sedang Diproses* dan ditangani oleh petugas kami (*{$adminName}*). Silakan klik tautan di bawah ini untuk memantau perkembangan penanganan tiket Anda.";
 
-        // Tentukan channel (Contoh: Notif di App + WhatsApp + Email)
         $channels = ['database', 'mail', WhatsAppChannel::class];
 
         if ($ticket->user) {
-            // Jika User terdaftar di sistem
             $ticket->user->notify(new SystemNotification(
                 $title,
                 $message,
@@ -273,7 +265,6 @@ class TicketController extends Controller
                 $channels
             ));
         } elseif ($ticket->guestDetail) {
-            // Jika Guest (Gunakan On-Demand Notification)
             Notification::route('mail', $ticket->guestDetail->email)
                 ->route(WhatsAppChannel::class, $ticket->guestDetail->phone)
                 ->notify(new SystemNotification(
@@ -290,7 +281,6 @@ class TicketController extends Controller
 
     public function updateAssignee(Request $request, Ticket $ticket)
     {
-        // Validasi input, pastikan user ID yang dikirim adalah admin/superuser
         $request->validate([
             'assigned_to' => [
                 'nullable',
@@ -300,26 +290,21 @@ class TicketController extends Controller
 
         $user = auth()->user();
 
-        // Keamanan tambahan: Admin dan Superuser boleh merubah petugas secara manual
         if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
             return back()->with('error', 'Hanya Admin dan Superuser yang dapat merubah petugas secara manual.');
         }
 
-        // Syarat: Status tiket masih waiting atau progress
         if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
             return back()->with('error', 'Petugas tidak dapat diubah pada tiket yang sudah ditutup.');
         }
 
-        // Jika nilai dari form sama dengan nilai di database, hentikan proses (skip update)
         if ($ticket->assigned_to == $request->assigned_to) {
             return back()->with('info', 'Tidak ada perubahan pada petugas tiket.');
         }
 
-        // Update data petugas & timestamp HANYA jika ada perubahan
         $ticket->assigned_to = $request->assigned_to;
         $ticket->assigned_at = $request->assigned_to ? now() : null;
 
-        // Auto-update status
         if (is_null($request->assigned_to) && $ticket->status === TicketStatus::PROGRESS) {
             $ticket->status = TicketStatus::WAITING;
         } elseif (! is_null($request->assigned_to) && $ticket->status === TicketStatus::WAITING) {
@@ -328,13 +313,11 @@ class TicketController extends Controller
 
         $ticket->save();
 
-        // Kirim notifikasi HANYA jika form tidak dikosongkan
         if ($request->assigned_to) {
             $ticket->load('assignee');
 
             if ($ticket->assignee && $ticket->assignee->id !== $user->id) {
 
-                // TIKET DITUGASKAN OLEH SUPERUSER (Ke Petugas Baru)
                 $title = 'Penugasan Tiket Baru';
                 $message = "Tiket *#{$ticket->ticket_code}* (Layanan: *{$ticket->service->name}*) telah ditugaskan kepada Anda oleh *{$user->name}*. Mohon segera periksa detail tiket melalui tautan di bawah ini dan mulai proses penanganan.";
 
@@ -364,7 +347,6 @@ class TicketController extends Controller
 
         $user = auth()->user();
 
-        // 1. Status harus waiting / progress
         if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
             return back()->with('error', 'Layanan tidak dapat diubah pada tiket yang sudah ditutup.');
         }
@@ -402,24 +384,19 @@ class TicketController extends Controller
 
         $user = auth()->user();
 
-        // 1. Syarat: Status tiket masih waiting atau progress
         if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
             return back()->with('error', 'Prioritas tidak dapat diubah pada tiket yang sudah ditutup.');
         }
 
-        // 2. Syarat Otorisasi & Auto-assign
         $isSuperuser = $user->role === UserRole::SUPERUSER;
         $isAdmin = $user->role === UserRole::ADMIN;
 
         if ($isSuperuser) {
-            // Superuser bisa mengedit kapan saja.
-            // Jika belum ada petugas, otomatis jadikan dia petugas (opsional, tapi disarankan)
             if (is_null($ticket->assigned_to)) {
                 $ticket->assigned_to = $user->id;
                 $ticket->assigned_at = now();
             }
         } elseif ($isAdmin) {
-            // Admin hanya bisa mengedit jika tiket belum ada petugasnya ATAU tiket miliknya
             if (is_null($ticket->assigned_to)) {
                 $ticket->assigned_to = $user->id;
                 $ticket->assigned_at = now();
@@ -430,7 +407,6 @@ class TicketController extends Controller
             return back()->with('error', 'Anda tidak memiliki hak akses.');
         }
 
-        // Update priority
         $ticket->priority = $request->priority;
         $ticket->save();
 
@@ -445,17 +421,14 @@ class TicketController extends Controller
     {
         $user = auth()->user();
 
-        // 1. Cek apakah user adalah staff (Admin / Superuser)
         if (! in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
             return back()->with('error', 'Anda tidak memiliki izin untuk menutup tiket.');
         }
 
-        // 2. Cek apakah tiket sudah di-assign ke orang lain
         if (! is_null($ticket->assigned_to) && $ticket->assigned_to !== $user->id) {
             return back()->with('error', 'Anda tidak dapat menutup tiket yang sedang ditugaskan kepada staff lain.');
         }
 
-        // 3. Minimal ada 1 komentar dari staf
         $hasStaffComment = $ticket->comments()->whereHas('user', function ($query) {
             $query->whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value]);
         })->exists();
@@ -489,7 +462,6 @@ class TicketController extends Controller
         $statusLabel = $validated['status'] === TicketStatus::DONE->value ? 'Diselesaikan' : 'Ditolak';
         $type = $validated['status'] === TicketStatus::DONE->value ? 'success' : 'error';
 
-        // TIKET DITUTUP / DITOLAK (Ke Pelapor)
         $title = "Tiket {$statusLabel}";
         $message = "Tiket Anda (*#{$ticket->ticket_code}*) terkait layanan *{$ticket->service->name}* telah dinyatakan *{$statusLabel}* oleh petugas kami (*{$user->name}*). Silakan klik tautan di bawah ini untuk melihat detail penyelesaian dan mohon luangkan waktu Anda untuk mengisi survei kepuasan layanan kami.";
 
@@ -590,7 +562,7 @@ class TicketController extends Controller
             ->get(['id', 'name', 'avatar_path']);
 
         $tickets = Ticket::query()
-            ->with(['user', 'service', 'assignee', 'guestDetail'])
+            ->with(['user:id,name,avatar_path', 'service:id,name', 'assignee:id,name,avatar_path', 'guestDetail:id,ticket_id,full_name'])
             ->withCount('comments')
             ->where('status', TicketStatus::WAITING) // ← hard-coded, tidak bisa diubah via filter
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {
@@ -634,7 +606,7 @@ class TicketController extends Controller
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()
-            ->with(['user', 'service', 'assignee', 'guestDetail'])
+            ->with(['user:id,name,avatar_path', 'service:id,name', 'assignee:id,name,avatar_path', 'guestDetail:id,ticket_id,full_name'])
             ->withCount('comments')
             ->where('assigned_to', $user->id) // ← hard-coded ke user login
             ->when($request->q, fn ($q) => $q->where(function ($qq) use ($request) {

@@ -13,22 +13,29 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
 
-        // 1. SUPERUSER
         if ($user->role === UserRole::SUPERUSER) {
 
+            $statusCounts = Ticket::selectRaw("
+                COUNT(*) as total,
+                COUNT(*) FILTER (WHERE status = 'waiting') as waiting,
+                COUNT(*) FILTER (WHERE status = 'progress') as progress,
+                COUNT(*) FILTER (WHERE status = 'done') as done,
+                COUNT(*) FILTER (WHERE status = 'reject') as reject
+            ")->first();
+
             $stats = [
-                'total' => Ticket::count(),
-                'waiting' => Ticket::where('status', TicketStatus::WAITING)->count(),
-                'progress' => Ticket::where('status', TicketStatus::PROGRESS)->count(),
-                'done' => Ticket::where('status', TicketStatus::DONE)->count(),
-                'reject' => Ticket::where('status', TicketStatus::REJECT)->count(),
+                'total' => (int) $statusCounts->total,
+                'waiting' => (int) $statusCounts->waiting,
+                'progress' => (int) $statusCounts->progress,
+                'done' => (int) $statusCounts->done,
+                'reject' => (int) $statusCounts->reject,
             ];
 
             $recentTickets = Ticket::with([
-                'user',
-                'service',
+                'user:id,name,avatar_path',
+                'service:id,name',
             ])
-                ->withCount('comments') // <-- TAMBAHAN
+                ->withCount('comments')
                 ->latest()
                 ->take(5)
                 ->get();
@@ -45,21 +52,22 @@ class DashboardController extends Controller
             ));
         }
 
-        // 2. ADMIN
         if ($user->role === UserRole::ADMIN) {
 
-            $stats = [
-                'unassigned' => Ticket::whereNull('assigned_to')->count(),
+            $adminCounts = Ticket::selectRaw("
+                COUNT(*) FILTER (WHERE assigned_to IS NULL) as unassigned,
+                COUNT(*) FILTER (WHERE assigned_to = ? AND status = 'progress') as my_tasks
+            ", [$user->id])->first();
 
-                'my_tasks' => Ticket::where('assigned_to', $user->id)
-                    ->where('status', TicketStatus::PROGRESS)
-                    ->count(),
+            $stats = [
+                'unassigned' => (int) $adminCounts->unassigned,
+                'my_tasks' => (int) $adminCounts->my_tasks,
             ];
 
             $priorityTickets = Ticket::with([
-                'user',
-                'service',
-                'guestDetail',
+                'user:id,name,avatar_path',
+                'service:id,name',
+                'guestDetail:id,ticket_id,full_name',
             ])
                 ->withCount('comments')
                 ->where(function ($q) {
@@ -91,26 +99,22 @@ class DashboardController extends Controller
             ));
         }
 
-        // 3. USER
-        $myStats = [
-            'active' => Ticket::where('user_id', $user->id)
-                ->whereIn('status', [
-                    TicketStatus::WAITING,
-                    TicketStatus::PROGRESS,
-                ])
-                ->count(),
+        $userCounts = Ticket::where('user_id', $user->id)->selectRaw("
+            COUNT(*) FILTER (WHERE status IN ('waiting', 'progress')) as active,
+            COUNT(*) FILTER (WHERE status = 'done') as completed
+        ")->first();
 
-            'completed' => Ticket::where('user_id', $user->id)
-                ->where('status', TicketStatus::DONE)
-                ->count(),
+        $myStats = [
+            'active' => (int) $userCounts->active,
+            'completed' => (int) $userCounts->completed,
         ];
 
         $myRecentTickets = Ticket::where('user_id', $user->id)
             ->with([
-                'service',
-                'assignee',
+                'service:id,name',
+                'assignee:id,name,avatar_path',
             ])
-            ->withCount('comments') // <-- TAMBAHAN
+            ->withCount('comments')
             ->latest()
             ->take(5)
             ->get();

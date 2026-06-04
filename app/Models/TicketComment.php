@@ -45,8 +45,6 @@ class TicketComment extends Model
             return $this->user->name;
         }
 
-        // Jika user_id null, berarti Guest (ambil dari data tiket)
-        // Kita akses relasi guestDetail dari parent ticket
         return $this->ticket->guestDetail->full_name;
     }
 

@@ -6,7 +6,6 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between h-16">
 
-            {{-- LOGO --}}
             <a href="{{ url('/') }}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
 
                 <div class="p-1 rounded-lg">
@@ -24,18 +23,14 @@
                 </div>
             </a>
 
-            {{-- DESKTOP NAVIGATION --}}
             <nav class="hidden md:flex items-center gap-4">
 
-                {{-- 1. FAQ --}}
                 <a href="{{ route('faq') }}"
                     class="text-sm font-medium text-text-light dark:text-text-dark hover:text-brand transition-colors px-3 py-2">
                     FAQ
                 </a>
 
-                {{-- LOGIKA: HANYA UNTUK GUEST --}}
                 @guest
-                    {{-- Cek Status (Ghost Button style) --}}
                     <a href="{{ route('guest.tracking.index') }}"
                         class="text-sm font-medium text-text-light dark:text-text-dark 
                                hover:bg-gray-100 dark:hover:bg-slate-800 
@@ -45,7 +40,6 @@
 
                     <div class="h-4 w-px bg-border-light dark:bg-border-dark mx-1"></div>
 
-                    {{-- Login --}}
                     <a href="{{ route('login') }}"
                         class="text-sm font-semibold text-text-light dark:text-text-dark 
                                border border-border-light dark:border-border-dark 
@@ -54,7 +48,6 @@
                         Login
                     </a>
 
-                    {{-- Buat Tiket --}}
                     <a href="{{ route('guest.tickets.create') }}"
                         class="text-sm font-semibold text-white bg-brand hover:bg-brand-hover 
                                px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-500/30">
@@ -62,7 +55,6 @@
                     </a>
                 @endguest
 
-                {{-- LOGIKA: HANYA UNTUK USER LOGIN --}}
                 @auth
                     @php
                         $user = auth()->user();
@@ -72,7 +64,6 @@
                             : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
                     @endphp
 
-                    {{-- 2. TOMBOL DASHBOARD (LANGSUNG MUNCUL) --}}
                     <a href="{{ route('dashboard') }}"
                         class="text-sm font-semibold text-white bg-brand hover:bg-brand-hover 
                                px-4 py-2 rounded-lg transition-colors shadow-sm shadow-blue-500/30">
@@ -81,7 +72,6 @@
 
                     <div class="h-4 w-px bg-border-light dark:bg-border-dark mx-2"></div>
 
-                    {{-- 3. PROFIL DROPDOWN --}}
                     <div class="relative" x-data="{ open: false }">
                         <button @click="open = !open" class="flex items-center gap-3 focus:outline-none pl-2 group">
                             <div class="text-right hidden lg:block leading-tight min-w-0 max-w-[150px]">
@@ -100,7 +90,6 @@
            shadow-sm transition-all" />
                         </button>
 
-                        {{-- DROPDOWN --}}
                         <div x-show="open" x-transition x-cloak @click.outside="open = false"
                             class="absolute right-0 top-12 w-48
                                    rounded-xl overflow-hidden shadow-xl
@@ -108,7 +97,6 @@
                                    bg-white/90 dark:bg-slate-800/90
                                    backdrop-blur-md backdrop-saturate-150 mt-2 origin-top-right">
 
-                            {{-- Menu Profil --}}
                             <a href="{{ route('profile.edit') }}"
                                 class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium
                                        text-text-light dark:text-slate-100
@@ -119,7 +107,6 @@
 
                             <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
 
-                            {{-- Menu Keluar --}}
                             <form method="POST" action="{{ route('logout') }}">
                                 @csrf
                                 <button type="submit"
@@ -136,7 +123,6 @@
 
             </nav>
 
-            {{-- MOBILE MENU BUTTON --}}
             <button @click="mobileMenuOpen = !mobileMenuOpen"
                 class="md:hidden p-2 text-muted-light dark:text-muted-dark hover:bg-gray-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
                 <span class="material-icons-round icon-md">menu</span>
@@ -144,7 +130,6 @@
         </div>
     </div>
 
-    {{-- MOBILE MENU --}}
     <div x-show="mobileMenuOpen" x-transition
         class="md:hidden bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark shadow-lg"
         style="display: none;">
@@ -154,7 +139,6 @@
                 class="block text-sm font-medium text-text-light dark:text-text-dark py-2 border-b border-border-light dark:border-border-dark">FAQ</a>
 
             @guest
-                {{-- MOBILE GUEST MENU --}}
                 <a href="{{ route('guest.tracking.index') }}"
                     class="block text-sm font-medium text-text-light dark:text-text-dark py-2 hover:text-brand">
                     Cek Status Tiket
@@ -181,9 +165,7 @@
                         : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
                 @endphp
 
-                {{-- MOBILE AUTH MENU --}}
                 <div class="pt-2">
-                    {{-- User Info Header --}}
                     <div class="flex items-center gap-3 mb-4">
                         <img src="{{ $avatarUrl }}"
                             class="w-10 h-10 rounded-full object-cover border border-border-light">
@@ -194,21 +176,18 @@
                         </div>
                     </div>
 
-                    {{-- Dashboard Button --}}
                     <a href="{{ route('dashboard') }}"
                         class="flex items-center gap-2 w-full text-sm font-medium text-white bg-brand px-3 py-2.5 rounded-lg hover:bg-brand-hover shadow-sm mb-2">
                         <span class="material-icons-round text-white">dashboard</span>
                         Dashboard
                     </a>
 
-                    {{-- Profil Link --}}
                     <a href="{{ route('profile.edit') }}"
                         class="flex items-center gap-2 w-full text-sm font-medium text-text-light dark:text-text-dark px-3 py-2.5 rounded-lg hover:bg-gray-50 dark:hover:bg-slate-800">
                         <span class="material-icons-round text-muted-light">person</span>
                         Profil
                     </a>
 
-                    {{-- Logout --}}
                     <form method="POST" action="{{ route('logout') }}" class="mt-1">
                         @csrf
                         <button

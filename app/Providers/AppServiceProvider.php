@@ -12,10 +12,7 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Register any application services.
      */
-    public function register(): void
-    {
-        //
-    }
+    public function register(): void {}
 
     /**
      * Bootstrap any application services.
@@ -29,10 +26,8 @@ class AppServiceProvider extends ServiceProvider
                 return;
             }
 
-            // Tiket waiting
             $waitingCount = Ticket::where('status', TicketStatus::WAITING)->count();
 
-            // Tiket assigned ke saya & masih progress
             $assignedProgressCount = Ticket::where('assigned_to', $user->id)
                 ->where('status', TicketStatus::PROGRESS)
                 ->count();

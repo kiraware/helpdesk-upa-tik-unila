@@ -4,14 +4,12 @@
            border-b border-border-light dark:border-border-dark 
            shadow-sm z-40 gap-4">
 
-    {{-- PEMISAH BAWAH HALUS --}}
     <div
         class="pointer-events-none absolute inset-x-0 bottom-0 h-px
                bg-linear-to-r from-transparent via-gray-300/70 dark:via-slate-600/60 to-transparent
                blur-[0.5px]">
     </div>
 
-    {{-- KIRI: Toggle Sidebar & Title --}}
     <div class="flex items-center gap-3 flex-1 min-w-0">
         <button @click="sidebarOpen = !sidebarOpen"
             class="lg:hidden text-muted-light dark:text-slate-400
@@ -19,19 +17,15 @@
             <span class="material-icons-round">menu</span>
         </button>
 
-        {{-- Judul: Truncate jika terlalu panjang --}}
         <h1 class="text-base sm:text-lg font-semibold text-text-light dark:text-text-dark truncate"
             title="{{ $title ?? 'Dasbor' }}">
             {{ $title ?? 'Dasbor' }}
         </h1>
     </div>
 
-    {{-- KANAN: Notifikasi & Profil --}}
     <div class="flex items-center space-x-2 sm:space-x-4 shrink-0">
 
-        {{-- === TOMBOL NOTIFIKASI === --}}
         @php
-            // Initial data agar load pertama tetap cepat (tidak perlu menunggu JS fetch)
             $initialUnreadCount = auth()->user()->unreadNotifications()->count();
             $initialNotifs = auth()
                 ->user()
@@ -63,14 +57,12 @@
                 </template>
             </button>
 
-            {{-- DROPDOWN NOTIFIKASI --}}
             <div x-show="notifOpen" x-transition x-cloak @click.outside="notifOpen = false"
                 class="fixed inset-x-4 top-14 w-auto sm:absolute sm:inset-auto sm:right-0 sm:top-11 sm:w-96
                        rounded-xl overflow-hidden shadow-2xl border border-border-light dark:border-slate-700
                        bg-white/95 dark:bg-slate-800/95 backdrop-blur-md z-50">
 
                 <div>
-                    {{-- Header Dropdown --}}
                     <div
                         class="flex items-center justify-between px-4 py-3 border-b border-border-light dark:border-slate-700">
                         <h3 class="font-semibold text-text-light dark:text-slate-100">Notifikasi</h3>
@@ -85,9 +77,7 @@
                         </template>
                     </div>
 
-                    {{-- List Notifikasi --}}
                     <div class="max-h-75 overflow-y-auto">
-                        {{-- Looping Data JSON --}}
                         <template x-for="notification in notifications" :key="notification.id">
                             <a :href="notification.read_url"
                                 class="block px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-700/50 border-b border-gray-100 dark:border-slate-700/50 transition-colors group">
@@ -118,7 +108,6 @@
                             </a>
                         </template>
 
-                        {{-- State Kosong --}}
                         <template x-if="notifications.length === 0">
                             <div class="py-8 text-center text-muted-light dark:text-slate-500">
                                 <span
@@ -128,7 +117,6 @@
                         </template>
                     </div>
 
-                    {{-- Footer Dropdown --}}
                     <a href="{{ route('notifications.index') }}"
                         class="block bg-gray-50 dark:bg-slate-700/30 py-2 text-center text-xs font-medium text-text-light dark:text-slate-300 hover:text-blue-600 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors">
                         Lihat Semua Histori
@@ -137,14 +125,11 @@
             </div>
         </div>
 
-        {{-- PEMISAH VERTIKAL --}}
         <div class="h-6 w-px bg-border-light dark:bg-slate-700/70 hidden sm:block"></div>
 
-        {{-- MENU PROFIL --}}
         <div class="relative" x-data="{ open: false }">
             <button @click="open = !open" class="flex items-center gap-3 focus:outline-none group max-w-full">
 
-                {{-- NAMA USER --}}
                 <div class="text-right hidden sm:block leading-tight min-w-0 sm:max-w-30 md:max-w-37.5 lg:max-w-50">
                     <p class="text-sm font-medium text-text-light dark:text-slate-100 truncate"
                         title="{{ auth()->user()->name }}">
@@ -155,7 +140,6 @@
                     </p>
                 </div>
 
-                {{-- FOTO PROFIL --}}
                 <img src="{{ auth()->user()->avatar_path
                     ? asset('storage/' . auth()->user()->avatar_path)
                     : 'https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name) }}"
@@ -165,7 +149,6 @@
                            shadow-sm group-hover:ring-2 group-hover:ring-blue-100 transition-all" />
             </button>
 
-            {{-- DROPDOWN PROFIL --}}
             <div x-show="open" x-transition x-cloak @click.outside="open = false"
                 class="absolute right-0 top-11 w-56
                        rounded-xl overflow-hidden shadow-xl
@@ -183,7 +166,6 @@
                     </span>
                 </div>
 
-                {{-- Route Profil --}}
                 <a href="{{ route('profile.edit') }}"
                     class="flex items-center gap-2 px-4 py-2.5 text-sm
            text-text-light dark:text-slate-100
@@ -192,7 +174,6 @@
                     Profil
                 </a>
                 <div class="h-px bg-border-light dark:bg-slate-700/70"></div>
-                {{-- Route Logout --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
                     <button type="submit"

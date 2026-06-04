@@ -40,22 +40,18 @@ class UserController extends Controller
             'division_id' => 'nullable|exists:divisions,id',
         ]);
 
-        // Cek apakah user sudah ada di database
         $user = User::where('username_sso', $request->username_sso)->first();
 
         if ($user) {
-            // Jika user sudah ada, cukup perbarui role dan divisinya
             $user->update([
                 'role' => $request->role,
                 'division_id' => $request->division_id,
-                // Jika input phone diisi, gunakan yang baru. Jika tidak, pertahankan yang lama
                 'phone' => $request->phone ?? $user->phone,
             ]);
 
             return back()->with('success', 'Hak akses staff berhasil ditambahkan pada user yang sudah ada.');
         }
 
-        // Jika user benar-benar belum ada, buat record baru
         User::create([
             'username_sso' => $request->username_sso,
             'name' => $request->username_sso, // Fallback name sebelum tersinkronisasi SSO

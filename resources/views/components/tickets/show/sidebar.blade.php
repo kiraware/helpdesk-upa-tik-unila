@@ -9,16 +9,13 @@
     $isClosed = in_array($ticket->status, [TicketStatus::DONE, TicketStatus::REJECT]);
     $currentUser = auth()->user();
 
-    // Cek Role Admin/Superuser
     $isAdminOrSuper = $currentUser && in_array($currentUser->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
-    // Logic Tombol "Ambil Tiket"
     $canTakeTicket = $isAdminOrSuper;
 
     $canEditPriority = false;
     $canEditAssignee = false;
 
-    // Cek apakah status memenuhi syarat: Berikan hak edit ke Admin & Superuser
     if (in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
         if ($isAdminOrSuper) {
             $canEditPriority = true;
@@ -37,7 +34,6 @@
 @endphp
 
 <div class="space-y-6">
-    {{-- ASSIGNEE --}}
     <div x-data="{ openAssignee: false }"
         class="relative border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm">
 
@@ -46,7 +42,6 @@
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Petugas</h3>
 
             <div class="flex items-center gap-2">
-                {{-- Tombol Ambil Tiket --}}
                 @if (is_null($ticket->assigned_to) && !$isClosed && $canTakeTicket)
                     <form method="POST" action="{{ route('tickets.assign.me', $ticket) }}">
                         @csrf
@@ -67,7 +62,6 @@
         <div class="p-4">
             @if ($ticket->assignee)
                 <div class="flex items-center gap-3">
-                    {{-- Foto Profil Petugas Utama --}}
                     <img src="{{ $ticket->assignee->avatar_path ? asset('storage/' . $ticket->assignee->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($ticket->assignee->name) }}"
                         class="w-8 h-8 rounded-full object-cover border border-border-light dark:border-slate-600 shadow-sm">
 
@@ -81,7 +75,6 @@
                     </div>
                 </div>
 
-                {{-- Tombol Download Surat Tugas --}}
                 @if ($isAdminOrSuper || auth()->id() === $ticket->assigned_to)
                     <div class="mt-4 pt-3 border-t border-border-light dark:border-border-dark/50">
                         <a href="{{ route('tickets.print_assignment', $ticket) }}" target="_blank"
@@ -95,7 +88,6 @@
                 <div class="text-sm text-muted-light italic">Belum ada petugas</div>
             @endif
 
-            {{-- Dropdown Ubah Petugas --}}
             @if ($canEditAssignee)
                 <div x-show="openAssignee" @click.outside="openAssignee = false"
                     x-transition:enter="transition ease-out duration-100"
@@ -127,7 +119,6 @@
                             <button type="submit" name="assigned_to" value="{{ $admin->id }}"
                                 class="w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center gap-2 transition-colors {{ $ticket->assigned_to === $admin->id ? 'bg-gray-50 dark:bg-slate-700/50 font-bold' : '' }}">
 
-                                {{-- Foto Profil Petugas di Dropdown --}}
                                 <img src="{{ $admin->avatar_path ? asset('storage/' . $admin->avatar_path) : 'https://ui-avatars.com/api/?name=' . urlencode($admin->name) }}"
                                     class="w-5 h-5 rounded-full object-cover border border-border-light dark:border-slate-600">
 
@@ -145,7 +136,6 @@
         </div>
     </div>
 
-    {{-- INFO --}}
     <div
         class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark shadow-sm">
         <div
@@ -153,7 +143,6 @@
             <h3 class="text-xs font-bold uppercase tracking-wider text-muted-light">Informasi</h3>
         </div>
         <div class="p-4 space-y-4">
-            {{-- Layanan --}}
             <div x-data="{ openService: false }" class="relative">
                 <div class="flex justify-between items-center gap-2 mb-1">
                     <p class="text-xs text-muted-light">Layanan</p>
@@ -202,7 +191,6 @@
                 @endif
             </div>
 
-            {{-- Prioritas --}}
             <div x-data="{ openPriority: false }" class="relative">
                 <div class="flex justify-between items-center gap-2 mb-1">
                     <p class="text-xs text-muted-light">Prioritas</p>
@@ -261,7 +249,6 @@
         </div>
     </div>
 
-    {{-- RIWAYAT TIKET (TIMELINE) --}}
     <div
         class="border border-border-light dark:border-border-dark rounded-xl bg-surface-light dark:bg-surface-dark overflow-hidden shadow-sm">
         <div class="px-4 py-3 border-b border-border-light dark:border-border-dark bg-gray-50 dark:bg-slate-800/50">
@@ -269,7 +256,6 @@
         </div>
         <div class="p-4 space-y-4">
 
-            {{-- Created At --}}
             <div class="relative pl-4 border-l-2 border-border-light dark:border-border-dark">
                 <div
                     class="absolute -left-1.25 top-1 w-2.5 h-2.5 rounded-full bg-blue-500 ring-2 ring-white dark:ring-surface-dark">
@@ -280,7 +266,6 @@
                 </p>
             </div>
 
-            {{-- Assigned At --}}
             @if ($ticket->assigned_at)
                 <div class="relative pl-4 border-l-2 border-border-light dark:border-border-dark">
                     <div
@@ -293,7 +278,6 @@
                 </div>
             @endif
 
-            {{-- Closed At --}}
             @if ($ticket->closed_at)
                 <div class="relative pl-4 border-l-2 border-transparent">
                     <div

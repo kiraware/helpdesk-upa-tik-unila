@@ -162,7 +162,6 @@ class TicketReportExport implements WithMultipleSheets
         }
         unset($grandTotals['_csi_wScore'], $grandTotals['_csi_imp']);
 
-        // ── Staff data dengan off-hours bonus ──────────────────────────
         $staffRaw = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])
             ->with(['assignedTickets' => function ($q) {
                 $q->whereBetween('created_at', [$this->startDate, $this->endDate])
