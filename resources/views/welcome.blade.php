@@ -22,7 +22,7 @@
                 </h2>
                 <p class="text-lg lg:text-xl text-muted-light dark:text-muted-dark max-w-2xl mx-auto leading-relaxed">
                     Layanan Bantuan Terpadu Teknologi Informasi & Komunikasi Universitas Lampung. Laporkan kendala
-                    atau pantau status tiket bantuan Anda.
+                    dan pantau status tiket bantuan Anda.
                 </p>
             </div>
         </div>
