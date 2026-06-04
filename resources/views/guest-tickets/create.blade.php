@@ -43,15 +43,24 @@
                             @enderror
                         </div>
 
-                        <div>
+                        <div x-data="{
+                            email: '{{ old('email') }}',
+                            get isUnilaEmail() {
+                                return /@([a-z0-9-]+\.)*unila\.ac\.id$/i.test(this.email);
+                            }
+                        }">
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Email Aktif <span class="text-red-500">*</span>
                             </label>
-                            <input type="email" name="email" value="{{ old('email') }}" required
-                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
+                            <input type="email" name="email" x-model="email" required
+                                class="w-full h-11 px-4 rounded-lg border bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
+                                :class="isUnilaEmail ? 'border-red-500 focus:ring-red-500 focus:border-red-500' :
+                                    'border-slate-300 dark:border-slate-700'"
                                 placeholder="nama@email.com">
+                            <p x-show="isUnilaEmail" x-cloak class="text-red-500 text-xs mt-1 font-medium">Email dari
+                                domain unila.ac.id tidak diperbolehkan.</p>
                             @error('email')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p x-show="!isUnilaEmail" class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
