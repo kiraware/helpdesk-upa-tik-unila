@@ -145,6 +145,22 @@ class GuestTicketController extends Controller
             'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
 
+        $service = Service::find($validated['service_id']);
+        if ($service) {
+            $activeTicket = Ticket::whereHas('guestDetail', function ($query) use ($validated) {
+                $query->where('identity_number', $validated['identity_number']);
+            })
+                ->where('service_id', $service->id)
+                ->whereNotIn('status', [TicketStatus::DONE->value, TicketStatus::REJECT->value])
+                ->exists();
+
+            if ($activeTicket) {
+                return back()
+                    ->withInput()
+                    ->with('error', "Anda masih memiliki tiket dengan layanan {$service->name} yang sedang aktif (belum selesai). Silakan tunggu tiket tersebut diselesaikan sebelum membuat tiket baru.");
+            }
+        }
+
         $ticket = DB::transaction(function () use ($validated, $request) {
             $newTicket = Ticket::create([
                 'user_id' => null, // Guest

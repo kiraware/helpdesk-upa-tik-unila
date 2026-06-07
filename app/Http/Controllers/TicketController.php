@@ -192,6 +192,20 @@ class TicketController extends Controller
             'description' => 'required|string',
         ]);
 
+        $service = Service::find($validated['service_id']);
+        if ($service) {
+            $activeTicket = Ticket::where('user_id', auth()->id())
+                ->where('service_id', $service->id)
+                ->whereNotIn('status', [TicketStatus::DONE->value, TicketStatus::REJECT->value])
+                ->exists();
+
+            if ($activeTicket) {
+                return back()
+                    ->withInput()
+                    ->with('error', "Anda masih memiliki tiket dengan layanan {$service->name} yang sedang aktif (belum selesai). Silakan tunggu tiket tersebut diselesaikan sebelum membuat tiket baru.");
+            }
+        }
+
         $ticket = DB::transaction(function () use ($validated) {
             $ticket = Ticket::create([
                 'user_id' => auth()->id(),
