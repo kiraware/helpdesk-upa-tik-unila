@@ -28,7 +28,66 @@
         </div>
     </section>
 
-    <section class="bg-surface-light dark:bg-surface-dark border-y border-border-light dark:border-border-dark">
+    <section
+        class="py-16 lg:py-24 bg-surface-light dark:bg-surface-dark border-y border-border-light dark:border-border-dark">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl lg:text-4xl font-bold text-text-light dark:text-text-dark mb-4">
+                    Layanan Tanpa Login
+                </h2>
+                <p class="text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto">
+                    Khusus untuk permasalahan akun SSO atau pembuatan Email Resmi Unila, Anda dapat membuat tiket
+                    pelaporan secara langsung tanpa perlu login.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+                <a href="{{ route('guest.tickets.create') }}"
+                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-brand dark:hover:border-brand hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
+                    <div
+                        class="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-brand mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-icons-round text-3xl">email</span>
+                    </div>
+                    <h3
+                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-brand transition-colors">
+                        Email Resmi Unila
+                    </h3>
+                    <p class="text-muted-light dark:text-muted-dark text-sm">Pembuatan akun email baru dengan domain
+                        @unila.ac.id atau kendala akses email.</p>
+                </a>
+
+                <a href="{{ route('guest.tickets.create') }}"
+                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-amber-500 dark:hover:border-amber-500 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
+                    <div
+                        class="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-500 mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-icons-round text-3xl">lock_reset</span>
+                    </div>
+                    <h3
+                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-amber-600 transition-colors">
+                        Lupa Password SSO
+                    </h3>
+                    <p class="text-muted-light dark:text-muted-dark text-sm">Bantuan reset kata sandi akun Single
+                        Sign-On (SSO) Universitas Lampung.</p>
+                </a>
+
+                <a href="{{ route('guest.tickets.create') }}"
+                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
+                    <div
+                        class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-300">
+                        <span class="material-icons-round text-3xl">how_to_reg</span>
+                    </div>
+                    <h3
+                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-emerald-600 transition-colors">
+                        Registrasi SSO
+                    </h3>
+                    <p class="text-muted-light dark:text-muted-dark text-sm">Pendaftaran dan aktivasi akun Single
+                        Sign-On (SSO) untuk pengguna baru.</p>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-background-light dark:bg-background-dark border-b border-border-light dark:border-border-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
 
@@ -65,7 +124,7 @@
                 </div>
 
                 <div
-                    class="relative rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark p-8 lg:p-10 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow">
+                    class="relative rounded-2xl bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark p-8 lg:p-10 flex flex-col justify-center shadow-sm hover:shadow-md transition-shadow">
                     <div class="flex items-start justify-between mb-6">
                         <div
                             class="w-14 h-14 bg-blue-100 dark:bg-blue-900/30 rounded-2xl flex items-center justify-center text-brand border border-blue-200 dark:border-blue-800">
@@ -75,7 +134,8 @@
                             class="bg-gray-200 dark:bg-gray-700 text-text-light dark:text-text-dark text-xs font-bold px-3 py-1 rounded-full">Langkah
                             2</span>
                     </div>
-                    <h3 class="text-2xl lg:text-3xl font-bold text-text-light dark:text-text-dark mb-3">Cek Status Tiket
+                    <h3 class="text-2xl lg:text-3xl font-bold text-text-light dark:text-text-dark mb-3">
+                        Cek Status Tiket
                     </h3>
                     <p class="text-muted-light dark:text-muted-dark mb-8 leading-relaxed text-lg">
                         Sudah mengirimkan laporan? Masukkan kode tiket Anda untuk melihat progress.
@@ -85,7 +145,7 @@
                         @csrf
                         <div class="relative">
                             <input type="text" name="ticket_code" required
-                                class="w-full pl-5 pr-14 py-4 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all text-text-light dark:text-text-dark shadow-sm text-sm md:text-base placeholder-gray-400 uppercase placeholder:normal-case"
+                                class="w-full pl-5 pr-14 py-4 bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-xl focus:ring-2 focus:ring-brand focus:border-transparent outline-none transition-all text-text-light dark:text-text-dark shadow-sm text-sm md:text-base placeholder-gray-400 uppercase placeholder:normal-case"
                                 placeholder="Kode Tiket (Contoh: A7B9K2)" value="{{ old('ticket_code') }}" />
 
                             <button type="submit"
@@ -101,66 +161,12 @@
         </div>
     </section>
 
-    <section
-        class="py-16 lg:py-24 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl lg:text-4xl font-bold text-text-light dark:text-text-dark mb-4">Layanan Tanpa Login
-                </h2>
-                <p class="text-lg text-muted-light dark:text-muted-dark max-w-2xl mx-auto">
-                    Khusus untuk permasalahan akun SSO atau pembuatan Email Resmi Unila, Anda dapat membuat tiket
-                    pelaporan secara langsung tanpa perlu login.
-                </p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
-                <a href="{{ route('guest.tickets.create') }}"
-                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-brand dark:hover:border-brand hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
-                    <div
-                        class="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-brand mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <span class="material-icons-round text-3xl">email</span>
-                    </div>
-                    <h3
-                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-brand transition-colors">
-                        Email Resmi Unila</h3>
-                    <p class="text-muted-light dark:text-muted-dark text-sm">Pembuatan akun email baru dengan domain
-                        @unila.ac.id atau kendala akses email.</p>
-                </a>
-
-                <a href="{{ route('guest.tickets.create') }}"
-                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-amber-500 dark:hover:border-amber-500 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
-                    <div
-                        class="w-16 h-16 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center text-amber-600 dark:text-amber-500 mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <span class="material-icons-round text-3xl">lock_reset</span>
-                    </div>
-                    <h3
-                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-amber-600 transition-colors">
-                        Lupa Password SSO</h3>
-                    <p class="text-muted-light dark:text-muted-dark text-sm">Bantuan reset kata sandi akun Single
-                        Sign-On (SSO) Universitas Lampung.</p>
-                </a>
-
-                <a href="{{ route('guest.tickets.create') }}"
-                    class="group flex flex-col items-center text-center p-8 rounded-2xl bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark hover:border-emerald-500 dark:hover:border-emerald-500 hover:shadow-lg hover:shadow-blue-900/5 transition-all duration-300">
-                    <div
-                        class="w-16 h-16 rounded-full bg-emerald-50 dark:bg-emerald-900/20 flex items-center justify-center text-emerald-600 dark:text-emerald-500 mb-6 group-hover:scale-110 transition-transform duration-300">
-                        <span class="material-icons-round text-3xl">how_to_reg</span>
-                    </div>
-                    <h3
-                        class="text-xl font-bold text-text-light dark:text-text-dark mb-3 group-hover:text-emerald-600 transition-colors">
-                        Registrasi SSO</h3>
-                    <p class="text-muted-light dark:text-muted-dark text-sm">Pendaftaran dan aktivasi akun Single
-                        Sign-On (SSO) untuk pengguna baru.</p>
-                </a>
-            </div>
-        </div>
-    </section>
-
-    <section id="services" class="py-24 bg-background-light dark:bg-background-dark">
+    <section id="services"
+        class="py-24 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div
-                    class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
+                    class="bg-background-light dark:bg-background-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
                     <div
                         class="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-brand mb-6">
                         <span class="material-icons-round icon-md">support_agent</span>
@@ -172,7 +178,7 @@
                 </div>
 
                 <div
-                    class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
+                    class="bg-background-light dark:bg-background-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
                     <div
                         class="w-12 h-12 rounded-lg bg-green-50 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400 mb-6">
                         <span class="material-icons-round icon-md">schedule</span>
@@ -181,8 +187,7 @@
 
                     <ul class="text-sm text-muted-light dark:text-muted-dark space-y-3">
                         <li>
-                            <span class="font-bold text-text-light dark:text-text-dark block mb-1">Senin -
-                                Kamis</span>
+                            <span class="font-bold text-text-light dark:text-text-dark block mb-1">Senin - Kamis</span>
                             08.00 - 12.00 | 13.30 - 16.00 WIB
                         </li>
                         <li>
@@ -193,7 +198,7 @@
                 </div>
 
                 <div id="faq"
-                    class="bg-surface-light dark:bg-surface-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
+                    class="bg-background-light dark:bg-background-dark rounded-xl p-8 shadow-sm border border-border-light dark:border-border-dark">
                     <div
                         class="w-12 h-12 rounded-lg bg-orange-50 dark:bg-orange-900/30 flex items-center justify-center text-orange-600 dark:text-orange-400 mb-6">
                         <span class="material-icons-round icon-md">help_outline</span>
@@ -202,8 +207,9 @@
                     <p class="text-sm text-muted-light dark:text-muted-dark mb-4">
                         Cek FAQ kami untuk solusi cepat masalah umum.
                     </p>
-                    <a href="{{ route('faq') }}" class="text-brand text-sm font-semibold hover:underline">Lihat
-                        FAQ &rarr;</a>
+                    <a href="{{ route('faq') }}" class="text-brand text-sm font-semibold hover:underline">
+                        Lihat FAQ &rarr;
+                    </a>
                 </div>
             </div>
         </div>
