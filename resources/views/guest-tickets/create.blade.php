@@ -49,9 +49,11 @@
                                 return /@([a-z0-9-]+\.)*unila\.ac\.id$/i.test(this.email);
                             }
                         }">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Email Aktif <span class="text-red-500">*</span>
                             </label>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Gunakan email aktif yang bisa
+                                diakses.</p>
                             <input type="email" name="email" x-model="email" required
                                 class="w-full h-11 px-4 rounded-lg border bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 :class="isUnilaEmail ? 'border-red-500 focus:ring-red-500 focus:border-red-500' :
@@ -66,15 +68,17 @@
 
                         <div>
                             <label for="phone"
-                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                                class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Nomor WhatsApp
                             </label>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Opsional, untuk mempermudah
+                                komunikasi.</p>
                             <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
-                                placeholder="Contoh: 081234567890 (Boleh dikosongkan)"
-                                class="block w-full px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm"
+                                placeholder="Contoh: 081234567890"
+                                class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 inputmode="numeric" pattern="[0-9]*">
                             @error('phone')
-                                <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
