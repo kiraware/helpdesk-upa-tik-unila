@@ -229,7 +229,7 @@
             </a>
 
             <a href="{{ route('configurations.index') }}"
-                class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group 
+                class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
                {{ request()->routeIs('configurations.*')
                    ? 'bg-secondary text-white'
                    : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
@@ -238,6 +238,18 @@
                     admin_panel_settings
                 </span>
                 Pengaturan Surat Tugas
+            </a>
+
+            <a href="{{ route('survey-questions.index') }}"
+                class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
+               {{ request()->routeIs('survey-questions.*')
+                   ? 'bg-secondary text-white'
+                   : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+                <span
+                    class="material-icons-round text-[18px] mr-2.5 {{ request()->routeIs('survey-questions.*') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
+                    quiz
+                </span>
+                Pertanyaan Kuesioner
             </a>
         @endif
 

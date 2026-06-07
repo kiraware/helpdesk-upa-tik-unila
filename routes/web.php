@@ -14,6 +14,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SsoUserController;
+use App\Http\Controllers\SurveyQuestionController;
 use App\Http\Controllers\TicketCommentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketSurveyController;
@@ -144,6 +145,10 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     ])->group(function () {
 
         Route::resource('users', UserController::class);
+
+        Route::resource('survey-questions', SurveyQuestionController::class)->except(['show', 'create', 'edit']);
+        Route::patch('/survey-questions/{survey_question}/toggle', [SurveyQuestionController::class, 'toggleActive'])
+            ->name('survey-questions.toggle');
 
         Route::get('/configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
         Route::put('/configurations', [ConfigurationController::class, 'update'])->name('configurations.update');
