@@ -6,6 +6,7 @@ use App\Channels\WhatsAppChannel;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Helpers\OffHoursHelper;
 use App\Models\Configuration;
 use App\Models\Service;
 use App\Models\Ticket;
@@ -213,8 +214,13 @@ class TicketController extends Controller
                 }
             });
 
+        $successMessage = 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.';
+        if (OffHoursHelper::isOutsideWorkingHours()) {
+            $successMessage .= ' Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional (Senin-Kamis: 08.00-16.00 WIB, Jumat: 08.00-16.30 WIB).';
+        }
+
         return redirect()->route('tickets.show', $ticket)
-            ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
+            ->with('success', $successMessage);
     }
 
     public function assignMe(Ticket $ticket)

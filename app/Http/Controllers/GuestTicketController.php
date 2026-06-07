@@ -7,6 +7,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
 use App\Models\Ticket;
@@ -190,6 +191,10 @@ class GuestTicketController extends Controller
             $guestChannels[] = WhatsAppChannel::class;
         }
 
+        if (OffHoursHelper::isOutsideWorkingHours()) {
+            $messageGuest .= "\n\n*Catatan:* Tiket Anda dibuat di luar jam kerja/hari libur. Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional (Senin-Kamis: 08.00-16.00 WIB, Jumat: 08.00-16.30 WIB).";
+        }
+
         $guestNotification->notify(new SystemNotification(
             $titleGuest,
             $messageGuest,
@@ -198,9 +203,14 @@ class GuestTicketController extends Controller
             $guestChannels
         ));
 
+        $successMessage = 'Tiket berhasil dibuat! Silakan simpan Kode Tiket atau URL ini untuk memantau perkembangan.';
+        if (OffHoursHelper::isOutsideWorkingHours()) {
+            $successMessage .= ' Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional.';
+        }
+
         return redirect()
             ->route('guest.tracking.show', $ticket->ticket_code)
-            ->with('success', 'Tiket berhasil dibuat! Silakan simpan Kode Tiket atau URL ini untuk memantau perkembangan.');
+            ->with('success', $successMessage);
     }
 
     /**

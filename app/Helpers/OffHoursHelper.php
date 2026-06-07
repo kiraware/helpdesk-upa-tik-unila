@@ -135,4 +135,14 @@ class OffHoursHelper
 
         return false; // Sabtu/Minggu sudah ditangkap isWeekend()
     }
+
+    /**
+     * Cek apakah waktu saat ini (atau waktu tertentu) berada di luar jam operasional.
+     */
+    public static function isOutsideWorkingHours(?Carbon $dt = null): bool
+    {
+        $dt = $dt ?? now()->timezone('Asia/Jakarta');
+
+        return self::isWeekend($dt) || ! self::isWithinWorkingHours($dt);
+    }
 }
