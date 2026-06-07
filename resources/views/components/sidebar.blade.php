@@ -251,6 +251,18 @@
                 </span>
                 Pertanyaan Kuesioner
             </a>
+
+            <a href="{{ route('faqs.edit') }}"
+                class="flex items-center px-2 py-1.5 text-xs font-medium rounded-lg transition-colors group
+               {{ request()->routeIs('faqs.edit')
+                   ? 'bg-secondary text-white'
+                   : 'text-muted-dark hover:bg-background-dark/30 hover:text-white' }}">
+                <span
+                    class="material-icons-round text-[18px] mr-2.5 {{ request()->routeIs('faqs.edit') ? 'text-white' : 'text-muted-dark group-hover:text-white' }}">
+                    article
+                </span>
+                Edit FAQ
+            </a>
         @endif
 
     </nav>
