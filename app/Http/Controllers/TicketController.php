@@ -189,7 +189,7 @@ class TicketController extends Controller
                 }),
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
-            'description' => 'required|string',
+            'description' => 'required|string|min:20',
         ]);
 
         $service = Service::find($validated['service_id']);

@@ -19,7 +19,7 @@ class TicketCommentController extends Controller
      */
     public function store(Request $request, Ticket $ticket)
     {
-        $request->validate(['message' => 'required|string']);
+        $request->validate(['message' => 'required|string|min:20']);
 
         if (! in_array($ticket->status, [TicketStatus::WAITING, TicketStatus::PROGRESS])) {
             return back()->with('error', 'Komentar tidak dapat ditambahkan karena tiket ini sudah ditutup (Selesai/Ditolak).');

@@ -141,7 +141,7 @@ class GuestTicketController extends Controller
                 }),
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
-            'description' => 'required|string',
+            'description' => 'required|string|min:20',
             'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
 

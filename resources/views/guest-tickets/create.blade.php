@@ -166,7 +166,7 @@
                                 </p>
                                 <p>
                                     Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
-                                    Format: {{ $readableFormat }}.
+                                    Format: {{ $readableFormat }}. Min <strong>20 Karakter</strong>.
                                 </p>
                             </div>
                         </div>
