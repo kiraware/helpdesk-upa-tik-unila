@@ -31,7 +31,17 @@
                         <div x-data='{
                             open: false,
                             selected: "{{ old('service_id') }}",
-                            listLayanan: @json($services->keyBy('id')->map->name)
+                            listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->attachment_requirement])),
+                            get currentLayanan() {
+                                return this.selected && this.listLayanan[this.selected]
+                                    ? this.listLayanan[this.selected]
+                                    : null;
+                            },
+                            get hasReq() {
+                                return this.currentLayanan !== null
+                                    && this.currentLayanan.req !== null
+                                    && this.currentLayanan.req !== "";
+                            }
                         }'
                             class="relative">
 
@@ -46,8 +56,7 @@
 
                                 <span class="flex items-center gap-2 truncate">
                                     <span class="material-icons-round text-base text-slate-400">dns</span>
-                                    <span
-                                        x-text="selected && listLayanan[selected] ? listLayanan[selected] : 'Pilih Layanan...'"></span>
+                                    <span x-text="currentLayanan ? currentLayanan.name : 'Pilih Layanan...'"></span>
                                 </span>
 
                                 <span class="material-icons-round text-slate-400 transition-transform duration-200"
@@ -75,6 +84,22 @@
                             @error('service_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
+
+                            <div x-show="hasReq" x-cloak x-transition:enter="transition ease-out duration-200"
+                                x-transition:enter-start="opacity-0 -translate-y-1"
+                                x-transition:enter-end="opacity-100 translate-y-0"
+                                x-transition:leave="transition ease-in duration-150"
+                                x-transition:leave-start="opacity-100 translate-y-0"
+                                x-transition:leave-end="opacity-0 -translate-y-1"
+                                class="mt-3 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300 flex gap-2.5">
+                                <span class="material-icons-round text-blue-500 shrink-0">info</span>
+                                <div>
+                                    <p class="font-semibold mb-0.5">Syarat Lampiran Layanan</p>
+                                    <p x-text="currentLayanan ? currentLayanan.req : ''"
+                                        class="whitespace-pre-line text-blue-700 dark:text-blue-400/90">
+                                    </p>
+                                </div>
+                            </div>
                         </div>
 
                         <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
@@ -161,7 +186,8 @@
                             <div class="text-xs text-slate-500 dark:text-slate-400">
                                 <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
                                     Sisipkan file atau gambar dengan cara <span
-                                        class="text-blue-600 dark:text-blue-400 font-bold">Drag & Drop</span> ke kolom
+                                        class="text-blue-600 dark:text-blue-400 font-bold">Drag &
+                                        Drop</span> ke kolom
                                     editor.
                                 </p>
                                 <p>
@@ -179,10 +205,12 @@
 
                 <div class="p-6 md:p-8">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
-                        <span class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">verified_user</span>
+                        <span
+                            class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">verified_user</span>
                         <span>Verifikasi Identitas</span>
                     </h3>
-                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Data ini wajib diisi untuk validasi
+                    <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Data ini wajib diisi
+                        untuk validasi
                         pengajuan tiket Anda.</p>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -208,17 +236,20 @@
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Email Aktif <span class="text-red-500">*</span>
                             </label>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Gunakan email aktif yang bisa
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Gunakan email
+                                aktif yang bisa
                                 diakses.</p>
                             <input type="email" name="email" x-model="email" required
                                 class="w-full h-11 px-4 rounded-lg border bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                :class="isUnilaEmail ? 'border-red-500 focus:ring-red-500 focus:border-red-500' :
+                                :class="isUnilaEmail ?
+                                    'border-red-500 focus:ring-red-500 focus:border-red-500' :
                                     'border-slate-300 dark:border-slate-700'"
                                 placeholder="nama@email.com">
                             <p x-show="isUnilaEmail" x-cloak class="text-red-500 text-xs mt-1 font-medium">Email dari
                                 domain unila.ac.id tidak diperbolehkan.</p>
                             @error('email')
-                                <p x-show="!isUnilaEmail" class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                <p x-show="!isUnilaEmail" class="text-red-500 text-xs mt-1">
+                                    {{ $message }}</p>
                             @enderror
                         </div>
 
@@ -227,7 +258,8 @@
                                 class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Nomor WhatsApp
                             </label>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Opsional, untuk mempermudah
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Opsional, untuk
+                                mempermudah
                                 komunikasi.</p>
                             <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
                                 placeholder="Contoh: 081234567890"
@@ -418,7 +450,8 @@
                             </div>
 
                             @error('g-recaptcha-response')
-                                <p class="text-red-500 text-xs mt-1 text-center sm:text-left">{{ $message }}</p>
+                                <p class="text-red-500 text-xs mt-1 text-center sm:text-left">
+                                    {{ $message }}</p>
                             @enderror
                         </div>
 

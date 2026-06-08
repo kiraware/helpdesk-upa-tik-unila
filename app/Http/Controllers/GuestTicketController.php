@@ -106,7 +106,7 @@ class GuestTicketController extends Controller
         $services = Service::where('is_active', true)
             ->where('show_to_guest', true)
             ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
-            ->get(['id', 'name']);
+            ->get();
 
         $departments = Department::orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")->get(['id', 'name']);
 

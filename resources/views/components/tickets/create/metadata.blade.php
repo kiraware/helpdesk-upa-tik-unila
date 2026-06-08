@@ -13,7 +13,13 @@
                     ? $services->find($oldServiceId)?->name ?? 'Pilih Layanan...'
                     : 'Pilih Layanan...';
             @endphp
-            <div class="relative w-full" x-data="{ open: false, selected: '{{ $oldServiceId }}', label: '{{ $oldServiceName }}' }">
+            <div class="relative w-full"
+                x-data='{ 
+                open: false, 
+                selected: "{{ $oldServiceId }}", 
+                label: "{{ $oldServiceName }}",
+                listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->attachment_requirement]))
+            }'>
                 <input type="hidden" name="service_id" x-model="selected">
                 <button type="button" @click="open = !open"
                     class="w-full flex items-center justify-between px-4 py-2.5 border border-border-light dark:border-border-dark rounded-lg bg-gray-50 dark:bg-slate-800 text-text-light dark:text-text-dark shadow-sm hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors">
@@ -39,6 +45,16 @@
                                 class="material-icons-round text-sm text-secondary">check</span>
                         </button>
                     @endforeach
+                </div>
+
+                <div x-show="selected && listLayanan[selected] && listLayanan[selected].req" x-cloak x-transition
+                    class="mt-3 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300 flex gap-2.5">
+                    <span class="material-icons-round text-blue-500 shrink-0">info</span>
+                    <div>
+                        <p class="font-semibold mb-0.5">Syarat Lampiran Layanan</p>
+                        <p x-text="listLayanan[selected].req"
+                            class="whitespace-pre-line text-blue-700 dark:text-blue-400/90"></p>
+                    </div>
                 </div>
             </div>
             @error('service_id')
