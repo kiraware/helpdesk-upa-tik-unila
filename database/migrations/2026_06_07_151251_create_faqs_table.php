@@ -11,13 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('services', function (Blueprint $table) {
+        Schema::create('faqs', function (Blueprint $table) {
             $table->id();
-            $table->string('name', 50)->unique();
-            $table->boolean('is_active')->default(true);
-            $table->boolean('show_to_guest')->default(true);
-            $table->boolean('show_to_user')->default(true);
-            $table->text('attachment_requirement')->nullable();
+            $table->longText('description')->nullable();
             $table->timestamps();
         });
     }
@@ -27,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('services');
+        Schema::dropIfExists('faqs');
     }
 };

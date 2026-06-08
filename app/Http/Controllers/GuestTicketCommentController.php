@@ -19,7 +19,7 @@ class GuestTicketCommentController extends Controller
     public function store(Request $request, Ticket $ticket)
     {
         $request->validate([
-            'message' => 'required|string',
+            'message' => 'required|string|min:20',
             'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
 

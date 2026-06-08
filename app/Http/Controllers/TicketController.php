@@ -6,6 +6,7 @@ use App\Channels\WhatsAppChannel;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Helpers\OffHoursHelper;
 use App\Models\Configuration;
 use App\Models\Service;
 use App\Models\Ticket;
@@ -26,7 +27,7 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()
@@ -126,7 +127,7 @@ class TicketController extends Controller
             ->withQueryString();
 
         $admins = User::whereIn('role', ['admin', 'superuser'])
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name', 'avatar_path']);
 
         return view('tickets.index', compact('tickets', 'admins', 'services'));
@@ -140,7 +141,7 @@ class TicketController extends Controller
 
         $services = Service::where('is_active', true)
             ->where('show_to_user', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get();
 
         return view('tickets.create', compact('services'));
@@ -168,7 +169,7 @@ class TicketController extends Controller
         $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         return view('tickets.show', compact('ticket', 'admins', 'services'));
@@ -188,8 +189,22 @@ class TicketController extends Controller
                 }),
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
-            'description' => 'required|string',
+            'description' => 'required|string|min:20',
         ]);
+
+        $service = Service::find($validated['service_id']);
+        if ($service) {
+            $activeTicket = Ticket::where('user_id', auth()->id())
+                ->where('service_id', $service->id)
+                ->whereNotIn('status', [TicketStatus::DONE->value, TicketStatus::REJECT->value])
+                ->exists();
+
+            if ($activeTicket) {
+                return back()
+                    ->withInput()
+                    ->with('error', "Anda masih memiliki tiket dengan layanan {$service->name} yang sedang aktif (belum selesai). Silakan tunggu tiket tersebut diselesaikan sebelum membuat tiket baru.");
+            }
+        }
 
         $ticket = DB::transaction(function () use ($validated) {
             $ticket = Ticket::create([
@@ -213,24 +228,13 @@ class TicketController extends Controller
                 }
             });
 
-        $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
-
-        $userName = auth()->user()->name;
-        $title = 'Laporan Baru dari Pengguna';
-        $message = "Terdapat tiket baru dari pengguna (*{$userName}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
-
-        $channels = ['database', 'mail', WhatsAppChannel::class];
-
-        Notification::send($admins, new SystemNotification(
-            $title,
-            $message,
-            route('tickets.show', $ticket),
-            'info',
-            $channels
-        ));
+        $successMessage = 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.';
+        if (OffHoursHelper::isOutsideWorkingHours()) {
+            $successMessage .= ' Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional (Senin-Kamis: 08.00-16.00 WIB, Jumat: 08.00-16.30 WIB).';
+        }
 
         return redirect()->route('tickets.show', $ticket)
-            ->with('success', 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.');
+            ->with('success', $successMessage);
     }
 
     public function assignMe(Ticket $ticket)
@@ -554,11 +558,11 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         $admins = User::whereIn('role', ['admin', 'superuser'])
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name', 'avatar_path']);
 
         $tickets = Ticket::query()
@@ -602,7 +606,7 @@ class TicketController extends Controller
         $user = auth()->user();
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         $tickets = Ticket::query()

@@ -23,7 +23,7 @@ class ServiceController extends Controller
             ->when($request->user !== null && $request->user !== '', function ($query) use ($request) {
                 $query->where('show_to_user', $request->user);
             })
-            ->orderBy('name', 'asc')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->paginate(10)
             ->withQueryString();
 
@@ -37,6 +37,7 @@ class ServiceController extends Controller
             'is_active' => 'required|boolean',
             'show_to_guest' => 'required|boolean',
             'show_to_user' => 'required|boolean',
+            'attachment_requirement' => 'nullable|string',
         ]);
 
         Service::create($validated);
@@ -51,6 +52,7 @@ class ServiceController extends Controller
             'is_active' => 'required|boolean',
             'show_to_guest' => 'required|boolean',
             'show_to_user' => 'required|boolean',
+            'attachment_requirement' => 'nullable|string',
         ]);
 
         $service->update($validated);

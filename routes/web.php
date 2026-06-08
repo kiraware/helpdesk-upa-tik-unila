@@ -7,6 +7,7 @@ use App\Http\Controllers\ConfigurationController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\DivisionController;
+use App\Http\Controllers\FaqController;
 use App\Http\Controllers\GuestTicketCommentController;
 use App\Http\Controllers\GuestTicketController;
 use App\Http\Controllers\NotificationController;
@@ -14,6 +15,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SsoUserController;
+use App\Http\Controllers\SurveyQuestionController;
 use App\Http\Controllers\TicketCommentController;
 use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketSurveyController;
@@ -39,7 +41,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::view('/faq', 'faq')->name('faq');
+Route::get('/faq', [FaqController::class, 'show'])->name('faq');
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [SsoAuthController::class, 'showLoginForm'])->name('login');
@@ -144,6 +146,14 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
     ])->group(function () {
 
         Route::resource('users', UserController::class);
+
+        Route::get('/faq/edit', [FaqController::class, 'edit'])->name('faqs.edit');
+        Route::put('/faq', [FaqController::class, 'update'])->name('faqs.update');
+        Route::post('/faq/upload-attachment', [FaqController::class, 'storeEmbeddedFile'])->name('faqs.upload.attachment');
+
+        Route::resource('survey-questions', SurveyQuestionController::class)->except(['show', 'create', 'edit']);
+        Route::patch('/survey-questions/{survey_question}/toggle', [SurveyQuestionController::class, 'toggleActive'])
+            ->name('survey-questions.toggle');
 
         Route::get('/configurations', [ConfigurationController::class, 'index'])->name('configurations.index');
         Route::put('/configurations', [ConfigurationController::class, 'update'])->name('configurations.update');

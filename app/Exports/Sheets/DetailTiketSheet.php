@@ -83,6 +83,9 @@ class DetailTiketSheet implements FromArray, ShouldAutoSize, WithEvents, WithTit
                 $department = $t->user->department?->name ?? '-';
             } elseif ($t->guestDetail) {
                 $department = $t->guestDetail->department?->name ?? '-';
+                if (strtolower($department) === 'lainnya' && ! empty($t->guestDetail->other_department)) {
+                    $department = $t->guestDetail->other_department;
+                }
             }
 
             $entity = 'Lainnya';

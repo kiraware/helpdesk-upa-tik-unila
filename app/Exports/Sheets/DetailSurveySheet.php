@@ -60,8 +60,24 @@ class DetailSurveySheet implements FromArray, WithColumnWidths, WithEvents, With
         protected Carbon $endDate,
         protected $tickets,
     ) {
+        $usedQuestionIds = [];
+        foreach ($this->tickets as $ticket) {
+            if ($ticket->survey && $ticket->survey->answers) {
+                foreach ($ticket->survey->answers as $ans) {
+                    $usedQuestionIds[] = $ans->survey_question_id;
+                }
+            }
+        }
+        $usedQuestionIds = array_unique($usedQuestionIds);
 
-        $this->questions = SurveyQuestion::active()->get()->all();
+        $this->questions = SurveyQuestion::query()
+            ->where('is_active', true)
+            ->orWhereIn('id', $usedQuestionIds)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get()
+            ->all();
+
         $this->totalCols = self::FIXED_COLS + (count($this->questions) * 2) + self::TAIL_COLS;
     }
 

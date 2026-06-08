@@ -7,6 +7,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
 use App\Models\Ticket;
@@ -94,7 +95,7 @@ class GuestTicketController extends Controller
         $admins = User::whereIn('role', ['admin', 'superuser'])->get(['id', 'name', 'avatar_path']);
 
         $services = Service::where('is_active', true)
-            ->orderByRaw('LOWER(name) ASC')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
         return view('guest-tickets.show', compact('ticket', 'admins', 'services'));
@@ -104,10 +105,10 @@ class GuestTicketController extends Controller
     {
         $services = Service::where('is_active', true)
             ->where('show_to_guest', true)
-            ->orderBy('name')
-            ->get(['id', 'name']);
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
+            ->get();
 
-        $departments = Department::orderBy('name')->get(['id', 'name']);
+        $departments = Department::orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")->get(['id', 'name']);
 
         return view('guest-tickets.create', compact('services', 'departments'));
     }
@@ -129,6 +130,17 @@ class GuestTicketController extends Controller
             'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
             'identity_number' => 'required|string|max:50',
             'department_id' => 'required|exists:departments,id',
+            'other_department' => [
+                'nullable',
+                'string',
+                'max:150',
+                function ($attribute, $value, $fail) use ($request) {
+                    $dept = Department::find($request->department_id);
+                    if ($dept && strtolower($dept->name) === 'lainnya' && empty($value)) {
+                        $fail('Nama Fakultas / Unit Kerja wajib diisi jika memilih Lainnya.');
+                    }
+                },
+            ],
             'entity_type' => ['required', new Enum(IdentityType::class)],
             'photo_identity' => 'required|image|max:2048',
             'photo_selfie' => 'required|image|max:2048',
@@ -140,9 +152,25 @@ class GuestTicketController extends Controller
                 }),
             ],
             'priority' => ['required', new Enum(TicketPriority::class)],
-            'description' => 'required|string',
+            'description' => 'required|string|min:20',
             'g-recaptcha-response' => ['required', new ValidRecaptcha],
         ]);
+
+        $service = Service::find($validated['service_id']);
+        if ($service) {
+            $activeTicket = Ticket::whereHas('guestDetail', function ($query) use ($validated) {
+                $query->where('identity_number', $validated['identity_number']);
+            })
+                ->where('service_id', $service->id)
+                ->whereNotIn('status', [TicketStatus::DONE->value, TicketStatus::REJECT->value])
+                ->exists();
+
+            if ($activeTicket) {
+                return back()
+                    ->withInput()
+                    ->with('error', "Anda masih memiliki tiket dengan layanan {$service->name} yang sedang aktif (belum selesai). Silakan tunggu tiket tersebut diselesaikan sebelum membuat tiket baru.");
+            }
+        }
 
         $ticket = DB::transaction(function () use ($validated, $request) {
             $newTicket = Ticket::create([
@@ -162,6 +190,7 @@ class GuestTicketController extends Controller
                 'phone' => $validated['phone'],
                 'identity_number' => $validated['identity_number'],
                 'department_id' => $validated['department_id'],
+                'other_department' => $validated['other_department'] ?? null,
                 'entity_type' => $validated['entity_type'],
                 'photo_identity_path' => $identityPath,
                 'photo_selfie_path' => $selfiePath,
@@ -180,19 +209,6 @@ class GuestTicketController extends Controller
                 }
             });
 
-        $admins = User::whereIn('role', [UserRole::ADMIN, UserRole::SUPERUSER])->get();
-        $titleAdmin = 'Laporan Baru dari Tamu';
-        $messageAdmin = "Terdapat laporan baru dari tamu (*{$validated['full_name']}*) dengan kode tiket *#{$ticket->ticket_code}* pada layanan *{$ticket->service->name}*. Laporan ini memiliki prioritas *{$ticket->priority->value}*. Mohon segera tinjau detail laporan ini dan tentukan petugas untuk menindaklanjutinya.";
-        $channels = ['database', 'mail', WhatsAppChannel::class];
-
-        Notification::send($admins, new SystemNotification(
-            $titleAdmin,
-            $messageAdmin,
-            route('tickets.show', $ticket),
-            'info',
-            $channels
-        ));
-
         $titleGuest = 'Laporan Anda Berhasil Diterima';
         $messageGuest = "Halo *{$validated['full_name']}*, laporan Anda terkait layanan *{$ticket->service->name}* telah berhasil kami terima dan simpan dengan kode tiket *#{$ticket->ticket_code}*. Silakan klik tautan di bawah ini untuk melihat detail dan memantau status penanganan tiket Anda secara berkala.";
         $guestChannels = ['mail'];
@@ -203,6 +219,10 @@ class GuestTicketController extends Controller
             $guestChannels[] = WhatsAppChannel::class;
         }
 
+        if (OffHoursHelper::isOutsideWorkingHours()) {
+            $messageGuest .= "\n\n*Catatan:* Tiket Anda dibuat di luar jam kerja/hari libur. Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional (Senin-Kamis: 08.00-16.00 WIB, Jumat: 08.00-16.30 WIB).";
+        }
+
         $guestNotification->notify(new SystemNotification(
             $titleGuest,
             $messageGuest,
@@ -211,9 +231,14 @@ class GuestTicketController extends Controller
             $guestChannels
         ));
 
+        $successMessage = 'Tiket berhasil dibuat! Silakan simpan Kode Tiket atau URL ini untuk memantau perkembangan.';
+        if (OffHoursHelper::isOutsideWorkingHours()) {
+            $successMessage .= ' Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional.';
+        }
+
         return redirect()
             ->route('guest.tracking.show', $ticket->ticket_code)
-            ->with('success', 'Tiket berhasil dibuat! Silakan simpan Kode Tiket atau URL ini untuk memantau perkembangan.');
+            ->with('success', $successMessage);
     }
 
     /**

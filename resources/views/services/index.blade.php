@@ -93,12 +93,14 @@
             const {
                 id,
                 name,
+                attachment,
                 active,
                 guest,
                 user
             } = button.dataset;
 
             document.getElementById('edit_name').value = name;
+            document.getElementById('edit_attachment_requirement').value = attachment || '';
             document.getElementById('edit_is_active').checked = active == 1;
             document.getElementById('edit_show_to_guest').checked = guest == 1;
             document.getElementById('edit_show_to_user').checked = user == 1;

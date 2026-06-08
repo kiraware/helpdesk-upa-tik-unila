@@ -19,6 +19,7 @@ class Service extends Model
         'is_active',
         'show_to_guest',
         'show_to_user',
+        'attachment_requirement',
     ];
 
     protected $casts = [

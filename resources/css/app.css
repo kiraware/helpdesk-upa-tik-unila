@@ -101,6 +101,31 @@ trix-editor:focus {
     box-shadow: none !important;
 }
 
+trix-editor h1 {
+    font-size: 1.875rem !important; /* text-3xl */
+    font-weight: 700 !important; /* font-bold */
+    line-height: 1.25 !important;
+    margin-top: 1rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+trix-editor ul {
+    list-style-type: disc !important;
+    margin-left: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+trix-editor ol {
+    list-style-type: decimal !important;
+    margin-left: 1.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+trix-editor a {
+    color: var(--color-secondary) !important;
+    text-decoration: underline !important;
+}
+
 /* Dark Mode Overrides */
 /* Tailwind v4 mendeteksi class .dark di html/body */
 :is(.dark) trix-toolbar .trix-button {

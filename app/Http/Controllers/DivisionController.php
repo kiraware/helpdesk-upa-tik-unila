@@ -14,7 +14,7 @@ class DivisionController extends Controller
             ->when($request->q, function ($query, $q) {
                 $query->where('name', 'ilike', "%{$q}%");
             })
-            ->orderBy('name', 'asc')
+            ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->paginate(10)
             ->withQueryString();
 
