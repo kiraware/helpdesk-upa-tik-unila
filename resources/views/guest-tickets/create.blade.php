@@ -21,7 +21,163 @@
                 @csrf
 
                 <div
-                    class="p-6 md:p-8 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                    class="p-6 md:p-8 space-y-6 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-800/30">
+                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
+                        <span class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">edit_note</span>
+                        <span>Detail Permasalahan</span>
+                    </h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div x-data='{
+                            open: false,
+                            selected: "{{ old('service_id') }}",
+                            listLayanan: @json($services->keyBy('id')->map->name)
+                        }'
+                            class="relative">
+
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                Jenis Layanan <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="hidden" name="service_id" :value="selected" required>
+
+                            <button type="button" @click="open = !open"
+                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+
+                                <span class="flex items-center gap-2 truncate">
+                                    <span class="material-icons-round text-base text-slate-400">dns</span>
+                                    <span
+                                        x-text="selected && listLayanan[selected] ? listLayanan[selected] : 'Pilih Layanan...'"></span>
+                                </span>
+
+                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
+                                    :class="open ? 'rotate-180' : ''">expand_more</span>
+                            </button>
+
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
+                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
+
+                                <div class="max-h-60 overflow-y-auto">
+                                    @foreach ($services as $service)
+                                        <button type="button" @click="selected='{{ $service->id }}'; open=false"
+                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ old('service_id') == $service->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">
+                                            {{ $service->name }}
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
+
+                            @error('service_id')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                Tingkat Urgensi <span class="text-red-500">*</span>
+                            </label>
+
+                            <input type="hidden" name="priority" :value="selected" required>
+
+                            <button type="button" @click="open = !open"
+                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+
+                                <span class="flex items-center gap-2 truncate">
+                                    <span class="material-icons-round text-base text-slate-400">priority_high</span>
+                                    <span
+                                        x-text="selected ? selected.charAt(0).toUpperCase() + selected.slice(1) : 'Pilih Prioritas...'"></span>
+                                </span>
+
+                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
+                                    :class="open ? 'rotate-180' : ''">expand_more</span>
+                            </button>
+
+                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                x-transition:enter-start="opacity-0 scale-95"
+                                x-transition:enter-end="opacity-100 scale-100"
+                                x-transition:leave="transition ease-in duration-75"
+                                x-transition:leave-start="opacity-100 scale-100"
+                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
+                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
+
+                                @foreach (\App\Enums\TicketPriority::cases() as $priority)
+                                    @php
+                                        $color = match ($priority->value) {
+                                            'high' => 'text-red-600',
+                                            'medium' => 'text-yellow-600',
+                                            'low' => 'text-slate-600',
+                                        };
+                                    @endphp
+
+                                    <button type="button" @click="selected='{{ $priority->value }}'; open=false"
+                                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ $color }} {{ old('priority') === $priority->value ? 'font-semibold bg-slate-50' : '' }}">
+                                        {{ ucfirst($priority->value) }}
+                                    </button>
+                                @endforeach
+                            </div>
+
+                            @error('priority')
+                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                    </div>
+
+                    <div>
+                        @php
+                            $maxSizeKp = 2048; // 2MB dalam KB
+                            $acceptedMimes =
+                                'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
+                            $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+                        @endphp
+
+                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 pl-1">
+                            Deskripsi Detail & Lampiran <span class="text-red-500">*</span>
+                        </label>
+
+                        <div id="editor-container"
+                            class="border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
+
+                            <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/30">
+                                <input id="x_description" type="hidden" name="description"
+                                    value="{{ old('description') }}">
+
+                                <trix-editor input="x_description"
+                                    data-upload-url="{{ route('guest.tickets.upload.attachment') }}"
+                                    data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
+                                    class="min-h-50 prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
+                                    placeholder="Jelaskan kronologi dan detail masalah Anda..."></trix-editor>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-2 mt-2 ml-1">
+                            <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
+
+                            <div class="text-xs text-slate-500 dark:text-slate-400">
+                                <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
+                                    Sisipkan file atau gambar dengan cara <span
+                                        class="text-blue-600 dark:text-blue-400 font-bold">Drag & Drop</span> ke kolom
+                                    editor.
+                                </p>
+                                <p>
+                                    Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
+                                    Format: {{ $readableFormat }}.
+                                </p>
+                            </div>
+                        </div>
+
+                        @error('description')
+                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="p-6 md:p-8">
                     <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
                         <span class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">verified_user</span>
                         <span>Verifikasi Identitas</span>
@@ -86,7 +242,8 @@
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
                                 Nomor Identitas <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="identity_number" value="{{ old('identity_number') }}" required
+                            <input type="text" name="identity_number" value="{{ old('identity_number') }}"
+                                required
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Nomor KTM / NIP / NIK / SK">
                             @error('identity_number')
@@ -247,162 +404,6 @@
                             @enderror
                         </div>
 
-                    </div>
-                </div>
-
-                <div class="p-6 md:p-8 space-y-6">
-                    <h3 class="text-lg font-bold text-slate-900 dark:text-white mb-1 flex items-center gap-2">
-                        <span class="material-icons-round text-blue-600 dark:text-blue-400 text-xl">edit_note</span>
-                        <span>Detail Permasalahan</span>
-                    </h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div x-data='{
-                            open: false,
-                            selected: "{{ old('service_id') }}",
-                            listLayanan: @json($services->keyBy('id')->map->name)
-                        }'
-                            class="relative">
-
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Jenis Layanan <span class="text-red-500">*</span>
-                            </label>
-
-                            <input type="hidden" name="service_id" :value="selected" required>
-
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-
-                                <span class="flex items-center gap-2 truncate">
-                                    <span class="material-icons-round text-base text-slate-400">dns</span>
-                                    <span
-                                        x-text="selected && listLayanan[selected] ? listLayanan[selected] : 'Pilih Layanan...'"></span>
-                                </span>
-
-                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
-                                    :class="open ? 'rotate-180' : ''">expand_more</span>
-                            </button>
-
-                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-75"
-                                x-transition:leave-start="opacity-100 scale-100"
-                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
-                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
-
-                                <div class="max-h-60 overflow-y-auto">
-                                    @foreach ($services as $service)
-                                        <button type="button" @click="selected='{{ $service->id }}'; open=false"
-                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ old('service_id') == $service->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">
-                                            {{ $service->name }}
-                                        </button>
-                                    @endforeach
-                                </div>
-                            </div>
-
-                            @error('service_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Tingkat Urgensi <span class="text-red-500">*</span>
-                            </label>
-
-                            <input type="hidden" name="priority" :value="selected" required>
-
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-
-                                <span class="flex items-center gap-2 truncate">
-                                    <span class="material-icons-round text-base text-slate-400">priority_high</span>
-                                    <span
-                                        x-text="selected ? selected.charAt(0).toUpperCase() + selected.slice(1) : 'Pilih Prioritas...'"></span>
-                                </span>
-
-                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
-                                    :class="open ? 'rotate-180' : ''">expand_more</span>
-                            </button>
-
-                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-75"
-                                x-transition:leave-start="opacity-100 scale-100"
-                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
-                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
-
-                                @foreach (\App\Enums\TicketPriority::cases() as $priority)
-                                    @php
-                                        $color = match ($priority->value) {
-                                            'high' => 'text-red-600',
-                                            'medium' => 'text-yellow-600',
-                                            'low' => 'text-slate-600',
-                                        };
-                                    @endphp
-
-                                    <button type="button" @click="selected='{{ $priority->value }}'; open=false"
-                                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ $color }} {{ old('priority') === $priority->value ? 'font-semibold bg-slate-50' : '' }}">
-                                        {{ ucfirst($priority->value) }}
-                                    </button>
-                                @endforeach
-                            </div>
-
-                            @error('priority')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                    </div>
-
-                    <div>
-                        @php
-                            $maxSizeKp = 2048; // 2MB dalam KB
-                            $acceptedMimes =
-                                'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
-                            $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
-                        @endphp
-
-                        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 pl-1">
-                            Deskripsi Detail & Lampiran <span class="text-red-500">*</span>
-                        </label>
-
-                        <div id="editor-container"
-                            class="border border-slate-300 dark:border-slate-700 rounded-xl bg-white dark:bg-slate-800 overflow-hidden shadow-sm focus-within:ring-1 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
-
-                            <div class="px-4 py-2 bg-slate-50 dark:bg-slate-800/30">
-                                <input id="x_description" type="hidden" name="description"
-                                    value="{{ old('description') }}">
-
-                                <trix-editor input="x_description"
-                                    data-upload-url="{{ route('guest.tickets.upload.attachment') }}"
-                                    data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
-                                    class="min-h-50 prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
-                                    placeholder="Jelaskan kronologi dan detail masalah Anda..."></trix-editor>
-                            </div>
-                        </div>
-
-                        <div class="flex items-start gap-2 mt-2 ml-1">
-                            <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
-
-                            <div class="text-xs text-slate-500 dark:text-slate-400">
-                                <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
-                                    Sisipkan file atau gambar dengan cara <span
-                                        class="text-blue-600 dark:text-blue-400 font-bold">Drag & Drop</span> ke kolom
-                                    editor.
-                                </p>
-                                <p>
-                                    Max <strong>{{ $maxSizeKp / 1024 }}MB</strong>.
-                                    Format: {{ $readableFormat }}.
-                                </p>
-                            </div>
-                        </div>
-
-                        @error('description')
-                            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                        @enderror
                     </div>
                 </div>
 
