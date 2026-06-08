@@ -51,7 +51,11 @@
                     <span class="text-sm text-muted-light dark:text-muted-dark capitalize mt-0.5">
                         {{ $ticket->guestDetail->entity_type->value }}
                         @if ($ticket->guestDetail->department)
-                            &bull; {{ $ticket->guestDetail->department->name }}
+                            @if (strtolower($ticket->guestDetail->department->name) === 'lainnya' && !empty($ticket->guestDetail->other_department))
+                                &bull; {{ $ticket->guestDetail->other_department }}
+                            @else
+                                &bull; {{ $ticket->guestDetail->department->name }}
+                            @endif
                         @endif
                     </span>
                 </div>

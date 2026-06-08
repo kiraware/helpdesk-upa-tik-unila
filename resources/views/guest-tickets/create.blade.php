@@ -286,7 +286,10 @@
                         <div x-data='{
                             open: false,
                             selected: "{{ old('department_id') }}",
-                            listDepartment: @json($departments->keyBy('id')->map->name)
+                            listDepartment: @json($departments->keyBy('id')->map->name),
+                            get isLainnya() {
+                                return this.selected && this.listDepartment[this.selected] && this.listDepartment[this.selected].toLowerCase() === "lainnya";
+                            }
                         }'
                             class="relative">
 
@@ -330,6 +333,18 @@
                             @error('department_id')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
+
+                            <div x-show="isLainnya" x-cloak class="mt-4">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                    Sebutkan Fakultas / Unit Kerja <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" name="other_department" value="{{ old('other_department') }}"
+                                    class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
+                                    placeholder="Nama Fakultas / Unit Kerja" :required="isLainnya">
+                                @error('other_department')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="md:col-span-2">

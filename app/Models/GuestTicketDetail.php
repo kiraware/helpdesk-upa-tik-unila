@@ -22,6 +22,7 @@ class GuestTicketDetail extends Model
         'phone',
         'identity_number',
         'department_id',
+        'other_department',
         'entity_type',
         'photo_identity_path',
         'photo_selfie_path',

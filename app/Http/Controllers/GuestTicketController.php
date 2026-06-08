@@ -130,6 +130,17 @@ class GuestTicketController extends Controller
             'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
             'identity_number' => 'required|string|max:50',
             'department_id' => 'required|exists:departments,id',
+            'other_department' => [
+                'nullable',
+                'string',
+                'max:150',
+                function ($attribute, $value, $fail) use ($request) {
+                    $dept = Department::find($request->department_id);
+                    if ($dept && strtolower($dept->name) === 'lainnya' && empty($value)) {
+                        $fail('Nama Fakultas / Unit Kerja wajib diisi jika memilih Lainnya.');
+                    }
+                },
+            ],
             'entity_type' => ['required', new Enum(IdentityType::class)],
             'photo_identity' => 'required|image|max:2048',
             'photo_selfie' => 'required|image|max:2048',
@@ -179,6 +190,7 @@ class GuestTicketController extends Controller
                 'phone' => $validated['phone'],
                 'identity_number' => $validated['identity_number'],
                 'department_id' => $validated['department_id'],
+                'other_department' => $validated['other_department'] ?? null,
                 'entity_type' => $validated['entity_type'],
                 'photo_identity_path' => $identityPath,
                 'photo_selfie_path' => $selfiePath,

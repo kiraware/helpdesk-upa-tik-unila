@@ -27,6 +27,7 @@ class GuestTicketDetailFactory extends Factory
             'phone' => fake()->phoneNumber(),
             'identity_number' => fake()->numerify('##########'),
             'department_id' => Department::inRandomOrder()->first()?->id ?? Department::factory(),
+            'other_department' => fake()->boolean(20) ? fake()->company() : null,
             'entity_type' => fake()->randomElement(IdentityType::cases()),
             'photo_identity_path' => 'uploads/identities/dummy_ktp.jpg',
             'photo_selfie_path' => 'uploads/identities/dummy_selfie.jpg',

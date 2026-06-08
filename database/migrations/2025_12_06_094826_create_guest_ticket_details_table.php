@@ -26,6 +26,7 @@ return new class extends Migration
                 ->nullable()
                 ->constrained('departments')
                 ->nullOnDelete();
+            $table->string('other_department', 150)->nullable();
             $table->enum('entity_type', array_column(IdentityType::cases(), 'value'));
             $table->string('photo_identity_path')->nullable();
             $table->string('photo_selfie_path')->nullable();
