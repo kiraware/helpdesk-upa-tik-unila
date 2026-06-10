@@ -111,6 +111,8 @@ Route::middleware(['auth', EnsureSurveyCompleted::class])->group(function () {
         })->name('api.ticket.counts');
 
         Route::resource('services', ServiceController::class)->except(['show']);
+        Route::patch('/services/{service}/toggle', [ServiceController::class, 'toggleActive'])
+            ->name('services.toggle');
         Route::resource('divisions', DivisionController::class)->except(['show']);
         Route::resource('departments', DepartmentController::class)->except(['show']);
 

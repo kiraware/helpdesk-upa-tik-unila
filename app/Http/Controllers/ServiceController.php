@@ -23,6 +23,7 @@ class ServiceController extends Controller
             ->when($request->user !== null && $request->user !== '', function ($query) use ($request) {
                 $query->where('show_to_user', $request->user);
             })
+            ->withCount('tickets')
             ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->paginate(10)
             ->withQueryString();
@@ -62,8 +63,22 @@ class ServiceController extends Controller
 
     public function destroy(Service $service)
     {
+        if ($service->tickets()->exists()) {
+            return redirect()->route('services.index')
+                ->with('error', 'Layanan tidak dapat dihapus karena sudah digunakan pada tiket.');
+        }
+
         $service->delete();
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil dihapus.');
+    }
+
+    public function toggleActive(Service $service)
+    {
+        $service->update(['is_active' => ! $service->is_active]);
+
+        $status = $service->is_active ? 'diaktifkan' : 'dinonaktifkan';
+
+        return redirect()->route('services.index')->with('success', "Layanan berhasil {$status}.");
     }
 }
