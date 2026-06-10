@@ -26,7 +26,7 @@
                 <h1
                     class="text-4xl lg:text-6xl font-bold tracking-tight text-text-light dark:text-text-dark leading-[1.15]">
                     Panduan Layanan <br class="hidden sm:block" />
-                    <span class="text-brand">UPA TIK Universitas Lampung</span>
+                    <span class="text-brand">Helpdesk UPA TIK Unila</span>
                 </h1>
 
                 <!-- Description matching Homepage style -->
