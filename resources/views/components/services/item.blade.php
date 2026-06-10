@@ -24,18 +24,24 @@
         @endif
     </td>
 
-    <td class="px-6 py-4 text-sm">
-        @if ($service->is_active)
-            <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800">
-                Aktif
-            </span>
-        @else
-            <span
-                class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800">
-                Non Aktif
-            </span>
-        @endif
+    <td class="px-6 py-4 text-sm text-center">
+        <form action="{{ route('services.toggle', $service) }}" method="POST" class="inline">
+            @csrf
+            @method('PATCH')
+            <button type="submit" title="{{ $service->is_active ? 'Klik untuk nonaktifkan' : 'Klik untuk aktifkan' }}">
+                @if ($service->is_active)
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-200 dark:hover:bg-emerald-900/50 transition-colors cursor-pointer">
+                        Aktif
+                    </span>
+                @else
+                    <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400 border border-red-200 dark:border-red-800 hover:bg-red-200 dark:hover:bg-red-900/50 transition-colors cursor-pointer">
+                        Non Aktif
+                    </span>
+                @endif
+            </button>
+        </form>
     </td>
 
     <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
@@ -50,12 +56,19 @@
                 <span class="material-icons-round text-lg">edit</span>
             </button>
 
-            <button type="button" onclick="openDeleteServiceModal(this)" data-id="{{ $service->id }}"
-                data-name="{{ $service->name }}"
-                class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                title="Hapus">
-                <span class="material-icons-round text-lg">delete</span>
-            </button>
+            @if ($service->tickets_count === 0)
+                <button type="button" onclick="openDeleteServiceModal(this)" data-id="{{ $service->id }}"
+                    data-name="{{ $service->name }}"
+                    class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
+                    title="Hapus">
+                    <span class="material-icons-round text-lg">delete</span>
+                </button>
+            @else
+                <span class="p-1.5 text-gray-300 dark:text-gray-600 cursor-not-allowed"
+                    title="Tidak dapat dihapus — sudah digunakan pada {{ $service->tickets_count }} tiket">
+                    <span class="material-icons-round text-lg">delete</span>
+                </span>
+            @endif
         </div>
     </td>
 </tr>
