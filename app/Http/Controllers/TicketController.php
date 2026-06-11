@@ -53,6 +53,16 @@ class TicketController extends Controller
 
             ->when($request->service, fn ($q) => $q->where('service_id', $request->service))
 
+            ->when($request->entity, function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->whereHas('user', function ($u) use ($request) {
+                        $u->where('entity', $request->entity);
+                    })->orWhereHas('guestDetail', function ($g) use ($request) {
+                        $g->where('entity_type', $request->entity);
+                    });
+                });
+            })
+
             ->when($request->assigned_to, function ($q) use ($request) {
                 match ($request->assigned_to) {
                     'unassigned' => $q->whereNull('assigned_to'),
@@ -575,6 +585,15 @@ class TicketController extends Controller
             }))
             ->when($request->priority, fn ($q) => $q->where('priority', $request->priority))
             ->when($request->service, fn ($q) => $q->where('service_id', $request->service))
+            ->when($request->entity, function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->whereHas('user', function ($u) use ($request) {
+                        $u->where('entity', $request->entity);
+                    })->orWhereHas('guestDetail', function ($g) use ($request) {
+                        $g->where('entity_type', $request->entity);
+                    });
+                });
+            })
             ->when($request->assigned_to, function ($q) use ($request) {
                 match ($request->assigned_to) {
                     'unassigned' => $q->whereNull('assigned_to'),
@@ -620,6 +639,15 @@ class TicketController extends Controller
             ->when($request->status, fn ($q) => $q->where('status', $request->status))
             ->when($request->priority, fn ($q) => $q->where('priority', $request->priority))
             ->when($request->service, fn ($q) => $q->where('service_id', $request->service))
+            ->when($request->entity, function ($q) use ($request) {
+                $q->where(function ($sub) use ($request) {
+                    $sub->whereHas('user', function ($u) use ($request) {
+                        $u->where('entity', $request->entity);
+                    })->orWhereHas('guestDetail', function ($g) use ($request) {
+                        $g->where('entity_type', $request->entity);
+                    });
+                });
+            })
             ->when($request->start_date || $request->end_date, function ($q) use ($request) {
                 $start = $request->start_date ? now()->parse($request->start_date)->startOfDay() : null;
                 $end = $request->end_date ? now()->parse($request->end_date)->endOfDay() : null;

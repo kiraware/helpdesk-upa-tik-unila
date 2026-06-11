@@ -6,6 +6,7 @@
     <input type="hidden" name="service" id="input-service" value="{{ request('service') }}">
     <input type="hidden" name="priority" id="input-priority" value="{{ request('priority') }}">
     <input type="hidden" name="assigned_to" id="input-assigned_to" value="{{ request('assigned_to') }}">
+    <input type="hidden" name="entity" id="input-entity" value="{{ request('entity') }}">
 
     <div class="relative w-full">
         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -21,7 +22,7 @@
         @endif
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
 
         <div class="relative w-full" x-data="{ open: false }">
             <button type="button" @click="open = !open"
@@ -42,6 +43,33 @@
                         onclick="document.getElementById('input-service').value='{{ $service->id }}'; this.form.submit()"
                         class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-slate-700 {{ request('service') == $service->id ? 'font-bold text-secondary' : 'text-text-light dark:text-text-dark' }}">
                         {{ $service->name }}
+                    </button>
+                @endforeach
+            </div>
+        </div>
+
+        <div class="relative w-full" x-data="{ open: false }">
+            <button type="button" @click="open = !open"
+                class="w-full flex items-center justify-between px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark shadow-sm">
+                <span class="truncate">
+                    {{ request('entity') ? ucfirst(request('entity')) : 'Semua Entitas' }}
+                </span>
+                <span class="material-icons-round text-base text-muted-light">expand_more</span>
+            </button>
+            <div x-show="open" @click.away="open = false"
+                class="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-border-light dark:border-border-dark py-1"
+                style="display: none;">
+
+                <button type="button" onclick="document.getElementById('input-entity').value=''; this.form.submit()"
+                    class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-slate-700 text-text-light dark:text-text-dark">
+                    Semua Entitas
+                </button>
+
+                @foreach (['mahasiswa', 'dosen', 'tendik', 'karyawan', 'tamu', 'lainnya'] as $entity)
+                    <button type="button"
+                        onclick="document.getElementById('input-entity').value='{{ $entity }}'; this.form.submit()"
+                        class="w-full text-left px-4 py-2 text-sm hover:bg-gray-50 dark:hover:bg-slate-700 {{ request('entity') == $entity ? 'font-bold text-secondary' : 'text-text-light dark:text-text-dark' }}">
+                        {{ ucfirst($entity) }}
                     </button>
                 @endforeach
             </div>
@@ -121,9 +149,9 @@
 
     <div class="grid grid-cols-2 gap-3">
         <div class="relative w-full">
-            <input type="text" name="start_date" value="{{ request('start_date') }}" onfocus="(this.type='date')"
-                onblur="(this.value ? this.type='date' : this.type='text')" placeholder="Tanggal Awal"
-                onchange="this.form.submit()"
+            <input type="text" name="start_date" value="{{ request('start_date') }}"
+                onfocus="(this.type='date')" onblur="(this.value ? this.type='date' : this.type='text')"
+                placeholder="Tanggal Awal" onchange="this.form.submit()"
                 class="w-full px-3 py-3 rounded-lg border border-border-light dark:border-border-dark bg-surface-light dark:bg-slate-800 text-sm text-text-light dark:text-text-dark placeholder-muted-light dark:placeholder-muted-dark focus:ring-1 focus:ring-secondary focus:border-secondary shadow-sm">
             <span
                 class="absolute right-3 top-1/2 -translate-y-1/2 material-icons-round text-base text-muted-light pointer-events-none">calendar_today</span>
