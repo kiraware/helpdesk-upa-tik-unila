@@ -87,8 +87,8 @@
             <button type="button" onclick="openDeleteUserModal(this)" data-id="{{ $user->id }}"
                 data-name="{{ $user->name }}"
                 class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-md transition-colors"
-                title="Hapus">
-                <span class="material-icons-round text-lg">delete</span>
+                title="Cabut Akses">
+                <span class="material-icons-round text-lg">person_remove</span>
             </button>
         </div>
     </td>
