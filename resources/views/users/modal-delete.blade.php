@@ -6,14 +6,15 @@
             <div class="flex items-center justify-center h-10 w-10 rounded-full bg-red-100 dark:bg-red-900/40">
                 <span class="material-icons-round text-red-600 dark:text-red-400">warning</span>
             </div>
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Hapus Staff</h3>
+            <h3 class="text-lg font-bold text-gray-800 dark:text-white">Cabut Akses Staff</h3>
         </div>
 
         <div class="p-6">
             <p class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                Apakah Anda yakin ingin menghapus staff <span class="font-semibold text-gray-900 dark:text-white"
-                    id="deleteUserName"></span>? <br><br>
-                <span class="text-red-600 dark:text-red-400 font-medium">Tindakan ini tidak dapat dibatalkan.</span>
+                Apakah Anda yakin ingin mencabut akses staff untuk <span
+                    class="font-semibold text-gray-900 dark:text-white" id="deleteUserName"></span>? <br><br>
+                <span class="text-amber-600 dark:text-amber-400 font-medium">Akun ini tidak akan dihapus, melainkan
+                    perannya dikembalikan menjadi user biasa.</span>
             </p>
         </div>
 
@@ -26,7 +27,7 @@
                 @method('DELETE')
                 <button type="submit"
                     class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                    Ya, Hapus
+                    Ya, Cabut Akses
                 </button>
             </form>
         </div>

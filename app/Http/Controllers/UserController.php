@@ -79,8 +79,11 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        $user->delete();
+        $user->update([
+            'role' => UserRole::USER->value,
+            'division_id' => null,
+        ]);
 
-        return back()->with('success', 'Staff berhasil dihapus.');
+        return back()->with('success', 'Akses staff berhasil dicabut. Akun dikembalikan menjadi user biasa.');
     }
 }
