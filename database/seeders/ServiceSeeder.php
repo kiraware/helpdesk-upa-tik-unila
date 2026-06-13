@@ -13,9 +13,9 @@ class ServiceSeeder extends Seeder
     public function run(): void
     {
         $guestServices = [
-            'Lupa Password SSO',
-            'Registrasi SSO',
-            'Email Resmi Unila',
+            'Lupa Password SSO' => 'Catatan: Jika Anda juga lupa Username SSO, pelayanan hanya dapat dilakukan secara onsite di Gedung UPA TIK Lt 1 dengan membawa persyaratan identitas.',
+            'Registrasi SSO' => null,
+            'Email Resmi Unila' => "Persyaratan membuat akun email resmi Unila (khusus Unit Kerja / Jurnal / Seminar / Kegiatan):\n\nWajib melampirkan Surat Permohonan Email Resmi Unila yang ditujukan kepada Kepala UPA TIK Unila. Surat tersebut harus berisi deskripsi unit kerja/jurnal/seminar/kegiatan dan mencantumkan:\n- Usulan Username\n- NIP dan Nama Penanggung Jawab email\n\n(Catatan: Dosen, Tenaga Kependidikan, dan Mahasiswa dapat langsung membuat tiket tanpa syarat lampiran ini).",
         ];
 
         $userServices = [
@@ -28,13 +28,14 @@ class ServiceSeeder extends Seeder
             'Lainnya',
         ];
 
-        foreach ($guestServices as $serviceName) {
+        foreach ($guestServices as $serviceName => $attachmentRequirement) {
             Service::firstOrCreate(
                 ['name' => $serviceName],
                 [
                     'is_active' => true,
                     'show_to_guest' => true,
                     'show_to_user' => false,
+                    'attachment_requirement' => $attachmentRequirement,
                 ]
             );
         }
@@ -46,6 +47,7 @@ class ServiceSeeder extends Seeder
                     'is_active' => true,
                     'show_to_guest' => false,
                     'show_to_user' => true,
+                    'attachment_requirement' => null,
                 ]
             );
         }
