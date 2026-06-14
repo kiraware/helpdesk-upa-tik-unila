@@ -31,7 +31,7 @@
                         <div x-data='{
                             open: false,
                             selected: "{{ old('service_id') }}",
-                            listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->attachment_requirement])),
+                            listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes])),
                             get currentLayanan() {
                                 return this.selected && this.listLayanan[this.selected]
                                     ? this.listLayanan[this.selected]
@@ -94,7 +94,7 @@
                                 class="mt-3 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300 flex gap-2.5">
                                 <span class="material-icons-round text-blue-500 shrink-0">info</span>
                                 <div>
-                                    <p class="font-semibold mb-0.5">Syarat Lampiran Layanan</p>
+                                    <p class="font-semibold mb-0.5">Catatan Layanan</p>
                                     <p x-text="currentLayanan ? currentLayanan.req : ''"
                                         class="whitespace-pre-line text-blue-700 dark:text-blue-400/90">
                                     </p>

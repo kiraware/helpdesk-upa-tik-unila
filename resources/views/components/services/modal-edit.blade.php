@@ -25,13 +25,13 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Syarat Lampiran
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan Layanan
                         (Opsional)</label>
-                    <textarea name="attachment_requirement" id="edit_attachment_requirement" rows="3"
+                    <textarea name="notes" id="edit_notes" rows="3"
                         placeholder="Contoh: Lampirkan surat permohonan yang ditandatangani pimpinan..."
                         class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5 px-3"></textarea>
-                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">Deskripsi file apa yang perlu
-                        dilampirkan oleh pemohon.</span>
+                    <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">Deskripsi atau catatan untuk
+                        layanan ini.</span>
                 </div>
 
                 <div class="flex items-center justify-between">

@@ -17,7 +17,7 @@ return new class extends Migration
             $table->boolean('is_active')->default(true);
             $table->boolean('show_to_guest')->default(true);
             $table->boolean('show_to_user')->default(true);
-            $table->text('attachment_requirement')->nullable();
+            $table->text('notes')->nullable();
             $table->timestamps();
         });
     }
