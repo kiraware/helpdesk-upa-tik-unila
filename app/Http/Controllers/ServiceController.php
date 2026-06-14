@@ -38,7 +38,7 @@ class ServiceController extends Controller
             'is_active' => 'required|boolean',
             'show_to_guest' => 'required|boolean',
             'show_to_user' => 'required|boolean',
-            'attachment_requirement' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         Service::create($validated);
@@ -53,7 +53,7 @@ class ServiceController extends Controller
             'is_active' => 'required|boolean',
             'show_to_guest' => 'required|boolean',
             'show_to_user' => 'required|boolean',
-            'attachment_requirement' => 'nullable|string',
+            'notes' => 'nullable|string',
         ]);
 
         $service->update($validated);
