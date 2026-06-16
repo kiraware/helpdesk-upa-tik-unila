@@ -77,8 +77,6 @@ class TicketReportExport implements WithMultipleSheets
         $grandTotals = [
             'total' => 0,
             'statuses' => $emptyStatuses,
-            '_csi_wScore' => 0,
-            '_csi_imp' => 0,
         ] + $emptyEntities;
 
         foreach ($services as $service) {
@@ -87,8 +85,7 @@ class TicketReportExport implements WithMultipleSheets
                 'total' => 0,
                 'statuses' => $emptyStatuses,
                 'entities' => $emptyEntities,
-                '_csi_wScore' => 0,
-                '_csi_imp' => 0,
+                '_answers' => [],
                 '_survey_count' => 0,
             ];
         }
@@ -131,8 +128,12 @@ class TicketReportExport implements WithMultipleSheets
                         if ($ans->satisfaction_score === null || $ans->importance_score === null) {
                             continue;
                         }
-                        $reportData[$serviceId]['_csi_wScore'] += ($ans->satisfaction_score * $ans->importance_score);
-                        $reportData[$serviceId]['_csi_imp'] += $ans->importance_score;
+                        $qId = $ans->survey_question_id;
+                        if (! isset($reportData[$serviceId]['_answers'][$qId])) {
+                            $reportData[$serviceId]['_answers'][$qId] = ['sat' => 0, 'imp' => 0];
+                        }
+                        $reportData[$serviceId]['_answers'][$qId]['sat'] += $ans->satisfaction_score;
+                        $reportData[$serviceId]['_answers'][$qId]['imp'] += $ans->importance_score;
                     }
                 }
             }
@@ -141,11 +142,22 @@ class TicketReportExport implements WithMultipleSheets
         }
 
         foreach ($reportData as &$svc) {
-            $imp = (float) $svc['_csi_imp'];
-            $wScore = (float) $svc['_csi_wScore'];
-            $svc['csi'] = $imp > 0 ? round(($wScore / $imp / 5) * 100, 2) : 0;
-            $svc['survey_count'] = $svc['_survey_count'];
-            unset($svc['_csi_wScore'], $svc['_csi_imp'], $svc['_survey_count']);
+            $surveyCount = $svc['_survey_count'];
+            $svc['survey_count'] = $surveyCount;
+            $svc['csi'] = 0;
+
+            if ($surveyCount > 0 && ! empty($svc['_answers'])) {
+                $sumProduct = 0;
+                $sumAllImp = 0;
+                foreach ($svc['_answers'] as $qId => $scores) {
+                    $sumProduct += ($scores['imp'] * $scores['sat']);
+                    $sumAllImp += $scores['imp'];
+                }
+                if ($sumAllImp > 0) {
+                    $svc['csi'] = round(($sumProduct / (5 * $surveyCount * $sumAllImp)) * 100, 2);
+                }
+            }
+            unset($svc['_answers'], $svc['_survey_count']);
         }
         unset($svc);
 
@@ -198,8 +210,7 @@ class TicketReportExport implements WithMultipleSheets
 
                 $rate = $total > 0 ? round((($done + $reject) / $total) * 100) : 0;
 
-                $wScore = 0;
-                $imp = 0;
+                $staffAnswers = [];
                 $surveys = 0;
                 foreach ($ts as $ticket) {
                     if (! $ticket->survey || ! $ticket->survey->answers || $ticket->survey->answers->count() === 0) {
@@ -210,13 +221,29 @@ class TicketReportExport implements WithMultipleSheets
                         if ($ans->satisfaction_score === null || $ans->importance_score === null) {
                             continue;
                         }
-                        $wScore += ($ans->satisfaction_score * $ans->importance_score);
-                        $imp += $ans->importance_score;
+                        $qId = $ans->survey_question_id;
+                        if (! isset($staffAnswers[$qId])) {
+                            $staffAnswers[$qId] = ['sat' => 0, 'imp' => 0];
+                        }
+                        $staffAnswers[$qId]['sat'] += $ans->satisfaction_score;
+                        $staffAnswers[$qId]['imp'] += $ans->importance_score;
                     }
                 }
 
-                $star = $imp > 0 ? $wScore / $imp : 0;
-                $csi = $imp > 0 ? ($star / 5) * 100 : 0;
+                $star = 0;
+                $csi = 0;
+                if ($surveys > 0 && ! empty($staffAnswers)) {
+                    $staffSumProduct = 0;
+                    $staffSumAllImp = 0;
+                    foreach ($staffAnswers as $qId => $scores) {
+                        $staffSumProduct += ($scores['imp'] * $scores['sat']);
+                        $staffSumAllImp += $scores['imp'];
+                    }
+                    if ($staffSumAllImp > 0) {
+                        $csi = ($staffSumProduct / (5 * $surveys * $staffSumAllImp)) * 100;
+                        $star = ($staffSumProduct / ($surveys * $staffSumAllImp));
+                    }
+                }
 
                 $dedikasiData = OffHoursHelper::calcDedikasi($ts);
 
