@@ -45,6 +45,7 @@ class GuestTicketCommentController extends Controller
                 $ticket->update([
                     'assigned_to' => auth()->id(),
                     'assigned_at' => now(),
+                    'status' => TicketStatus::PROGRESS,
                 ]);
 
                 $ticket->refresh();

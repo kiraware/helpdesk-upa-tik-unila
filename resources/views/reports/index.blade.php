@@ -173,9 +173,9 @@
                         <p class="text-[10px] text-gray-400 mt-0.5">Rata-rata tertimbang dari seluruh survei masuk</p>
                         @php
                             $badgeColor = match (true) {
-                                $avgCSI >= 81 => 'bg-emerald-100 text-emerald-700 border-emerald-200',
-                                $avgCSI >= 61 => 'bg-blue-100 text-blue-700 border-blue-200',
-                                $avgCSI >= 41 => 'bg-yellow-100 text-yellow-700 border-yellow-200',
+                                $avgCSI > 80 => 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                                $avgCSI > 60 => 'bg-blue-100 text-blue-700 border-blue-200',
+                                $avgCSI > 40 => 'bg-yellow-100 text-yellow-700 border-yellow-200',
                                 default => 'bg-red-100 text-red-700 border-red-200',
                             };
                         @endphp
@@ -189,7 +189,7 @@
                     </div>
                 </div>
                 <div class="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-2 mt-4 overflow-hidden">
-                    <div class="h-full rounded-full {{ $avgCSI >= 61 ? 'bg-emerald-500' : ($avgCSI >= 41 ? 'bg-yellow-400' : 'bg-red-500') }}"
+                    <div class="h-full rounded-full {{ $avgCSI > 80 ? 'bg-emerald-500' : ($avgCSI > 60 ? 'bg-blue-500' : ($avgCSI > 40 ? 'bg-yellow-400' : 'bg-red-500')) }}"
                         style="width: {{ min($avgCSI, 100) }}%"></div>
                 </div>
             </div>
@@ -729,7 +729,7 @@
                             <th class="px-6 py-4 text-center w-1/5">Efektivitas</th>
                             <th class="px-6 py-4 text-center">Rating ⭐</th>
                             <th class="px-6 py-4 text-center"
-                                title="Skor kepuasan tertimbang agregat dari seluruh survei yang diterima petugas ini. Dihitung: Σ(satisfaction×importance) / (Σimportance×5) × 100. Disebut CSI karena bersumber dari banyak responden (tiket) berbeda.">
+                                title="Skor kepuasan tertimbang hasil akumulasi rata-rata per indikator kuesioner dari seluruh tiket yang ditangani petugas ini (Metode Customer Satisfaction Index Jurnal).">
                                 Skor Kepuasan (%) <span
                                     class="normal-case font-normal text-[10px] text-gray-400 block">agregat
                                     survei</span>
@@ -801,11 +801,11 @@
                                 <td class="px-6 py-4 text-center">
                                     @php
                                         $csiColor = match (true) {
-                                            $staff->csi_score >= 80
+                                            $staff->csi_score > 80
                                                 => 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400',
-                                            $staff->csi_score >= 60
+                                            $staff->csi_score > 60
                                                 => 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400',
-                                            $staff->csi_score >= 40
+                                            $staff->csi_score > 40
                                                 => 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400',
                                             default
                                                 => 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400',

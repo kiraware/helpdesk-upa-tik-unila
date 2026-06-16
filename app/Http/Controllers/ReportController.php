@@ -147,30 +147,43 @@ class ReportController extends Controller
             'monthly_reject' => array_values(array_map(fn ($v) => $v['reject'], $monthlyTrend)),
         ];
 
-        $csiAggregates = (clone $ticketsQuery)
+        $surveyedTicketsCount = (clone $ticketsQuery)
+            ->has('survey')
+            ->count();
+
+        // 2. Ambil akumulasi skor kepuasan dan kepentingan per pertanyaan unik
+        $answersData = \DB::table('tickets')
             ->join('ticket_surveys', 'tickets.id', '=', 'ticket_surveys.ticket_id')
             ->join('ticket_survey_answers', 'ticket_surveys.id', '=', 'ticket_survey_answers.ticket_survey_id')
-            ->selectRaw('
-                SUM(ticket_survey_answers.satisfaction_score * ticket_survey_answers.importance_score) as total_weight_score,
-                SUM(ticket_survey_answers.importance_score) as total_importance
-            ')
-            ->first();
-
-        $globalTotalWeightScore = (int) ($csiAggregates->total_weight_score ?? 0);
-        $globalTotalImportance = (int) ($csiAggregates->total_importance ?? 0);
+            ->whereBetween('tickets.created_at', [$startDate, $endDate])
+            ->select('ticket_survey_answers.survey_question_id')
+            ->selectRaw('SUM(ticket_survey_answers.satisfaction_score) as total_sat')
+            ->selectRaw('SUM(ticket_survey_answers.importance_score) as total_imp')
+            ->groupBy('ticket_survey_answers.survey_question_id')
+            ->get();
 
         $avgCSI = 0;
-        if ($globalTotalImportance > 0) {
-            $avgCSI = (($globalTotalWeightScore / $globalTotalImportance) / 5) * 100;
+        if ($surveyedTicketsCount > 0 && $answersData->isNotEmpty()) {
+            $sumProduct = 0;
+            $sumAllImportance = 0;
+
+            foreach ($answersData as $row) {
+                $sumProduct += ($row->total_imp * $row->total_sat);
+                $sumAllImportance += $row->total_imp;
+            }
+
+            if ($sumAllImportance > 0) {
+                $avgCSI = ($sumProduct / (5 * $surveyedTicketsCount * $sumAllImportance)) * 100;
+            }
         }
         $avgCSI = round($avgCSI, 2);
 
         $csiPredicate = match (true) {
-            $avgCSI >= 81 => 'Sangat Puas',
-            $avgCSI >= 66 => 'Puas',
-            $avgCSI >= 51 => 'Cukup Puas',
-            $avgCSI >= 35 => 'Kurang Puas',
-            $avgCSI > 0 => 'Tidak Puas',
+            $avgCSI > 80 => 'Sangat Puas',
+            $avgCSI > 60 => 'Puas',
+            $avgCSI > 40 => 'Cukup Puas',
+            $avgCSI > 20 => 'Tidak Puas',
+            $avgCSI > 0 => 'Sangat Tidak Puas',
             default => 'Belum Ada Data',
         };
 
@@ -198,25 +211,39 @@ class ReportController extends Controller
                     ? round((($doneCount + $rejectCount) / $totalCount) * 100)
                     : 0;
 
-                $staffWeightScore = 0;
-                $staffImportance = 0;
+                $staffAnswers = [];
                 $surveyCount = 0;
 
                 foreach ($assignedTickets as $ticket) {
                     if ($ticket->survey && $ticket->survey->answers) {
                         $surveyCount++;
                         foreach ($ticket->survey->answers as $answer) {
-                            $staffWeightScore += ($answer->satisfaction_score * $answer->importance_score);
-                            $staffImportance += $answer->importance_score;
+                            $qId = $answer->survey_question_id;
+                            if (! isset($staffAnswers[$qId])) {
+                                $staffAnswers[$qId] = ['sat' => 0, 'imp' => 0];
+                            }
+                            $staffAnswers[$qId]['sat'] += $answer->satisfaction_score;
+                            $staffAnswers[$qId]['imp'] += $answer->importance_score;
                         }
                     }
                 }
 
                 $staffCSI = 0;
                 $staffStar = 0;
-                if ($staffImportance > 0) {
-                    $staffStar = $staffWeightScore / $staffImportance;
-                    $staffCSI = ($staffStar / 5) * 100;
+
+                if ($surveyCount > 0 && ! empty($staffAnswers)) {
+                    $staffSumProduct = 0;
+                    $staffSumAllImp = 0;
+
+                    foreach ($staffAnswers as $qId => $scores) {
+                        $staffSumProduct += ($scores['imp'] * $scores['sat']);
+                        $staffSumAllImp += $scores['imp'];
+                    }
+
+                    if ($staffSumAllImp > 0) {
+                        $staffCSI = ($staffSumProduct / (5 * $surveyCount * $staffSumAllImp)) * 100;
+                        $staffStar = ($staffSumProduct / ($surveyCount * $staffSumAllImp));
+                    }
                 }
 
                 $dedikasiData = OffHoursHelper::calcDedikasi($assignedTickets);
