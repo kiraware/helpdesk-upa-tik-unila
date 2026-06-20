@@ -281,7 +281,7 @@
                             <input type="text" name="identity_number" value="{{ old('identity_number') }}"
                                 required
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                placeholder="NPM / NIP / NIK" inputmode="numeric" pattern="[0-9]*"
+                                placeholder="Contoh: 1234567890" inputmode="numeric" pattern="[0-9]*"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             @error('identity_number')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
