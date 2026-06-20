@@ -43,7 +43,9 @@
                             <span class="material-icons-round text-[18px]">phone</span>
                         </div>
                         <input type="text" name="phone" id="edit_phone" placeholder="Contoh: 081234567890"
-                            class="block w-full pl-10 pr-4 h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm">
+                            class="block w-full pl-10 pr-4 h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm"
+                            inputmode="numeric" pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                 </div>
 

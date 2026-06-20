@@ -35,7 +35,7 @@ class UserController extends Controller
     {
         $request->validate([
             'username_sso' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
             'role' => ['required', new Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
         ]);
@@ -67,7 +67,7 @@ class UserController extends Controller
     {
         $request->validate([
             'username_sso' => 'required|string|max:255|unique:users,username_sso,'.$user->id,
-            'phone' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
             'role' => ['required', new Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
         ]);

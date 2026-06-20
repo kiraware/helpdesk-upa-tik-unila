@@ -67,7 +67,7 @@ class SsoUserController extends Controller
             'fakultas' => 'nullable|string',
             'jurusan' => 'nullable|string',
             'unit_kerja' => 'nullable|string',
-            'no_telp' => 'nullable|string',
+            'no_telp' => 'nullable|string|regex:/^[0-9]+$/|max:20',
             'alamat' => 'nullable|string',
         ]);
 
