@@ -128,7 +128,7 @@ class GuestTicketController extends Controller
                 },
             ],
             'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
-            'identity_number' => 'required|string|max:50',
+            'identity_number' => 'required|string|regex:/^[0-9]+$/|max:50',
             'department_id' => 'required|exists:departments,id',
             'other_department' => [
                 'nullable',
