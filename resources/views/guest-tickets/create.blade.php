@@ -223,6 +223,7 @@
                                 Nama Lengkap <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="full_name" value="{{ old('full_name') }}" required
+                                maxlength="50"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Sesuai kartu identitas">
                             @error('full_name')
@@ -242,7 +243,7 @@
                             <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Gunakan email
                                 aktif yang bisa
                                 diakses.</p>
-                            <input type="email" name="email" x-model="email" required
+                            <input type="email" name="email" x-model="email" required maxlength="100"
                                 class="w-full h-11 px-4 rounded-lg border bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 :class="isUnilaEmail ?
                                     'border-red-500 focus:ring-red-500 focus:border-red-500' :
@@ -265,7 +266,7 @@
                                 mempermudah
                                 komunikasi.</p>
                             <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
-                                placeholder="Contoh: 081234567890"
+                                maxlength="20" placeholder="Contoh: 081234567890"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 inputmode="numeric" pattern="[0-9]*"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">
@@ -279,7 +280,7 @@
                                 NPM / NIP / NIK <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="identity_number" value="{{ old('identity_number') }}"
-                                required
+                                required maxlength="32"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Contoh: 1234567890" inputmode="numeric" pattern="[0-9]*"
                                 oninput="this.value = this.value.replace(/[^0-9]/g, '')">

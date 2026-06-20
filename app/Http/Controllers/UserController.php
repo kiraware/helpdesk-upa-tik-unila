@@ -34,7 +34,7 @@ class UserController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'username_sso' => 'required|string|max:255',
+            'username_sso' => 'required|string|max:50',
             'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
             'role' => ['required', new Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',
@@ -66,7 +66,7 @@ class UserController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'username_sso' => 'required|string|max:255|unique:users,username_sso,'.$user->id,
+            'username_sso' => 'required|string|max:50|unique:users,username_sso,'.$user->id,
             'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
             'role' => ['required', new Enum(UserRole::class)],
             'division_id' => 'nullable|exists:divisions,id',

@@ -116,7 +116,7 @@ class GuestTicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'full_name' => 'required|string|max:100',
+            'full_name' => 'required|string|max:50',
             'email' => [
                 'required',
                 'email',
@@ -128,7 +128,7 @@ class GuestTicketController extends Controller
                 },
             ],
             'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
-            'identity_number' => 'required|string|regex:/^[0-9]+$/|max:50',
+            'identity_number' => 'required|string|regex:/^[0-9]+$/|max:32',
             'department_id' => 'required|exists:departments,id',
             'other_department' => [
                 'nullable',
