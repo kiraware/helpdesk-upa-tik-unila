@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Service;
+use App\Models\ServiceReplyTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
@@ -28,7 +29,11 @@ class ServiceController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return view('services.index', compact('services'));
+        // Eager load template jawaban milik admin yang sedang login
+        $myTemplates = ServiceReplyTemplate::where('user_id', auth()->id())
+            ->pluck('template', 'service_id');
+
+        return view('services.index', compact('services', 'myTemplates'));
     }
 
     public function store(Request $request)
@@ -39,9 +44,19 @@ class ServiceController extends Controller
             'show_to_guest' => 'required|boolean',
             'show_to_user' => 'required|boolean',
             'notes' => 'nullable|string',
+            'reply_template' => 'nullable|string',
         ]);
 
-        Service::create($validated);
+        $service = Service::create($validated);
+
+        // Simpan template jawaban jika diisi
+        if (! empty($validated['reply_template'])) {
+            ServiceReplyTemplate::create([
+                'service_id' => $service->id,
+                'user_id' => auth()->id(),
+                'template' => $validated['reply_template'],
+            ]);
+        }
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil ditambahkan.');
     }
@@ -54,9 +69,28 @@ class ServiceController extends Controller
             'show_to_guest' => 'required|boolean',
             'show_to_user' => 'required|boolean',
             'notes' => 'nullable|string',
+            'reply_template' => 'nullable|string',
         ]);
 
         $service->update($validated);
+
+        // Simpan atau update template jawaban
+        if (! empty($validated['reply_template'])) {
+            ServiceReplyTemplate::updateOrCreate(
+                [
+                    'service_id' => $service->id,
+                    'user_id' => auth()->id(),
+                ],
+                [
+                    'template' => $validated['reply_template'],
+                ]
+            );
+        } else {
+            // Hapus template jika dikosongkan
+            ServiceReplyTemplate::where('service_id', $service->id)
+                ->where('user_id', auth()->id())
+                ->delete();
+        }
 
         return redirect()->route('services.index')->with('success', 'Layanan berhasil diperbarui.');
     }

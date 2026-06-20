@@ -10,6 +10,7 @@ use App\Enums\UserRole;
 use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
+use App\Models\ServiceReplyTemplate;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
@@ -98,7 +99,15 @@ class GuestTicketController extends Controller
             ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
-        return view('guest-tickets.show', compact('ticket', 'admins', 'services'));
+        // Query template jawaban untuk admin/superuser yang login
+        $replyTemplate = null;
+        if (auth()->check() && in_array(auth()->user()->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+            $replyTemplate = ServiceReplyTemplate::where('service_id', $ticket->service_id)
+                ->where('user_id', auth()->id())
+                ->value('template');
+        }
+
+        return view('guest-tickets.show', compact('ticket', 'admins', 'services', 'replyTemplate'));
     }
 
     public function create()

@@ -96,11 +96,13 @@
                 notes,
                 active,
                 guest,
-                user
+                user,
+                replyTemplate
             } = button.dataset;
 
             document.getElementById('edit_name').value = name;
             document.getElementById('edit_notes').value = notes || '';
+            document.getElementById('edit_reply_template').value = replyTemplate || '';
             document.getElementById('edit_is_active').checked = active == 1;
             document.getElementById('edit_show_to_guest').checked = guest == 1;
             document.getElementById('edit_show_to_user').checked = user == 1;

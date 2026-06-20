@@ -12,7 +12,7 @@
 
             <x-tickets.show.comments :ticket="$ticket" />
 
-            <x-tickets.show.reply-form :ticket="$ticket" />
+            <x-tickets.show.reply-form :ticket="$ticket" :replyTemplate="$replyTemplate" />
 
             <x-tickets.show.survey :ticket="$ticket" />
 

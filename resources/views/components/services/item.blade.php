@@ -51,6 +51,7 @@
                 data-name="{{ $service->name }}" data-notes="{{ $service->notes }}"
                 data-active="{{ $service->is_active ? 1 : 0 }}" data-guest="{{ $service->show_to_guest ? 1 : 0 }}"
                 data-user="{{ $service->show_to_user ? 1 : 0 }}"
+                data-reply-template="{{ $myTemplates[$service->id] ?? '' }}"
                 class="p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors"
                 title="Ubah">
                 <span class="material-icons-round text-lg">edit</span>

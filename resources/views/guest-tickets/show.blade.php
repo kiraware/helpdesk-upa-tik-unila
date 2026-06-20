@@ -67,7 +67,8 @@
                                             class="px-4 py-2 border-b border-border-light dark:border-border-dark
                                                    bg-gray-50 dark:bg-slate-800/30">
 
-                                            <input id="x_message_guest" type="hidden" name="message">
+                                            <input id="x_message_guest" type="hidden" name="message"
+                                                value="{{ $replyTemplate }}">
 
                                             <trix-editor input="x_message_guest"
                                                 data-upload-url="{{ route('guest.comments.upload.attachments') }}"
@@ -98,7 +99,7 @@
                                             <div class="flex items-center gap-2 self-end sm:self-auto">
                                                 <button type="submit" id="submitButton" disabled
                                                     class="px-4 py-2 bg-secondary text-white text-sm font-medium rounded-lg shadow-sm transition-all whitespace-nowrap
-                   hover:opacity-90 
+                   hover:opacity-90
                    disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:opacity-50">
                                                     Kirim Balasan
                                                 </button>
