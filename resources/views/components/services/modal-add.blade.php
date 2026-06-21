@@ -11,7 +11,7 @@
             </button>
         </div>
 
-        <form action="{{ route('services.store') }}" method="POST">
+        <form action="{{ route('services.store') }}" method="POST" class="flex flex-col overflow-hidden">
             @csrf
             <div class="p-6 overflow-y-auto">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -81,7 +81,7 @@
                         </div>
                     </div>
 
-                    {{-- Kolom Kanan: Catatan & Template --}}
+                    {{-- Kolom Kanan: Catatan --}}
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan
@@ -93,19 +93,55 @@
                                 ditampilkan
                                 pada form pembuatan tiket.</span>
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Template
-                                Jawaban
-                                (Opsional)</label>
-                            <textarea name="reply_template" rows="4"
-                                placeholder="Contoh: Terima kasih atas laporannya. Kami akan segera menindaklanjuti..."
-                                class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5 px-3">{{ old('reply_template') }}</textarea>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">Template ini akan otomatis
-                                mengisi form balasan komentar saat Anda menangani tiket dengan layanan ini.</span>
+                </div>
+
+                {{-- Template Jawaban (Full Width, mengikuti struktur reply-form) --}}
+                <div class="mt-6">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Template
+                        Jawaban (Opsional)</label>
+
+                    <div
+                        class="border border-border-light dark:border-border-dark rounded-xl
+                               bg-surface-light dark:bg-surface-dark
+                               overflow-hidden shadow-sm
+                               focus-within:ring-1 focus-within:ring-secondary
+                               focus-within:border-secondary transition-all">
+
+                        <div
+                            class="px-4 py-2 border-b border-border-light dark:border-border-dark
+                                   bg-gray-50 dark:bg-slate-800/30">
+
+                            <input id="add_reply_template" type="hidden" name="reply_template"
+                                value="{{ old('reply_template') }}">
+
+                            <trix-editor input="add_reply_template"
+                                data-upload-url="{{ route('comments.upload.attachments') }}" data-max-size="2048"
+                                data-accept="image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip"
+                                class="prose dark:prose-invert max-w-none
+                                       text-text-light dark:text-text-dark
+                                       bg-transparent"
+                                placeholder="Contoh: Terima kasih atas laporannya. Kami akan segera menindaklanjuti...">
+                            </trix-editor>
                         </div>
                     </div>
 
+                    <div class="flex items-start gap-2 mt-2 ml-1">
+                        <span class="material-icons-round text-base text-blue-500 mt-0.5">info</span>
+
+                        <div class="text-xs text-slate-500 dark:text-slate-400">
+                            <p class="font-medium text-slate-700 dark:text-slate-300 mb-0.5">
+                                Sisipkan file atau gambar dengan cara <span
+                                    class="text-blue-600 dark:text-blue-400 font-bold">Drag & Drop</span> ke kolom
+                                editor.
+                            </p>
+                            <p>
+                                Max <strong>2MB</strong>.
+                                Format: JPG, PNG, PDF, DOC, DOCX, ZIP.
+                            </p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div
