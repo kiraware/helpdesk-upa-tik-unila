@@ -16,7 +16,7 @@
             <div class="p-6 space-y-6 overflow-y-auto custom-scrollbar">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aspek
-                        Penilaian</label>
+                        Penilaian <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><span
                                 class="material-icons-round text-lg">category</span></span>
@@ -28,7 +28,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pertanyaan
-                        Kepuasan</label>
+                        Kepuasan <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span class="absolute top-2.5 left-0 pl-3 flex items-start text-gray-400"><span
                                 class="material-icons-round text-lg">sentiment_satisfied</span></span>
@@ -40,7 +40,7 @@
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Pertanyaan
-                        Kepentingan</label>
+                        Kepentingan <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span class="absolute top-2.5 left-0 pl-3 flex items-start text-gray-400"><span
                                 class="material-icons-round text-lg">priority_high</span></span>
@@ -53,7 +53,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nomor
-                            Urut</label>
+                            Urut <span class="text-red-500">*</span></label>
                         <div class="relative">
                             <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><span
                                     class="material-icons-round text-lg">format_list_numbered</span></span>

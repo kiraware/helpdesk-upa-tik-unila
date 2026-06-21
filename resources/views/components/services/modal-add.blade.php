@@ -20,7 +20,7 @@
                     <div class="space-y-6">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama
-                                Layanan</label>
+                                Layanan <span class="text-red-500">*</span></label>
                             <div class="relative">
                                 <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400"><span
                                         class="material-icons-round text-lg">layers</span></span>
@@ -84,8 +84,7 @@
                     {{-- Kolom Kanan: Catatan --}}
                     <div class="flex flex-col h-full">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan
-                            Layanan
-                            (Opsional)</label>
+                            Layanan</label>
                         <textarea name="notes" placeholder="Contoh: Lampirkan surat permohonan yang ditandatangani pimpinan..."
                             class="flex-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5 px-3 resize-none">{{ old('notes') }}</textarea>
                         <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">Catatan ini akan
@@ -98,7 +97,7 @@
                 {{-- Template Jawaban (Full Width, mengikuti struktur reply-form) --}}
                 <div class="mt-6">
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Template
-                        Jawaban (Opsional)</label>
+                        Jawaban</label>
 
                     <div
                         class="border border-border-light dark:border-border-dark rounded-xl

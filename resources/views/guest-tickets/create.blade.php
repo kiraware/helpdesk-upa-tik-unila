@@ -262,7 +262,7 @@
                                 class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Nomor WhatsApp
                             </label>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Opsional, untuk
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Untuk
                                 mempermudah
                                 komunikasi.</p>
                             <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"

@@ -32,7 +32,7 @@
                     <div>
                         <label for="username"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">
-                            Username
+                            Username <span class="text-red-500">*</span>
                         </label>
                         <input id="username" name="username" type="text" autocomplete="username" required
                             value="{{ old('username') }}"
@@ -46,7 +46,7 @@
                     <div x-data="{ showPassword: false }">
                         <label for="password"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-1">
-                            Password
+                            Password <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <input id="password" name="password" :type="showPassword ? 'text' : 'password'" required

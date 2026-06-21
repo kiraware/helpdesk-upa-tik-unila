@@ -20,7 +20,7 @@
                 <div>
                     <label for="ticket-code"
                         class="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-1.5 md:mb-2">
-                        Kode Tiket
+                        Kode Tiket <span class="text-red-500">*</span>
                     </label>
                     <div class="relative group">
                         <input type="text" id="ticket-code" name="ticket_code" required
