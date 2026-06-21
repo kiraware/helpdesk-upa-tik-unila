@@ -45,7 +45,7 @@
                             data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
                             class="prose dark:prose-invert max-w-none
                                    text-text-light dark:text-text-dark
-                                   bg-transparent"
+                                   bg-transparent w-full max-w-full overflow-x-hidden break-words [word-break:break-word]"
                             placeholder="Tulis balasan anda...">
                         </trix-editor>
                     </div>

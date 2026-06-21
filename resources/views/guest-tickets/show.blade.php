@@ -73,9 +73,7 @@
                                             <trix-editor input="x_message_guest"
                                                 data-upload-url="{{ route('guest.comments.upload.attachments') }}"
                                                 data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
-                                                class="prose dark:prose-invert max-w-none
-                                                       text-text-light dark:text-text-dark
-                                                       bg-transparent min-h-25 outline-none"
+                                                class="prose dark:prose-invert max-w-none text-text-light dark:text-text-dark bg-transparent w-full max-w-full overflow-x-hidden break-words [word-break:break-word]"
                                                 placeholder="Tulis balasan anda..."></trix-editor>
                                         </div>
 

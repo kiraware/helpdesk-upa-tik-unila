@@ -178,7 +178,7 @@
                                 <trix-editor input="x_description"
                                     data-upload-url="{{ route('guest.tickets.upload.attachment') }}"
                                     data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
-                                    class="min-h-50 prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
+                                    class="prose dark:prose-invert max-w-none text-text-light dark:text-text-dark bg-transparent w-full max-w-full overflow-x-hidden break-words [word-break:break-word]"
                                     placeholder="Jelaskan kronologi dan detail masalah Anda..."></trix-editor>
                             </div>
                         </div>
