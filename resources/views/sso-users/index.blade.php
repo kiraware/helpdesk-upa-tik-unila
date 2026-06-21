@@ -428,7 +428,7 @@
                             <label class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">Password
                                 Baru</label>
                             <input type="text" name="new_password" required minlength="6"
-                                placeholder="Minimal 6 karakter"
+                                placeholder="Minimal 6 karakter" value="{{ env('DEFAULT_PASSWORD', '') }}"
                                 class="w-full px-4 py-2 border border-border-light dark:border-border-dark rounded-lg focus:outline-none focus:ring-1 focus:ring-secondary focus:border-secondary bg-white dark:bg-slate-700 text-text-light dark:text-text-dark sm:text-sm">
                         </div>
 
