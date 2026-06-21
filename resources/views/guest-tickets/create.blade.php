@@ -144,14 +144,14 @@
                             x-transition:leave="transition ease-in duration-150"
                             x-transition:leave-start="opacity-100 translate-y-0"
                             x-transition:leave-end="opacity-0 -translate-y-1"
-                            class="mt-6 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300 flex gap-2.5">
-                            <span class="material-icons-round text-blue-500 shrink-0">info</span>
-                            <div>
-                                <p class="font-semibold mb-0.5">Catatan Layanan</p>
-                                <p x-text="currentLayanan ? currentLayanan.req : ''"
-                                    class="whitespace-pre-line text-blue-700 dark:text-blue-400/90">
-                                </p>
+                            class="mt-6 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="material-icons-round text-blue-500 shrink-0">info</span>
+                                <p class="font-semibold">Catatan Layanan</p>
                             </div>
+                            <p x-text="currentLayanan ? currentLayanan.req : ''"
+                                class="whitespace-pre-line text-blue-700 dark:text-blue-400/90 break-words">
+                            </p>
                         </div>
 
                     </div>
