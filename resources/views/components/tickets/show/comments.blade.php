@@ -52,7 +52,7 @@
                 </div>
 
                 <div
-                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none break-all wrap-break-word prose dark:prose-invert prose-sm">
+                    class="p-4 text-text-light dark:text-text-dark leading-relaxed max-w-none break-words [word-break:break-word] prose dark:prose-invert prose-sm">
                     {!! $comment->message !!}
                 </div>
             </div>
