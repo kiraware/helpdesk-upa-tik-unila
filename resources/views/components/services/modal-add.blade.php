@@ -1,7 +1,7 @@
 <div id="addServiceModal"
     class="fixed inset-0 z-50 hidden flex items-center justify-center bg-white/30 dark:bg-slate-900/30 backdrop-blur-sm">
     <div
-        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-2xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
+        class="bg-surface-light dark:bg-surface-dark rounded-xl shadow-2xl w-full max-w-4xl mx-4 overflow-hidden max-h-[90vh] flex flex-col">
         <div
             class="px-6 py-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800 shrink-0">
             <h3 class="text-lg font-bold text-gray-800 dark:text-white">Tambah Layanan Baru</h3>
@@ -82,17 +82,15 @@
                     </div>
 
                     {{-- Kolom Kanan: Catatan --}}
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan
-                                Layanan
-                                (Opsional)</label>
-                            <textarea name="notes" rows="4" placeholder="Contoh: Lampirkan surat permohonan yang ditandatangani pimpinan..."
-                                class="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5 px-3">{{ old('notes') }}</textarea>
-                            <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">Catatan ini akan
-                                ditampilkan
-                                pada form pembuatan tiket.</span>
-                        </div>
+                    <div class="flex flex-col h-full">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Catatan
+                            Layanan
+                            (Opsional)</label>
+                        <textarea name="notes" placeholder="Contoh: Lampirkan surat permohonan yang ditandatangani pimpinan..."
+                            class="flex-1 block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:border-secondary focus:ring-secondary sm:text-sm py-2.5 px-3 resize-none">{{ old('notes') }}</textarea>
+                        <span class="text-xs text-gray-500 dark:text-gray-400 mt-1 block">Catatan ini akan
+                            ditampilkan
+                            pada form pembuatan tiket.</span>
                     </div>
 
                 </div>
