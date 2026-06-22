@@ -1,4 +1,4 @@
-@props(['ticket'])
+@props(['ticket', 'replyTemplate' => null])
 
 @php
     $isClosed = in_array($ticket->status, [\App\Enums\TicketStatus::DONE, \App\Enums\TicketStatus::REJECT]);
@@ -13,6 +13,8 @@
     $acceptedMimes =
         'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
     $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+
+    $isStaff = in_array($user->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
 @endphp
 
 @if (!$isClosed)
@@ -37,13 +39,13 @@
                         class="px-4 py-2 border-b border-border-light dark:border-border-dark
                                bg-gray-50 dark:bg-slate-800/30">
 
-                        <input id="x_message" type="hidden" name="message">
+                        <input id="x_message" type="hidden" name="message" value="{{ $replyTemplate }}">
 
                         <trix-editor input="x_message" data-upload-url="{{ route('comments.upload.attachments') }}"
                             data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
                             class="prose dark:prose-invert max-w-none
                                    text-text-light dark:text-text-dark
-                                   bg-transparent"
+                                   bg-transparent w-full max-w-full overflow-x-hidden break-words [word-break:break-word]"
                             placeholder="Tulis balasan anda...">
                         </trix-editor>
                     </div>

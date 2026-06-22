@@ -15,7 +15,7 @@
             <div class="p-6 space-y-6">
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Nama Unit
-                        Fungsi</label>
+                        Fungsi <span class="text-red-500">*</span></label>
                     <div class="relative">
                         <span
                             class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">

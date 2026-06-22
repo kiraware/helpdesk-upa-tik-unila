@@ -32,4 +32,9 @@ class Service extends Model
     {
         return $this->hasMany(Ticket::class);
     }
+
+    public function replyTemplates(): HasMany
+    {
+        return $this->hasMany(ServiceReplyTemplate::class);
+    }
 }

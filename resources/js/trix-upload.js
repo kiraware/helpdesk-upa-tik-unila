@@ -68,7 +68,10 @@ export function initTrixAttachmentUpload() {
 
     document.addEventListener("trix-attachment-add", function (event) {
         if (event.attachment.file) {
-            uploadFileAttachment(event.attachment);
+            const editorElement = event.target;
+            const uploadUrl = editorElement.dataset.uploadUrl;
+            if (!uploadUrl) return;
+            uploadFileAttachment(event.attachment, uploadUrl);
         }
     });
 }
@@ -97,8 +100,8 @@ function getReadableExtensions(mimeTypes) {
     return mimeTypes.map((type) => map[type] || type).join(", ");
 }
 
-function uploadFileAttachment(attachment) {
-    uploadFile(attachment.file, setProgress, setAttributes);
+function uploadFileAttachment(attachment, uploadUrl) {
+    uploadFile(attachment.file, uploadUrl, setProgress, setAttributes);
 
     function setProgress(progress) {
         attachment.setUploadProgress(progress);
@@ -109,11 +112,7 @@ function uploadFileAttachment(attachment) {
     }
 }
 
-function uploadFile(file, progressCallback, successCallback) {
-    const editorElement = document.querySelector("trix-editor");
-    if (!editorElement) return;
-
-    const uploadUrl = editorElement.dataset.uploadUrl;
+function uploadFile(file, uploadUrl, progressCallback, successCallback) {
     const csrfToken = document
         .querySelector('meta[name="csrf-token"]')
         ?.getAttribute("content");

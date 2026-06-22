@@ -29,7 +29,7 @@
                     <div>
                         <label for="upa_head_name"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
-                            Nama Lengkap (beserta gelar)
+                            Nama Lengkap (beserta gelar) <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <span
@@ -49,7 +49,7 @@
                     <div>
                         <label for="upa_head_nip"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
-                            NIP
+                            NIP <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <span
@@ -69,7 +69,7 @@
                     <div>
                         <label for="upa_head_position"
                             class="block text-sm font-medium text-text-light dark:text-text-dark mb-2">
-                            Jabatan (Tertulis di Surat)
+                            Jabatan (Tertulis di Surat) <span class="text-red-500">*</span>
                         </label>
                         <div class="relative">
                             <span

@@ -10,6 +10,7 @@ use App\Enums\UserRole;
 use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
+use App\Models\ServiceReplyTemplate;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
@@ -98,7 +99,15 @@ class GuestTicketController extends Controller
             ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
-        return view('guest-tickets.show', compact('ticket', 'admins', 'services'));
+        // Query template jawaban untuk admin/superuser yang login
+        $replyTemplate = null;
+        if (auth()->check() && in_array(auth()->user()->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+            $replyTemplate = ServiceReplyTemplate::where('service_id', $ticket->service_id)
+                ->where('user_id', auth()->id())
+                ->value('template');
+        }
+
+        return view('guest-tickets.show', compact('ticket', 'admins', 'services', 'replyTemplate'));
     }
 
     public function create()
@@ -116,7 +125,7 @@ class GuestTicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'full_name' => 'required|string|max:100',
+            'full_name' => 'required|string|max:50',
             'email' => [
                 'required',
                 'email',
@@ -127,8 +136,8 @@ class GuestTicketController extends Controller
                     }
                 },
             ],
-            'phone' => 'nullable|string|max:20|regex:/^([0-9\s\-\+\(\)]*)$/',
-            'identity_number' => 'required|string|max:50',
+            'phone' => 'nullable|string|regex:/^[0-9]+$/|max:20',
+            'identity_number' => 'required|string|regex:/^[0-9]+$/|max:32',
             'department_id' => 'required|exists:departments,id',
             'other_department' => [
                 'nullable',
@@ -208,6 +217,18 @@ class GuestTicketController extends Controller
                     $attachment->update(['ticket_id' => $ticket->id]);
                 }
             });
+
+        $admins = User::whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value])->get();
+        $titleAdmin = 'Tiket Baru';
+        $messageAdmin = "Terdapat tiket baru (*#{$ticket->ticket_code}*) untuk layanan *{$ticket->service->name}* dari *".$validated['full_name'].'*. Mohon segera ditinjau.';
+
+        Notification::send($admins, new SystemNotification(
+            $titleAdmin,
+            $messageAdmin,
+            route('tickets.show', $ticket),
+            'info',
+            ['database']
+        ));
 
         $titleGuest = 'Laporan Anda Berhasil Diterima';
         $messageGuest = "Halo *{$validated['full_name']}*, laporan Anda terkait layanan *{$ticket->service->name}* telah berhasil kami terima dan simpan dengan kode tiket *#{$ticket->ticket_code}*. Silakan klik tautan di bawah ini untuk melihat detail dan memantau status penanganan tiket Anda secara berkala.";

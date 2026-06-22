@@ -47,10 +47,7 @@
     <td class="px-6 py-4 text-sm text-right whitespace-nowrap">
         <div
             class="flex items-center justify-end space-x-2 opacity-100 sm:opacity-0 group-hover:opacity-100 transition-opacity">
-            <button type="button" onclick="openEditServiceModal(this)" data-id="{{ $service->id }}"
-                data-name="{{ $service->name }}" data-notes="{{ $service->notes }}"
-                data-active="{{ $service->is_active ? 1 : 0 }}" data-guest="{{ $service->show_to_guest ? 1 : 0 }}"
-                data-user="{{ $service->show_to_user ? 1 : 0 }}"
+            <button type="button" onclick="openEditServiceModal({{ $service->id }})"
                 class="p-1.5 text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-900/20 rounded-md transition-colors"
                 title="Ubah">
                 <span class="material-icons-round text-lg">edit</span>

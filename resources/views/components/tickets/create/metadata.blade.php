@@ -1,25 +1,23 @@
 @props(['services'])
 
-<div
-    class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark">
+@php
+    $oldServiceId = old('service_id');
+    $oldServiceName = $oldServiceId ? $services->find($oldServiceId)?->name ?? 'Pilih Layanan...' : 'Pilih Layanan...';
+@endphp
+
+<div class="bg-surface-light dark:bg-surface-dark p-6 rounded-xl shadow-sm border border-border-light dark:border-border-dark"
+    x-data='{ 
+        open: false, 
+        selected: "{{ $oldServiceId }}", 
+        label: "{{ $oldServiceName }}",
+        listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes]))
+    }'>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
             <label class="block text-sm font-semibold text-text-light dark:text-text-dark mb-2">
                 Jenis Layanan <span class="text-red-500">*</span>
             </label>
-            @php
-                $oldServiceId = old('service_id');
-                $oldServiceName = $oldServiceId
-                    ? $services->find($oldServiceId)?->name ?? 'Pilih Layanan...'
-                    : 'Pilih Layanan...';
-            @endphp
-            <div class="relative w-full"
-                x-data='{ 
-                open: false, 
-                selected: "{{ $oldServiceId }}", 
-                label: "{{ $oldServiceName }}",
-                listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes]))
-            }'>
+            <div class="relative w-full">
                 <input type="hidden" name="service_id" x-model="selected">
                 <button type="button" @click="open = !open"
                     class="w-full flex items-center justify-between px-4 py-2.5 border border-border-light dark:border-border-dark rounded-lg bg-gray-50 dark:bg-slate-800 text-text-light dark:text-text-dark shadow-sm hover:bg-gray-100 dark:hover:bg-slate-700/50 transition-colors">
@@ -45,16 +43,6 @@
                                 class="material-icons-round text-sm text-secondary">check</span>
                         </button>
                     @endforeach
-                </div>
-
-                <div x-show="selected && listLayanan[selected] && listLayanan[selected].req" x-cloak x-transition
-                    class="mt-3 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300 flex gap-2.5">
-                    <span class="material-icons-round text-blue-500 shrink-0">info</span>
-                    <div>
-                        <p class="font-semibold mb-0.5">Catatan Layanan</p>
-                        <p x-text="listLayanan[selected].req"
-                            class="whitespace-pre-line text-blue-700 dark:text-blue-400/90"></p>
-                    </div>
                 </div>
             </div>
             @error('service_id')
@@ -110,5 +98,15 @@
                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
             @enderror
         </div>
+    </div>
+
+    <div x-show="selected && listLayanan[selected] && listLayanan[selected].req" x-cloak x-transition
+        class="mt-6 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300">
+        <div class="flex items-center gap-2 mb-1.5">
+            <span class="material-icons-round text-blue-500 shrink-0">info</span>
+            <p class="font-semibold">Catatan Layanan</p>
+        </div>
+        <p x-text="listLayanan[selected].req"
+            class="whitespace-pre-line text-blue-700 dark:text-blue-400/90 break-words"></p>
     </div>
 </div>

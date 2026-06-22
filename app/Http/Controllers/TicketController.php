@@ -9,6 +9,7 @@ use App\Enums\UserRole;
 use App\Helpers\OffHoursHelper;
 use App\Models\Configuration;
 use App\Models\Service;
+use App\Models\ServiceReplyTemplate;
 use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
@@ -182,7 +183,15 @@ class TicketController extends Controller
             ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC, LOWER(name) ASC")
             ->get(['id', 'name']);
 
-        return view('tickets.show', compact('ticket', 'admins', 'services'));
+        // Query template jawaban untuk admin/superuser yang login
+        $replyTemplate = null;
+        if (in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER])) {
+            $replyTemplate = ServiceReplyTemplate::where('service_id', $ticket->service_id)
+                ->where('user_id', $user->id)
+                ->value('template');
+        }
+
+        return view('tickets.show', compact('ticket', 'admins', 'services', 'replyTemplate'));
     }
 
     public function store(Request $request)
@@ -238,6 +247,18 @@ class TicketController extends Controller
                 }
             });
 
+        $admins = User::whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value])->get();
+        $title = 'Tiket Baru';
+        $message = "Terdapat tiket baru (*#{$ticket->ticket_code}*) untuk layanan *{$ticket->service->name}* dari *".auth()->user()->name.'*. Mohon segera ditinjau.';
+
+        Notification::send($admins, new SystemNotification(
+            $title,
+            $message,
+            route('tickets.show', $ticket),
+            'info',
+            ['database']
+        ));
+
         $successMessage = 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.';
         if (OffHoursHelper::isOutsideWorkingHours()) {
             $successMessage .= ' Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional (Senin-Kamis: 08.00-16.00 WIB, Jumat: 08.00-16.30 WIB).';
@@ -290,7 +311,7 @@ class TicketController extends Controller
                 ));
         }
 
-        return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Tiket berhasil ditugaskan ke Anda.');
     }
 
     public function updateAssignee(Request $request, Ticket $ticket)

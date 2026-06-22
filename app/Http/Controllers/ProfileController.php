@@ -34,7 +34,7 @@ class ProfileController extends Controller
         $isAdminOrSuperuser = in_array($user->role, [UserRole::ADMIN, UserRole::SUPERUSER]);
 
         $rules = [
-            'phone' => ['nullable', 'string', 'max:20'],
+            'phone' => ['nullable', 'string', 'regex:/^[0-9]+$/', 'max:20'],
             'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // Max 2MB
         ];
 

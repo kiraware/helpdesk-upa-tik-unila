@@ -102,9 +102,10 @@
                             class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">Nomor WhatsApp /
                             Telepon</label>
                         <input type="tel" name="phone" id="phone" value="{{ old('phone', $user->phone) }}"
-                            placeholder="Contoh: 081234567890"
+                            maxlength="20" placeholder="Contoh: 081234567890"
                             class="block w-full px-4 h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm"
-                            inputmode="numeric" pattern="[0-9]*">
+                            inputmode="numeric" pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                         @error('phone')
                             <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
                         @enderror

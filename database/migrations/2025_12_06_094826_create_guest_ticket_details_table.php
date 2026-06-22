@@ -19,7 +19,7 @@ return new class extends Migration
                 ->constrained('tickets')
                 ->cascadeOnDelete();
             $table->string('full_name', 50);
-            $table->string('email')->nullable();
+            $table->string('email', 100)->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('identity_number', 32);
             $table->foreignId('department_id')

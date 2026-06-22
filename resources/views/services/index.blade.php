@@ -73,7 +73,9 @@
     </div>
 
     <x-services.modal-add />
-    <x-services.modal-edit />
+    @foreach ($services as $service)
+        <x-services.modal-edit :service="$service" :replyTemplate="$myTemplates[$service->id] ?? ''" />
+    @endforeach
     <x-services.modal-delete />
 
     <script>
@@ -89,31 +91,14 @@
             modal.classList.remove('flex');
         }
 
-        function openEditServiceModal(button) {
-            const {
-                id,
-                name,
-                notes,
-                active,
-                guest,
-                user
-            } = button.dataset;
-
-            document.getElementById('edit_name').value = name;
-            document.getElementById('edit_notes').value = notes || '';
-            document.getElementById('edit_is_active').checked = active == 1;
-            document.getElementById('edit_show_to_guest').checked = guest == 1;
-            document.getElementById('edit_show_to_user').checked = user == 1;
-
-            document.getElementById('editServiceForm').action = `/services/${id}`;
-
-            const modal = document.getElementById('editServiceModal');
+        function openEditServiceModal(id) {
+            const modal = document.getElementById('editServiceModal_' + id);
             modal.classList.remove('hidden');
             modal.classList.add('flex');
         }
 
-        function closeEditServiceModal() {
-            const modal = document.getElementById('editServiceModal');
+        function closeEditServiceModal(id) {
+            const modal = document.getElementById('editServiceModal_' + id);
             modal.classList.add('hidden');
             modal.classList.remove('flex');
         }

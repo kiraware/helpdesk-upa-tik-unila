@@ -29,7 +29,7 @@
                             <span class="material-icons-round text-[18px]">account_circle</span>
                         </div>
                         <input type="text" name="username_sso" value="{{ old('username_sso') }}" required
-                            placeholder="Contoh: budi.santoso"
+                            maxlength="50" placeholder="Contoh: budi.santoso"
                             class="block w-full pl-10 pr-4 h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm">
                     </div>
                 </div>
@@ -41,9 +41,11 @@
                         <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
                             <span class="material-icons-round text-[18px]">phone</span>
                         </div>
-                        <input type="text" name="phone" value="{{ old('phone') }}"
+                        <input type="text" name="phone" value="{{ old('phone') }}" maxlength="20"
                             placeholder="Contoh: 081234567890"
-                            class="block w-full pl-10 pr-4 h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm">
+                            class="block w-full pl-10 pr-4 h-11 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white placeholder-slate-400 focus:border-blue-500 focus:ring-blue-500 transition-colors shadow-sm sm:text-sm"
+                            inputmode="numeric" pattern="[0-9]*"
+                            oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                     </div>
                 </div>
 

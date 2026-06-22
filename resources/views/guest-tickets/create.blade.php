@@ -27,128 +27,131 @@
                         <span>Detail Permasalahan</span>
                     </h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div x-data='{
-                            open: false,
-                            selected: "{{ old('service_id') }}",
-                            listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes])),
-                            get currentLayanan() {
-                                return this.selected && this.listLayanan[this.selected]
-                                    ? this.listLayanan[this.selected]
-                                    : null;
-                            },
-                            get hasReq() {
-                                return this.currentLayanan !== null
-                                    && this.currentLayanan.req !== null
-                                    && this.currentLayanan.req !== "";
-                            }
-                        }'
-                            class="relative">
+                    <div
+                        x-data='{
+                        open: false,
+                        selected: "{{ old('service_id') }}",
+                        listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes])),
+                        get currentLayanan() {
+                            return this.selected && this.listLayanan[this.selected]
+                                ? this.listLayanan[this.selected]
+                                : null;
+                        },
+                        get hasReq() {
+                            return this.currentLayanan !== null
+                                && this.currentLayanan.req !== null
+                                && this.currentLayanan.req !== "";
+                        }
+                    }'>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="relative">
 
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Jenis Layanan <span class="text-red-500">*</span>
-                            </label>
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                    Jenis Layanan <span class="text-red-500">*</span>
+                                </label>
 
-                            <input type="hidden" name="service_id" :value="selected" required>
+                                <input type="hidden" name="service_id" :value="selected" required>
 
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
 
-                                <span class="flex items-center gap-2 truncate">
-                                    <span class="material-icons-round text-base text-slate-400">dns</span>
-                                    <span x-text="currentLayanan ? currentLayanan.name : 'Pilih Layanan...'"></span>
-                                </span>
+                                    <span class="flex items-center gap-2 truncate">
+                                        <span class="material-icons-round text-base text-slate-400">dns</span>
+                                        <span x-text="currentLayanan ? currentLayanan.name : 'Pilih Layanan...'"></span>
+                                    </span>
 
-                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
-                                    :class="open ? 'rotate-180' : ''">expand_more</span>
-                            </button>
+                                    <span class="material-icons-round text-slate-400 transition-transform duration-200"
+                                        :class="open ? 'rotate-180' : ''">expand_more</span>
+                                </button>
 
-                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-75"
-                                x-transition:leave-start="opacity-100 scale-100"
-                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
-                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
+                                    class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
 
-                                <div class="max-h-60 overflow-y-auto">
-                                    @foreach ($services as $service)
-                                        <button type="button" @click="selected='{{ $service->id }}'; open=false"
-                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ old('service_id') == $service->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">
-                                            {{ $service->name }}
+                                    <div class="max-h-60 overflow-y-auto">
+                                        @foreach ($services as $service)
+                                            <button type="button" @click="selected='{{ $service->id }}'; open=false"
+                                                class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ old('service_id') == $service->id ? 'font-semibold text-blue-600 bg-blue-50/50' : '' }}">
+                                                {{ $service->name }}
+                                            </button>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                @error('service_id')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
+                            </div>
+
+                            <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                                    Tingkat Urgensi <span class="text-red-500">*</span>
+                                </label>
+
+                                <input type="hidden" name="priority" :value="selected" required>
+
+                                <button type="button" @click="open = !open"
+                                    class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+
+                                    <span class="flex items-center gap-2 truncate">
+                                        <span class="material-icons-round text-base text-slate-400">priority_high</span>
+                                        <span
+                                            x-text="selected ? selected.charAt(0).toUpperCase() + selected.slice(1) : 'Pilih Prioritas...'"></span>
+                                    </span>
+
+                                    <span class="material-icons-round text-slate-400 transition-transform duration-200"
+                                        :class="open ? 'rotate-180' : ''">expand_more</span>
+                                </button>
+
+                                <div x-show="open" x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
+                                    class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
+
+                                    @foreach (\App\Enums\TicketPriority::cases() as $priority)
+                                        @php
+                                            $color = match ($priority->value) {
+                                                'high' => 'text-red-600',
+                                                'medium' => 'text-yellow-600',
+                                                'low' => 'text-slate-600',
+                                            };
+                                        @endphp
+
+                                        <button type="button" @click="selected='{{ $priority->value }}'; open=false"
+                                            class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ $color }} {{ old('priority') === $priority->value ? 'font-semibold bg-slate-50' : '' }}">
+                                            {{ ucfirst($priority->value) }}
                                         </button>
                                     @endforeach
                                 </div>
+
+                                @error('priority')
+                                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
+                                @enderror
                             </div>
 
-                            @error('service_id')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-
-                            <div x-show="hasReq" x-cloak x-transition:enter="transition ease-out duration-200"
-                                x-transition:enter-start="opacity-0 -translate-y-1"
-                                x-transition:enter-end="opacity-100 translate-y-0"
-                                x-transition:leave="transition ease-in duration-150"
-                                x-transition:leave-start="opacity-100 translate-y-0"
-                                x-transition:leave-end="opacity-0 -translate-y-1"
-                                class="mt-3 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300 flex gap-2.5">
-                                <span class="material-icons-round text-blue-500 shrink-0">info</span>
-                                <div>
-                                    <p class="font-semibold mb-0.5">Catatan Layanan</p>
-                                    <p x-text="currentLayanan ? currentLayanan.req : ''"
-                                        class="whitespace-pre-line text-blue-700 dark:text-blue-400/90">
-                                    </p>
-                                </div>
-                            </div>
                         </div>
 
-                        <div x-data="{ open: false, selected: '{{ old('priority') }}' }" class="relative">
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Tingkat Urgensi <span class="text-red-500">*</span>
-                            </label>
-
-                            <input type="hidden" name="priority" :value="selected" required>
-
-                            <button type="button" @click="open = !open"
-                                class="w-full flex items-center justify-between px-4 h-11 border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-sm text-slate-700 dark:text-slate-200 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
-
-                                <span class="flex items-center gap-2 truncate">
-                                    <span class="material-icons-round text-base text-slate-400">priority_high</span>
-                                    <span
-                                        x-text="selected ? selected.charAt(0).toUpperCase() + selected.slice(1) : 'Pilih Prioritas...'"></span>
-                                </span>
-
-                                <span class="material-icons-round text-slate-400 transition-transform duration-200"
-                                    :class="open ? 'rotate-180' : ''">expand_more</span>
-                            </button>
-
-                            <div x-show="open" x-transition:enter="transition ease-out duration-100"
-                                x-transition:enter-start="opacity-0 scale-95"
-                                x-transition:enter-end="opacity-100 scale-100"
-                                x-transition:leave="transition ease-in duration-75"
-                                x-transition:leave-start="opacity-100 scale-100"
-                                x-transition:leave-end="opacity-0 scale-95" x-cloak @click.outside="open = false"
-                                class="absolute z-30 mt-1 w-full rounded-xl overflow-hidden shadow-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-800/95 backdrop-blur-md">
-
-                                @foreach (\App\Enums\TicketPriority::cases() as $priority)
-                                    @php
-                                        $color = match ($priority->value) {
-                                            'high' => 'text-red-600',
-                                            'medium' => 'text-yellow-600',
-                                            'low' => 'text-slate-600',
-                                        };
-                                    @endphp
-
-                                    <button type="button" @click="selected='{{ $priority->value }}'; open=false"
-                                        class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-100/70 dark:hover:bg-slate-700/60 transition-colors {{ $color }} {{ old('priority') === $priority->value ? 'font-semibold bg-slate-50' : '' }}">
-                                        {{ ucfirst($priority->value) }}
-                                    </button>
-                                @endforeach
+                        <div x-show="hasReq" x-cloak x-transition:enter="transition ease-out duration-200"
+                            x-transition:enter-start="opacity-0 -translate-y-1"
+                            x-transition:enter-end="opacity-100 translate-y-0"
+                            x-transition:leave="transition ease-in duration-150"
+                            x-transition:leave-start="opacity-100 translate-y-0"
+                            x-transition:leave-end="opacity-0 -translate-y-1"
+                            class="mt-6 p-3.5 rounded-lg bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 text-sm text-blue-800 dark:text-blue-300">
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="material-icons-round text-blue-500 shrink-0">info</span>
+                                <p class="font-semibold">Catatan Layanan</p>
                             </div>
-
-                            @error('priority')
-                                <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                            @enderror
+                            <p x-text="currentLayanan ? currentLayanan.req : ''"
+                                class="whitespace-pre-line text-blue-700 dark:text-blue-400/90 break-words">
+                            </p>
                         </div>
 
                     </div>
@@ -175,7 +178,7 @@
                                 <trix-editor input="x_description"
                                     data-upload-url="{{ route('guest.tickets.upload.attachment') }}"
                                     data-max-size="{{ $maxSizeKp }}" data-accept="{{ $acceptedMimes }}"
-                                    class="min-h-50 prose dark:prose-invert max-w-none bg-transparent border-none focus:outline-none px-0 pb-2"
+                                    class="prose dark:prose-invert max-w-none text-text-light dark:text-text-dark bg-transparent w-full max-w-full overflow-x-hidden break-words [word-break:break-word]"
                                     placeholder="Jelaskan kronologi dan detail masalah Anda..."></trix-editor>
                             </div>
                         </div>
@@ -220,6 +223,7 @@
                                 Nama Lengkap <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="full_name" value="{{ old('full_name') }}" required
+                                maxlength="50"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 placeholder="Sesuai kartu identitas">
                             @error('full_name')
@@ -239,7 +243,7 @@
                             <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Gunakan email
                                 aktif yang bisa
                                 diakses.</p>
-                            <input type="email" name="email" x-model="email" required
+                            <input type="email" name="email" x-model="email" required maxlength="100"
                                 class="w-full h-11 px-4 rounded-lg border bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 :class="isUnilaEmail ?
                                     'border-red-500 focus:ring-red-500 focus:border-red-500' :
@@ -258,13 +262,14 @@
                                 class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Nomor WhatsApp
                             </label>
-                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Opsional, untuk
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Untuk
                                 mempermudah
                                 komunikasi.</p>
                             <input type="tel" name="phone" id="phone" value="{{ old('phone') }}"
-                                placeholder="Contoh: 081234567890"
+                                maxlength="20" placeholder="Contoh: 081234567890"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                inputmode="numeric" pattern="[0-9]*">
+                                inputmode="numeric" pattern="[0-9]*"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             @error('phone')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -272,12 +277,13 @@
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                Nomor Identitas <span class="text-red-500">*</span>
+                                NPM / NIP / NIK <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="identity_number" value="{{ old('identity_number') }}"
-                                required
+                                required maxlength="32"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                placeholder="Nomor KTM / NIP / NIK / SK">
+                                placeholder="Contoh: 1234567890" inputmode="numeric" pattern="[0-9]*"
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                             @error('identity_number')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror

@@ -89,6 +89,14 @@ class User extends Authenticatable
         return $this->hasMany(Ticket::class, 'assigned_to');
     }
 
+    /**
+     * Relasi: Template jawaban layanan milik user ini (khusus Staff/Admin)
+     */
+    public function replyTemplates(): HasMany
+    {
+        return $this->hasMany(ServiceReplyTemplate::class);
+    }
+
     public function routeNotificationForWhatsapp($notification)
     {
         return $this->phone;
