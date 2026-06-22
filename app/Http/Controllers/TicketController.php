@@ -311,7 +311,7 @@ class TicketController extends Controller
                 ));
         }
 
-        return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Tiket berhasil ditugaskan ke Anda.');
     }
 
     public function updateAssignee(Request $request, Ticket $ticket)
