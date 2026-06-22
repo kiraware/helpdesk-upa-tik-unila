@@ -37,9 +37,8 @@
                         }
 
                         $maxSizeKp = 2048; // 2MB dalam KB
-                        $acceptedMimes =
-                            'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
-                        $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+                        $acceptedMimes = 'image/jpeg,image/png,application/pdf';
+                        $readableFormat = 'JPG, PNG, PDF';
                     @endphp
 
                     @if (!$isClosed)

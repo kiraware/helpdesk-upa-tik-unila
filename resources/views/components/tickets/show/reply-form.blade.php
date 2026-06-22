@@ -10,9 +10,8 @@
         : 'https://ui-avatars.com/api/?name=' . urlencode($user->name);
 
     $maxSizeKp = 2048; // 2MB dalam KB
-    $acceptedMimes =
-        'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
-    $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+    $acceptedMimes = 'image/jpeg,image/png,application/pdf';
+    $readableFormat = 'JPG, PNG, PDF';
 
     $isStaff = in_array($user->role, [\App\Enums\UserRole::ADMIN, \App\Enums\UserRole::SUPERUSER]);
 @endphp

@@ -159,9 +159,8 @@
                     <div>
                         @php
                             $maxSizeKp = 2048; // 2MB dalam KB
-                            $acceptedMimes =
-                                'image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip';
-                            $readableFormat = 'JPG, PNG, PDF, DOC, DOCX, ZIP';
+                            $acceptedMimes = 'image/jpeg,image/png,application/pdf';
+                            $readableFormat = 'JPG, PNG, PDF';
                         @endphp
 
                         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 pl-1">

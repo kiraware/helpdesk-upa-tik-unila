@@ -76,7 +76,7 @@ class GuestTicketCommentController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf'],
         ]);
 
         if ($request->hasFile('file')) {

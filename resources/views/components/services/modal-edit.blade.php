@@ -120,7 +120,7 @@
 
                             <trix-editor input="edit_reply_template_{{ $service->id }}"
                                 data-upload-url="{{ route('comments.upload.attachments') }}" data-max-size="2048"
-                                data-accept="image/jpeg,image/png,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/zip"
+                                data-accept="image/jpeg,image/png,application/pdf"
                                 class="prose dark:prose-invert max-w-none
                                        text-text-light dark:text-text-dark
                                        bg-transparent"
@@ -140,7 +140,7 @@
                             </p>
                             <p>
                                 Max <strong>2MB</strong>.
-                                Format: JPG, PNG, PDF, DOC, DOCX, ZIP.
+                                Format: JPG, PNG, PDF.
                             </p>
                         </div>
                     </div>
