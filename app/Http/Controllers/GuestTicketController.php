@@ -218,6 +218,18 @@ class GuestTicketController extends Controller
                 }
             });
 
+        $admins = User::whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value])->get();
+        $titleAdmin = 'Tiket Baru';
+        $messageAdmin = "Terdapat tiket baru (*#{$ticket->ticket_code}*) untuk layanan *{$ticket->service->name}* dari *".$validated['full_name'].'*. Mohon segera ditinjau.';
+
+        Notification::send($admins, new SystemNotification(
+            $titleAdmin,
+            $messageAdmin,
+            route('tickets.show', $ticket),
+            'info',
+            ['database']
+        ));
+
         $titleGuest = 'Laporan Anda Berhasil Diterima';
         $messageGuest = "Halo *{$validated['full_name']}*, laporan Anda terkait layanan *{$ticket->service->name}* telah berhasil kami terima dan simpan dengan kode tiket *#{$ticket->ticket_code}*. Silakan klik tautan di bawah ini untuk melihat detail dan memantau status penanganan tiket Anda secara berkala.";
         $guestChannels = ['mail'];

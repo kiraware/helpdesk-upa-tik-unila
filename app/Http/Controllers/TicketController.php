@@ -247,6 +247,18 @@ class TicketController extends Controller
                 }
             });
 
+        $admins = User::whereIn('role', [UserRole::ADMIN->value, UserRole::SUPERUSER->value])->get();
+        $title = 'Tiket Baru';
+        $message = "Terdapat tiket baru (*#{$ticket->ticket_code}*) untuk layanan *{$ticket->service->name}* dari *".auth()->user()->name.'*. Mohon segera ditinjau.';
+
+        Notification::send($admins, new SystemNotification(
+            $title,
+            $message,
+            route('tickets.show', $ticket),
+            'info',
+            ['database']
+        ));
+
         $successMessage = 'Tiket berhasil dibuat. Tim kami akan segera meninjaunya.';
         if (OffHoursHelper::isOutsideWorkingHours()) {
             $successMessage .= ' Pengerjaan tiket akan dilakukan pada hari dan jam kerja operasional (Senin-Kamis: 08.00-16.00 WIB, Jumat: 08.00-16.30 WIB).';
@@ -299,7 +311,7 @@ class TicketController extends Controller
                 ));
         }
 
-        return back()->with('success', 'Tiket berhasil ditugaskan ke Anda.');
+        return redirect()->route('tickets.show', $ticket)->with('success', 'Tiket berhasil ditugaskan ke Anda.');
     }
 
     public function updateAssignee(Request $request, Ticket $ticket)
