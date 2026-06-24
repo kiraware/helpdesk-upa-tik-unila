@@ -7,6 +7,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Helpers\ImageSanitizer;
 use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
@@ -15,6 +16,7 @@ use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
 use App\Notifications\SystemNotification;
+use App\Rules\SafeFile;
 use App\Rules\ValidRecaptcha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -269,12 +271,14 @@ class GuestTicketController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf'],
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf', new SafeFile],
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $path = $file->store('ticket-attachments', 'public');
+
+            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             $attachment = TicketAttachment::create([
                 'ticket_id' => null,

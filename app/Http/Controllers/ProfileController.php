@@ -3,8 +3,10 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
+use App\Helpers\ImageSanitizer;
 use App\Models\Department;
 use App\Models\Division;
+use App\Rules\SafeFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -35,7 +37,7 @@ class ProfileController extends Controller
 
         $rules = [
             'phone' => ['nullable', 'string', 'regex:/^[0-9]+$/', 'max:20'],
-            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'], // Max 2MB
+            'avatar' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048', new SafeFile], // Max 2MB
         ];
 
         if ($isAdminOrSuperuser) {
@@ -52,6 +54,9 @@ class ProfileController extends Controller
             }
 
             $path = $request->file('avatar')->store('avatars', 'public');
+
+            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $request->file('avatar')->getClientOriginalExtension());
+
             $user->avatar_path = $path;
         }
 
