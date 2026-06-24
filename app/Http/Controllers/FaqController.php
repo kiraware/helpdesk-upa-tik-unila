@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ImageSanitizer;
 use App\Models\Faq;
+use App\Rules\SafeFile;
 use Illuminate\Http\Request;
 
 class FaqController extends Controller
@@ -37,12 +39,14 @@ class FaqController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf', new SafeFile],
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $path = $file->store('faq-attachments', 'public');
+
+            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             return response()->json([
                 'url' => asset('storage/'.$path),

@@ -7,6 +7,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
+use App\Helpers\ImageSanitizer;
 use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
@@ -15,6 +16,7 @@ use App\Models\Ticket;
 use App\Models\TicketAttachment;
 use App\Models\User;
 use App\Notifications\SystemNotification;
+use App\Rules\SafeFile;
 use App\Rules\ValidRecaptcha;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -151,8 +153,8 @@ class GuestTicketController extends Controller
                 },
             ],
             'entity_type' => ['required', new Enum(IdentityType::class)],
-            'photo_identity' => 'required|image|max:2048',
-            'photo_selfie' => 'required|image|max:2048',
+            'photo_identity' => ['required', 'image', 'max:2048', new SafeFile],
+            'photo_selfie' => ['required', 'image', 'max:2048', new SafeFile],
 
             'service_id' => [
                 'required',
@@ -192,6 +194,9 @@ class GuestTicketController extends Controller
 
             $identityPath = $request->file('photo_identity')->store('guest-identities', 'public');
             $selfiePath = $request->file('photo_selfie')->store('guest-selfies', 'public');
+
+            ImageSanitizer::sanitize(storage_path('app/public/'.$identityPath), $request->file('photo_identity')->getClientOriginalExtension());
+            ImageSanitizer::sanitize(storage_path('app/public/'.$selfiePath), $request->file('photo_selfie')->getClientOriginalExtension());
 
             $newTicket->guestDetail()->create([
                 'full_name' => $validated['full_name'],
@@ -269,12 +274,14 @@ class GuestTicketController extends Controller
     public function storeEmbeddedFile(Request $request)
     {
         $request->validate([
-            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf,doc,docx,zip'],
+            'file' => ['required', 'file', 'max:2048', 'mimes:jpg,jpeg,png,pdf', new SafeFile],
         ]);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
             $path = $file->store('ticket-attachments', 'public');
+
+            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             $attachment = TicketAttachment::create([
                 'ticket_id' => null,
