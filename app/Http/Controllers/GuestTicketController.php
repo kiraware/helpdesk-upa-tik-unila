@@ -153,8 +153,8 @@ class GuestTicketController extends Controller
                 },
             ],
             'entity_type' => ['required', new Enum(IdentityType::class)],
-            'photo_identity' => 'required|image|max:2048',
-            'photo_selfie' => 'required|image|max:2048',
+            'photo_identity' => ['required', 'image', 'max:2048', new SafeFile],
+            'photo_selfie' => ['required', 'image', 'max:2048', new SafeFile],
 
             'service_id' => [
                 'required',
@@ -194,6 +194,9 @@ class GuestTicketController extends Controller
 
             $identityPath = $request->file('photo_identity')->store('guest-identities', 'public');
             $selfiePath = $request->file('photo_selfie')->store('guest-selfies', 'public');
+
+            ImageSanitizer::sanitize(storage_path('app/public/'.$identityPath), $request->file('photo_identity')->getClientOriginalExtension());
+            ImageSanitizer::sanitize(storage_path('app/public/'.$selfiePath), $request->file('photo_selfie')->getClientOriginalExtension());
 
             $newTicket->guestDetail()->create([
                 'full_name' => $validated['full_name'],
