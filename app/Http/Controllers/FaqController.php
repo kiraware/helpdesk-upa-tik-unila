@@ -6,6 +6,7 @@ use App\Helpers\ImageSanitizer;
 use App\Models\Faq;
 use App\Rules\SafeFile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class FaqController extends Controller
 {
@@ -49,7 +50,7 @@ class FaqController extends Controller
             ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             return response()->json([
-                'url' => asset('storage/'.$path),
+                'url' => Storage::url($path),
             ]);
         }
 
