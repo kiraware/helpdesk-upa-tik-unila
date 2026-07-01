@@ -127,7 +127,16 @@ class GuestTicketController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'full_name' => 'required|string|max:50',
+            'full_name' => [
+                'required',
+                'string',
+                'max:50',
+                function ($attribute, $value, $fail) {
+                    if (preg_match('/[0-9]/', $value)) {
+                        $fail('Nama tidak boleh mengandung angka.');
+                    }
+                },
+            ],
             'email' => [
                 'required',
                 'email',
@@ -148,7 +157,7 @@ class GuestTicketController extends Controller
                 function ($attribute, $value, $fail) use ($request) {
                     $dept = Department::find($request->department_id);
                     if ($dept && strtolower($dept->name) === 'lainnya' && empty($value)) {
-                        $fail('Nama Fakultas / Unit Kerja wajib diisi jika memilih Lainnya.');
+                        $fail('Nama Instansi / Unit Lain wajib diisi jika memilih Lainnya.');
                     }
                 },
             ],
