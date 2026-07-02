@@ -21,6 +21,7 @@ use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TicketSurveyController;
 use App\Http\Controllers\UserController;
 use App\Http\Middleware\EnsureSurveyCompleted;
+use App\Models\Service;
 use App\Models\Ticket;
 use Illuminate\Support\Facades\Route;
 
@@ -38,7 +39,13 @@ Route::get('/sitemap.xml', function () {
 })->name('sitemap');
 
 Route::get('/', function () {
-    return view('welcome');
+    $services = Service::where('is_active', true)
+        ->orderByRaw("CASE WHEN LOWER(name) = 'lainnya' THEN 1 ELSE 0 END ASC")
+        ->orderBy('show_to_guest', 'desc')
+        ->orderBy('name', 'asc')
+        ->get();
+
+    return view('welcome', compact('services'));
 });
 
 Route::get('/faq', [FaqController::class, 'show'])->name('faq');
@@ -51,7 +58,6 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [SsoAuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 Route::controller(GuestTicketController::class)->group(function () {
-    Route::get('/tracking', 'index')->name('guest.tracking.index');
     Route::post('/tracking/search', 'search')->name('guest.tracking.search');
     Route::get('/create-ticket', 'create')->name('guest.tickets.create');
     Route::post('/create-ticket', 'store')->name('guest.tickets.store');

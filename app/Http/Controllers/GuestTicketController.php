@@ -27,14 +27,6 @@ use Illuminate\Validation\Rules\Enum;
 class GuestTicketController extends Controller
 {
     /**
-     * Menampilkan form pencarian tiket.
-     */
-    public function index()
-    {
-        return view('guest-tickets.index');
-    }
-
-    /**
      * Menangani logika pencarian tiket (Search Logic).
      */
     public function search(Request $request)
@@ -55,7 +47,10 @@ class GuestTicketController extends Controller
         if ($ticket->user_id) {
 
             if (! $user) {
-                return back()->withInput()->with('error', 'Tiket tidak ditemukan.');
+                session()->put('url.intended', route('tickets.show', $ticket));
+
+                return redirect()->route('login')
+                    ->with('info', 'Tiket ini memerlukan akses masuk. Silakan login untuk melihat detailnya.');
             }
 
             if ($user->role === UserRole::USER) {
@@ -84,7 +79,10 @@ class GuestTicketController extends Controller
     public function show(Request $request, Ticket $ticket)
     {
         if ($ticket->user_id) {
-            return redirect('/')->with('error', 'Tiket ini terdaftar sebagai tiket user internal. Silakan login untuk melihat.');
+            session()->put('url.intended', route('tickets.show', $ticket));
+
+            return redirect()->route('login')
+                ->with('info', 'Tiket ini memerlukan akses masuk. Silakan login untuk melihat detailnya.');
         }
 
         $ticket->load([

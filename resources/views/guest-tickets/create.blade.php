@@ -30,7 +30,7 @@
                     <div
                         x-data='{
                         open: false,
-                        selected: "{{ old('service_id') }}",
+                        selected: "{{ old('service_id', request('service_id')) }}",
                         listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes])),
                         get currentLayanan() {
                             return this.selected && this.listLayanan[this.selected]
