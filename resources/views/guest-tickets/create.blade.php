@@ -30,7 +30,7 @@
                     <div
                         x-data='{
                         open: false,
-                        selected: "{{ old('service_id') }}",
+                        selected: "{{ old('service_id', request('service_id')) }}",
                         listLayanan: @json($services->keyBy('id')->map(fn($s) => ['name' => $s->name, 'req' => $s->notes])),
                         get currentLayanan() {
                             return this.selected && this.listLayanan[this.selected]
@@ -224,7 +224,8 @@
                             <input type="text" name="full_name" value="{{ old('full_name') }}" required
                                 maxlength="50"
                                 class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                placeholder="Sesuai kartu identitas">
+                                placeholder="Sesuai kartu identitas"
+                                oninput="this.value = this.value.replace(/[0-9]/g, '')">
                             @error('full_name')
                                 <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -240,8 +241,7 @@
                                 Email Aktif <span class="text-red-500">*</span>
                             </label>
                             <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Gunakan email
-                                aktif yang bisa
-                                diakses.</p>
+                                aktif yang bisa diakses selain email domain unila.ac.id.</p>
                             <input type="email" name="email" x-model="email" required maxlength="100"
                                 class="w-full h-11 px-4 rounded-lg border bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
                                 :class="isUnilaEmail ?
@@ -276,7 +276,7 @@
 
                         <div>
                             <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                NPM / NIP / NIK <span class="text-red-500">*</span>
+                                NPM / NIP <span class="text-red-500">*</span>
                             </label>
                             <input type="text" name="identity_number" value="{{ old('identity_number') }}"
                                 required maxlength="32"
@@ -341,11 +341,11 @@
 
                             <div x-show="isLainnya" x-cloak class="mt-4">
                                 <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
-                                    Sebutkan Fakultas / Unit Kerja <span class="text-red-500">*</span>
+                                    Sebutkan Instansi / Unit Lain <span class="text-red-500">*</span>
                                 </label>
                                 <input type="text" name="other_department" value="{{ old('other_department') }}"
                                     class="w-full h-11 px-4 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all placeholder:text-slate-400 text-sm md:text-base"
-                                    placeholder="Nama Fakultas / Unit Kerja" :required="isLainnya">
+                                    placeholder="Nama Instansi / Unit Lain" :required="isLainnya">
                                 @error('other_department')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -379,9 +379,11 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Foto Kartu Identitas <span class="text-red-500">*</span>
                             </label>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Mahasiswa menggunakan KTM, Dosen
+                                / Tendik menggunakan Kartu Pegawai atau SK.</p>
 
                             <div class="relative group">
                                 <input type="file" name="photo_identity" id="photo_identity" accept="image/*"
@@ -419,9 +421,11 @@
                         </div>
 
                         <div>
-                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                            <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-0.5">
                                 Selfie dengan Kartu Identitas <span class="text-red-500">*</span>
                             </label>
+                            <p class="text-xs text-slate-500 dark:text-slate-400 mb-2">Mahasiswa menggunakan KTM, Dosen
+                                / Tendik menggunakan Kartu Pegawai atau SK.</p>
 
                             <div class="relative group">
                                 <input type="file" name="photo_selfie" id="photo_selfie" accept="image/*"

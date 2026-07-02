@@ -15,13 +15,6 @@
 
         <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <div class="max-w-3xl mx-auto space-y-8">
-                <!-- Badge matching Homepage style -->
-                <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-900/30 text-brand text-xs font-bold uppercase tracking-wide border border-blue-100 dark:border-blue-800 mb-2">
-                    <span class="material-icons-round text-sm">lightbulb</span>
-                    Pusat Bantuan & Informasi
-                </div>
-
                 <!-- Heading matching Homepage style -->
                 <h1
                     class="text-4xl lg:text-6xl font-bold tracking-tight text-text-light dark:text-text-dark leading-[1.15]">

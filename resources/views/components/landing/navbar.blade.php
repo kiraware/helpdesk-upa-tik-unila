@@ -31,15 +31,6 @@
                 </a>
 
                 @guest
-                    <a href="{{ route('guest.tracking.index') }}"
-                        class="text-sm font-medium text-text-light dark:text-text-dark 
-                               hover:bg-gray-100 dark:hover:bg-slate-800 
-                               px-4 py-2 rounded-lg transition-all">
-                        Cek Status Tiket
-                    </a>
-
-                    <div class="h-4 w-px bg-border-light dark:bg-border-dark mx-1"></div>
-
                     <a href="{{ route('login') }}"
                         class="text-sm font-semibold text-text-light dark:text-text-dark 
                                border border-border-light dark:border-border-dark 
@@ -133,11 +124,6 @@
                 class="block text-sm font-medium text-text-light dark:text-text-dark py-2 border-b border-border-light dark:border-border-dark">FAQ</a>
 
             @guest
-                <a href="{{ route('guest.tracking.index') }}"
-                    class="block text-sm font-medium text-text-light dark:text-text-dark py-2 hover:text-brand">
-                    Cek Status Tiket
-                </a>
-
                 <div class="pt-2 flex flex-col gap-3">
                     <a href="{{ route('login') }}"
                         class="block text-center text-sm font-semibold border border-border-light dark:border-border-dark py-2.5 rounded-lg dark:text-text-dark hover:bg-gray-50 dark:hover:bg-slate-800">

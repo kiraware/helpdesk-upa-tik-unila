@@ -1,7 +1,7 @@
 @props(['services'])
 
 @php
-    $oldServiceId = old('service_id');
+    $oldServiceId = old('service_id', request('service_id'));
     $oldServiceName = $oldServiceId ? $services->find($oldServiceId)?->name ?? 'Pilih Layanan...' : 'Pilih Layanan...';
 @endphp
 
