@@ -91,7 +91,7 @@ class Ticket extends Model
 
     public function comments(): HasMany
     {
-        return $this->hasMany(TicketComment::class);
+        return $this->hasMany(TicketComment::class)->orderBy('created_at', 'asc');
     }
 
     public function survey(): HasOne

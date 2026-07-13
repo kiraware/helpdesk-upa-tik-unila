@@ -33,7 +33,23 @@ class SafeFile implements ValidationRule
             return;
         }
 
-        // 2. Baca isi file untuk mendeteksi script berbahaya (XSS / RCE)
+        // 2. Untuk file gambar (jpg/jpeg/png), validasi bahwa file benar-benar
+        //    gambar yang valid menggunakan GD. Skip pattern scanning karena data
+        //    binary EXIF pada foto asli sering memicu false positive regex.
+        //    ImageSanitizer akan membersihkan EXIF dan data non-pixel setelah upload.
+        $imageExtensions = ['jpg', 'jpeg', 'png'];
+        if (in_array($extension, $imageExtensions)) {
+            $imageInfo = @getimagesize($value->getRealPath());
+
+            if ($imageInfo === false) {
+                $fail('File gambar tidak valid atau rusak.');
+            }
+
+            return;
+        }
+
+        // 3. Untuk file non-gambar (PDF, dll.), baca isi file untuk
+        //    mendeteksi script berbahaya (XSS / RCE)
         $content = file_get_contents($value->getRealPath());
 
         $maliciousPatterns = [
