@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\ImageSanitizer;
+use App\Helpers\FileSanitizer;
 use App\Models\Faq;
 use App\Rules\SafeFile;
 use Illuminate\Http\Request;
@@ -47,7 +47,7 @@ class FaqController extends Controller
             $file = $request->file('file');
             $path = $file->store('faq-attachments', 'public');
 
-            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             return response()->json([
                 'url' => Storage::url($path),

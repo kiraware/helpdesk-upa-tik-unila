@@ -36,7 +36,7 @@ class SafeFile implements ValidationRule
         // 2. Untuk file gambar (jpg/jpeg/png), validasi bahwa file benar-benar
         //    gambar yang valid menggunakan GD. Skip pattern scanning karena data
         //    binary EXIF pada foto asli sering memicu false positive regex.
-        //    ImageSanitizer akan membersihkan EXIF dan data non-pixel setelah upload.
+        //    FileSanitizer akan membersihkan EXIF dan data non-pixel setelah upload.
         $imageExtensions = ['jpg', 'jpeg', 'png'];
         if (in_array($extension, $imageExtensions)) {
             $imageInfo = @getimagesize($value->getRealPath());
@@ -48,27 +48,53 @@ class SafeFile implements ValidationRule
             return;
         }
 
-        // 3. Untuk file non-gambar (PDF, dll.), baca isi file untuk
-        //    mendeteksi script berbahaya (XSS / RCE)
+        // 3. Untuk file PDF, validasi struktur dan scan pola berbahaya PDF-specific
+        if ($extension === 'pdf') {
+            $content = file_get_contents($value->getRealPath());
+
+            // Validasi magic bytes — file PDF harus dimulai dengan %PDF-
+            if (substr($content, 0, 5) !== '%PDF-') {
+                $fail('File PDF tidak valid (header tidak sesuai).');
+
+                return;
+            }
+
+            // Pattern berbahaya yang spesifik untuk konteks PDF.
+            // CATATAN: Pattern seperti /OpenAction, /AA, /Launch TIDAK di-scan di sini
+            // karena sering muncul di PDF legitimate (contoh: /OpenAction untuk set tampilan awal).
+            // FileSanitizer akan menghapus semua action/JS/metadata via FPDI flat-copy setelah upload.
+            // Di sini kita hanya mendeteksi polyglot attacks (PHP/HTML disisipkan dalam PDF).
+            $pdfMaliciousPatterns = [
+                '/<\?php/i',             // Polyglot attack: PHP tag di dalam PDF
+                '/<\?=/i',              // Polyglot attack: PHP short echo tag
+                '/<script.*?>/i',       // HTML script tag di dalam PDF
+            ];
+
+            foreach ($pdfMaliciousPatterns as $pattern) {
+                if (preg_match($pattern, $content)) {
+                    $fail('Terdeteksi konten berbahaya di dalam file PDF yang diunggah.');
+
+                    return;
+                }
+            }
+
+            return;
+        }
+
+        // 4. Untuk file non-gambar dan non-PDF (fallback untuk tipe lain di masa depan)
         $content = file_get_contents($value->getRealPath());
 
-        $maliciousPatterns = [
-            '/<\?php/i',            // Tag pembuka PHP
+        $genericMaliciousPatterns = [
+            '/<\?php/i',             // Tag pembuka PHP
             '/<\?=/i',              // Tag echo PHP
             '/<script.*?>/i',       // Tag script HTML
-            '/eval\s*\(/i',         // Fungsi eval()
-            '/exec\s*\(/i',         // Fungsi exec()
-            '/shell_exec\s*\(/i',   // Fungsi shell_exec()
-            '/system\s*\(/i',       // Fungsi system()
-            '/passthru\s*\(/i',     // Fungsi passthru()
-            '/base64_decode\s*\(/i', // Fungsi base64_decode() sering digunakan obfuscation
             '/javascript:/i',       // Protokol javascript
             '/vbscript:/i',         // Protokol vbscript
-            '/onload=/i',           // Event handler onload
-            '/onerror=/i',          // Event handler onerror
+            '/onload\s*=/i',        // Event handler onload
+            '/onerror\s*=/i',       // Event handler onerror
         ];
 
-        foreach ($maliciousPatterns as $pattern) {
+        foreach ($genericMaliciousPatterns as $pattern) {
             if (preg_match($pattern, $content)) {
                 $fail('Terdeteksi konten berbahaya (skrip) di dalam file yang diunggah.');
 

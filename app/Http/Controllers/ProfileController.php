@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\UserRole;
-use App\Helpers\ImageSanitizer;
+use App\Helpers\FileSanitizer;
 use App\Models\Department;
 use App\Models\Division;
 use App\Rules\SafeFile;
@@ -55,7 +55,7 @@ class ProfileController extends Controller
 
             $path = $request->file('avatar')->store('avatars', 'public');
 
-            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $request->file('avatar')->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$path), $request->file('avatar')->getClientOriginalExtension());
 
             $user->avatar_path = $path;
         }

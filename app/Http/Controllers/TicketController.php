@@ -6,7 +6,7 @@ use App\Channels\WhatsAppChannel;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
-use App\Helpers\ImageSanitizer;
+use App\Helpers\FileSanitizer;
 use App\Helpers\OffHoursHelper;
 use App\Models\Configuration;
 use App\Models\Service;
@@ -570,7 +570,7 @@ class TicketController extends Controller
             $file = $request->file('file');
             $path = $file->store('ticket-attachments', 'public');
 
-            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             $attachment = TicketAttachment::create([
                 'ticket_id' => null,

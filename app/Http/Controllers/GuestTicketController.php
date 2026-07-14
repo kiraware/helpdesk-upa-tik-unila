@@ -7,7 +7,7 @@ use App\Enums\IdentityType;
 use App\Enums\TicketPriority;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
-use App\Helpers\ImageSanitizer;
+use App\Helpers\FileSanitizer;
 use App\Helpers\OffHoursHelper;
 use App\Models\Department;
 use App\Models\Service;
@@ -202,8 +202,8 @@ class GuestTicketController extends Controller
             $identityPath = $request->file('photo_identity')->store('guest-identities', 'public');
             $selfiePath = $request->file('photo_selfie')->store('guest-selfies', 'public');
 
-            ImageSanitizer::sanitize(storage_path('app/public/'.$identityPath), $request->file('photo_identity')->getClientOriginalExtension());
-            ImageSanitizer::sanitize(storage_path('app/public/'.$selfiePath), $request->file('photo_selfie')->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$identityPath), $request->file('photo_identity')->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$selfiePath), $request->file('photo_selfie')->getClientOriginalExtension());
 
             $newTicket->guestDetail()->create([
                 'full_name' => $validated['full_name'],
@@ -288,7 +288,7 @@ class GuestTicketController extends Controller
             $file = $request->file('file');
             $path = $file->store('ticket-attachments', 'public');
 
-            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             $attachment = TicketAttachment::create([
                 'ticket_id' => null,

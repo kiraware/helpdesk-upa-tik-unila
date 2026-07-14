@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Channels\WhatsAppChannel;
 use App\Enums\TicketStatus;
 use App\Enums\UserRole;
-use App\Helpers\ImageSanitizer;
+use App\Helpers\FileSanitizer;
 use App\Models\CommentAttachment;
 use App\Models\Ticket;
 use App\Notifications\SystemNotification;
@@ -117,7 +117,7 @@ class TicketCommentController extends Controller
             $file = $request->file('file');
             $path = $file->store('comment-attachments', 'public');
 
-            ImageSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
+            FileSanitizer::sanitize(storage_path('app/public/'.$path), $file->getClientOriginalExtension());
 
             $attachment = CommentAttachment::create([
                 'ticket_comment_id' => null,
