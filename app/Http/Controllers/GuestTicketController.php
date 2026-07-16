@@ -107,6 +107,10 @@ class GuestTicketController extends Controller
                 ->value('template');
         }
 
+        if ($replyTemplate) {
+            $replyTemplate = str_replace('%nama%', ucwords($ticket->guestDetail->full_name), $replyTemplate);
+        }
+
         return view('guest-tickets.show', compact('ticket', 'admins', 'services', 'replyTemplate'));
     }
 

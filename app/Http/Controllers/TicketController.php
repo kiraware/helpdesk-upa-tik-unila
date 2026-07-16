@@ -193,6 +193,11 @@ class TicketController extends Controller
                 ->value('template');
         }
 
+        if ($replyTemplate) {
+            $name = $ticket->user?->name ?? $ticket->guestDetail?->full_name;
+            $replyTemplate = str_replace('%nama%', ucwords($name), $replyTemplate);
+        }
+
         return view('tickets.show', compact('ticket', 'admins', 'services', 'replyTemplate'));
     }
 
