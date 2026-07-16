@@ -21,6 +21,11 @@ return new class extends Migration
 
         Schema::table('users', function (Blueprint $table) {
             $table->index('role');
+            $table->index('entity');
+        });
+
+        Schema::table('guest_ticket_details', function (Blueprint $table) {
+            $table->index('entity_type');
         });
 
         Schema::table('services', function (Blueprint $table) {
@@ -34,6 +39,20 @@ return new class extends Migration
         Schema::table('ticket_comments', function (Blueprint $table) {
             $table->index('ticket_id');
             $table->index('user_id');
+            $table->index('created_at');
+        });
+
+        Schema::table('notifications', function (Blueprint $table) {
+            $table->index('read_at');
+        });
+
+        Schema::table('survey_questions', function (Blueprint $table) {
+            $table->index(['is_active', 'sort_order']);
+        });
+
+        Schema::table('services', function (Blueprint $table) {
+            $table->index(['is_active', 'show_to_guest']);
+            $table->index(['is_active', 'show_to_user']);
         });
     }
 
@@ -52,6 +71,11 @@ return new class extends Migration
 
         Schema::table('users', function (Blueprint $table) {
             $table->dropIndex(['role']);
+            $table->dropIndex(['entity']);
+        });
+
+        Schema::table('guest_ticket_details', function (Blueprint $table) {
+            $table->dropIndex(['entity_type']);
         });
 
         Schema::table('services', function (Blueprint $table) {
@@ -65,6 +89,20 @@ return new class extends Migration
         Schema::table('ticket_comments', function (Blueprint $table) {
             $table->dropIndex(['ticket_id']);
             $table->dropIndex(['user_id']);
+            $table->dropIndex(['created_at']);
+        });
+
+        Schema::table('notifications', function (Blueprint $table) {
+            $table->dropIndex(['read_at']);
+        });
+
+        Schema::table('survey_questions', function (Blueprint $table) {
+            $table->dropIndex(['is_active', 'sort_order']);
+        });
+
+        Schema::table('services', function (Blueprint $table) {
+            $table->dropIndex(['is_active', 'show_to_guest']);
+            $table->dropIndex(['is_active', 'show_to_user']);
         });
     }
 };

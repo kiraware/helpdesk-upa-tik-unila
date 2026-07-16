@@ -16,7 +16,7 @@ return new class extends Migration
             $table->string('aspect_name');
             $table->string('satisfaction_question');
             $table->string('importance_question');
-            $table->integer('sort_order')->default(0);
+            $table->unsignedSmallInteger('sort_order')->default(0);
             $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
