@@ -12,11 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('ticket_surveys', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('ticket_id')
-                ->unique()
-                ->constrained('tickets')
-                ->cascadeOnDelete();
+            $table->increments('id');
+            $table->unsignedInteger('ticket_id')->unique();
+            $table->foreign('ticket_id')->references('id')->on('tickets')->cascadeOnDelete();
             $table->unsignedTinyInteger('overall_rating'); // Bintang 1-5
             $table->string('feedback')->nullable(); // Saran/Masukan
             $table->decimal('csi_score', 5, 2)->nullable(); // Nilai kalkulasi (0-100)

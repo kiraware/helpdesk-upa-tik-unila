@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('survey_questions', function (Blueprint $table) {
-            $table->id();
+            $table->tinyIncrements('id');
             $table->string('aspect_name');
             $table->string('satisfaction_question');
             $table->string('importance_question');

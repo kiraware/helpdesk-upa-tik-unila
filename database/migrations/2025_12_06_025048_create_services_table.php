@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('services', function (Blueprint $table) {
-            $table->id();
+            $table->tinyIncrements('id');
             $table->string('name', 50)->unique();
             $table->boolean('is_active')->default(true);
             $table->boolean('show_to_guest')->default(true);

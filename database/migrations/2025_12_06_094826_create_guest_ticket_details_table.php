@@ -13,19 +13,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('guest_ticket_details', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('ticket_id')
-                ->unique()
-                ->constrained('tickets')
-                ->cascadeOnDelete();
+            $table->increments('id');
+            $table->unsignedInteger('ticket_id')->unique();
+            $table->foreign('ticket_id')->references('id')->on('tickets')->cascadeOnDelete();
             $table->string('full_name', 50);
             $table->string('email', 100)->nullable();
             $table->string('phone', 20)->nullable();
             $table->string('identity_number', 32);
-            $table->foreignId('department_id')
-                ->nullable()
-                ->constrained('departments')
-                ->nullOnDelete();
+            $table->unsignedTinyInteger('department_id')->nullable();
+            $table->foreign('department_id')->references('id')->on('departments')->nullOnDelete();
             $table->string('other_department', 150)->nullable();
             $table->enum('entity_type', array_column(IdentityType::cases(), 'value'));
             $table->string('photo_identity_path')->nullable();

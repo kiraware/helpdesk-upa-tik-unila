@@ -12,9 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('service_reply_templates', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('service_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->smallIncrements('id');
+            $table->unsignedTinyInteger('service_id');
+            $table->foreign('service_id')->references('id')->on('services')->cascadeOnDelete();
+            $table->unsignedInteger('user_id');
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
             $table->text('template');
             $table->timestamps();
 

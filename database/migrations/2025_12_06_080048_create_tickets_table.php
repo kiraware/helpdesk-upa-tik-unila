@@ -14,19 +14,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('tickets', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('ticket_code', 6)->unique();
-            $table->foreignId('user_id')
-                ->nullable()
-                ->constrained('users')
-                ->cascadeOnDelete();
-            $table->foreignId('service_id')
-                ->constrained('services')
-                ->cascadeOnDelete();
-            $table->foreignId('assigned_to')
-                ->nullable()
-                ->constrained('users')
-                ->nullOnDelete();
+            $table->unsignedInteger('user_id')->nullable();
+            $table->foreign('user_id')->references('id')->on('users')->cascadeOnDelete();
+            $table->unsignedTinyInteger('service_id');
+            $table->foreign('service_id')->references('id')->on('services')->cascadeOnDelete();
+            $table->unsignedInteger('assigned_to')->nullable();
+            $table->foreign('assigned_to')->references('id')->on('users')->nullOnDelete();
             $table->enum('priority', array_column(TicketPriority::cases(), 'value'));
             $table->enum('status', array_column(TicketStatus::cases(), 'value'))
                 ->default(TicketStatus::WAITING->value);

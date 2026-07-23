@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('configurations', function (Blueprint $table) {
-            $table->id();
+            $table->tinyIncrements('id');
             $table->string('upa_head_name', 50);
             $table->string('upa_head_nip', 32);
             $table->string('upa_head_position', 50);

@@ -12,11 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('comment_attachments', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('ticket_comment_id')
-                ->nullable()
-                ->constrained('ticket_comments')
-                ->nullOnDelete();
+            $table->increments('id');
+            $table->unsignedInteger('ticket_comment_id')->nullable();
+            $table->foreign('ticket_comment_id')->references('id')->on('ticket_comments')->nullOnDelete();
             $table->string('name');
             $table->string('path');
             $table->string('mime_type')->nullable();

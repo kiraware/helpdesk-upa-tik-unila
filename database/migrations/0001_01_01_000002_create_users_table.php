@@ -14,7 +14,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->string('username_sso', 50)->nullable()->unique();
             $table->string('name', 100)->nullable();
             $table->string('email', 100)->nullable();
@@ -26,14 +26,10 @@ return new class extends Migration
                 ->default(UserRole::USER->value);
             $table->enum('entity', array_column(UserEntity::cases(), 'value'))
                 ->nullable();
-            $table->foreignId('division_id')
-                ->nullable()
-                ->constrained('divisions')
-                ->nullOnDelete();
-            $table->foreignId('department_id')
-                ->nullable()
-                ->constrained('departments')
-                ->nullOnDelete();
+            $table->unsignedTinyInteger('division_id')->nullable();
+            $table->foreign('division_id')->references('id')->on('divisions')->nullOnDelete();
+            $table->unsignedTinyInteger('department_id')->nullable();
+            $table->foreign('department_id')->references('id')->on('departments')->nullOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });
@@ -46,7 +42,7 @@ return new class extends Migration
 
         Schema::create('sessions', function (Blueprint $table) {
             $table->string('id')->primary();
-            $table->foreignId('user_id')->nullable()->index();
+            $table->unsignedInteger('user_id')->nullable()->index();
             $table->string('ip_address', 45)->nullable();
             $table->text('user_agent')->nullable();
             $table->longText('payload');
